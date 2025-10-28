@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 abstract class Flower {
 	private String name;
@@ -31,8 +32,8 @@ class Rose extends Flower {
 	}
 }
 
-class Tylpan extends Flower {
-	public Tylpan() {
+class Tulip extends Flower {
+	public Tulip() {
 		super("Тюльпан", 100);
 	}
 
@@ -54,8 +55,7 @@ class Pion extends Flower {
 }
 
 class Bouquet {
-	private ArrayList<Flower> flowers;
-
+	private List<Flower> flowers;
 	public Bouquet() {
 		flowers = new ArrayList<>();
 	}
@@ -85,7 +85,7 @@ public class Flowers {
 	public static void main(String[] s) {
 		Bouquet bouquet = new Bouquet();
 		bouquet.addFlower(new Rose());
-		bouquet.addFlower(new Tylpan());
+		bouquet.addFlower(new Tulip());
 		bouquet.addFlower(new Pion());
 
 		bouquet.showBouquet();
