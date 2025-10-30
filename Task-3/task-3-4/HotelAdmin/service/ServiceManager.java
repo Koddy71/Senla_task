@@ -1,4 +1,4 @@
-package util;
+package service;
 
 import model.Service;
 import java.util.List;

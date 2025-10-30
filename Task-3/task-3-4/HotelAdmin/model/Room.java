@@ -23,12 +23,16 @@ public class Room {
 		this.price = price;
 	}
 
-	public int getNumber() {
-		return number;
-	}
-
 	public int getPrice() {
 		return price;
+	}
+
+	public void setNumber(int number){
+		this.number=number;
+	}
+
+	public int getNumber() {
+		return number;
 	}
 
 	public String getInfo() {

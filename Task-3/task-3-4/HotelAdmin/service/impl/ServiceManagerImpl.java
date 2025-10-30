@@ -1,30 +1,27 @@
-package util.impl;
+package service.impl;
 
 import model.Service;
-import util.ServiceManager;
+import service.ServiceManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class ServiceManagerImpl implements ServiceManager {
 
-	private List<Service> services = new ArrayList<>();
+	private Map<String, Service> services = new HashMap<>();
 
 	@Override
 	public void addService(Service service) {
-		services.add(service);
+		services.put(service.getName(), service);
 	}
 
 	@Override
 	public Service findService(String name) {
-		for (Service s : services) {
-			if (s.getName().equalsIgnoreCase(name)) {
-				return s;
-			}
-		}
-		return null;
+		return services.get(name);
 	}
-
+		
 	@Override
 	public boolean changePrice(String name, int newPrice) {
 		Service service = findService(name);
@@ -37,6 +34,6 @@ public class ServiceManagerImpl implements ServiceManager {
 
 	@Override
 	public List<Service> getAllServices() {
-		return services;
+		return new ArrayList<>(services.values());
 	}
 }

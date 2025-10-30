@@ -1,4 +1,4 @@
-package util;
+package service;
 
 import model.Room;
 import model.RoomStatus;
@@ -15,6 +15,8 @@ public interface RoomService {
 	boolean checkOut(int roomNumber);
 
 	boolean changeStatus(int roomNumber, RoomStatus status);
+
+	boolean changePrice(int number, int newPrice);
 
 	List<Room> getAllRooms();
 }

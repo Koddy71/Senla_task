@@ -1,27 +1,26 @@
-package util.impl;
+package service.impl;
 
 import model.Room;
 import model.RoomStatus;
-import util.RoomService;
+import model.Service;
+import service.RoomService;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class RoomServiceImpl implements RoomService {
-
-	private List<Room> rooms = new ArrayList<>();
+	private Map<Integer, Room> rooms = new HashMap<>();
 
 	@Override
 	public void addRoom(Room room) {
-		rooms.add(room);
+		rooms.put(room.getNumber(), room);
 	}
 
 	@Override
 	public Room findRoom(int number) {
-		return rooms.stream()
-				.filter(r -> r.getNumber() == number)
-				.findFirst()
-				.orElse(null);
+		return rooms.get(number); 
 	}
 
 	@Override
@@ -54,8 +53,17 @@ public class RoomServiceImpl implements RoomService {
 		return false;
 	}
 
+		public boolean changePrice(int number, int newPrice) {
+		Room room = findRoom(number);
+		if (room != null && newPrice > 0) {
+			room.setPrice(newPrice);
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public List<Room> getAllRooms() {
-		return rooms;
+		return new ArrayList<>(rooms.values());
 	}
 }

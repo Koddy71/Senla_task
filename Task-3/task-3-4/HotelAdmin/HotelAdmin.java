@@ -1,10 +1,10 @@
 import model.Room;
 import model.RoomStatus;
 import model.Service;
-import util.RoomService;
-import util.ServiceManager;
-import util.impl.RoomServiceImpl;
-import util.impl.ServiceManagerImpl;
+import service.RoomService;
+import service.ServiceManager;
+import service.impl.RoomServiceImpl;
+import service.impl.ServiceManagerImpl;
 
 public class HotelAdmin {
 
