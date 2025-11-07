@@ -1,5 +1,7 @@
 package ru.ilya.model;
 
+import java.util.Objects;
+
 public class Service {
 	private String name;
 	private int price;
@@ -32,4 +34,20 @@ public class Service {
 	public String getInfo() {
 		return name + " - " + price + " руб.";
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof Service))
+			return false;
+		Service service = (Service) o;
+		return Objects.equals(name, service.name); 
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
+
 }

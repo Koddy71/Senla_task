@@ -46,11 +46,8 @@ public class HotelAdmin {
 			System.out.println(service.getInfo());
 		}
 
-		boolean ok1 = guestService.checkIn("Иванов", 101, LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 5));
-		System.out.println("Заселение Иванов: " + ok1);
-		Guest ivanov = guestService.findGuestByName("Иванов");
-		boolean ok2 = guestService.checkIn("Петров", 104, LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 5));
-		System.out.println("Заселение Петров: " + ok2);
+		Guest ivanov = guestService.checkIn("Иванов", 101, LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 5));
+		Guest petrov = guestService.checkIn("Петров", 104, LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 5));
 
 
 		System.out.println("\n--- Постояльцы ---");
@@ -78,7 +75,7 @@ public class HotelAdmin {
 		}
 
 		System.out.println("\n=== Номера по звёздам ===");
-		for (Room room : roomService.getRoomsSortedByStars()) {
+		for (Room room : roomService.getRoomsSorted("stars")) {
 			System.out.println(room.getInfo());
 		}
 

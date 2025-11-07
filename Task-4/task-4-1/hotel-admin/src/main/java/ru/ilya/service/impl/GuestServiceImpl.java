@@ -16,7 +16,7 @@ import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
 
 public class GuestServiceImpl implements GuestService{
-	private Map<String, Guest> guests = new HashMap<>();
+	private Map<Integer, Guest> guests = new HashMap<>();
     private RoomService roomService;
     private ServiceManager serviceManager;
 
@@ -26,28 +26,26 @@ public class GuestServiceImpl implements GuestService{
     }
 
     @Override
-    public boolean checkIn(String guestName, int roomNumber, LocalDate from, LocalDate to) {
-        if (guestName == null || from == null || to == null || !to.isAfter(from)) return false;
-        Room room = roomService.findRoom(roomNumber);
-        if (room == null) return false;
+    public Guest checkIn(String guestName, int roomNumber, LocalDate from, LocalDate to) {
+        if (guestName == null || from == null || to == null || !to.isAfter(from)) return null;
 
-        if (room.getStatus() != RoomStatus.AVAILABLE) return false;
-        if (!room.isFreeOn(from) || !room.isFreeOn(to.minusDays(1))) return false;
+        Room room = roomService.findRoom(roomNumber);
+        if (room == null) return null;
+        if (room.getStatus() != RoomStatus.AVAILABLE) return null;
+        if (!room.isFreeOn(from) || !room.isFreeOn(to.minusDays(1))) return null;
 
         Guest guest = new Guest(guestName, room, from, to);
-        guests.put(guestName.toLowerCase(), guest);
-
+        guests.put(guest.getId(), guest); 
         room.setStatus(RoomStatus.OCCUPIED);
-
         room.addStay(guest);
-        return true;
+        return guest;
     }
 
     @Override
-    public boolean checkOut(String guestName) {
-        if (guestName == null) return false;
-        Guest g = guests.remove(guestName.toLowerCase());
-        if (g == null) return false;
+    public boolean checkOut(int guestId) {
+        Guest g = guests.remove(guestId);
+        if (g == null)
+            return false;
         Room r = g.getRoom();
         r.setStatus(RoomStatus.AVAILABLE);
         return true;
@@ -59,18 +57,13 @@ public class GuestServiceImpl implements GuestService{
     }
 
     @Override
-    public List<Guest> getGuestsSortedByCheckoutDate() {
+    public List<Guest> getGuestsSorted(String sortBy) {
         List<Guest> sorted = new ArrayList<>(guests.values());
-        sorted.sort(Comparator.comparing(Guest::getCheckOutDate));
-        Collections.reverse(sorted);
-        return sorted;
-    }
-
-    @Override
-    public List<Guest> getGuestsSortedByName() {
-        List<Guest> sorted = new ArrayList<>(guests.values());
-        sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));
-        Collections.reverse(sorted);
+        if ("name".equalsIgnoreCase(sortBy)) {
+            sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));
+        } else if ("checkoutDate".equalsIgnoreCase(sortBy)) {
+            sorted.sort(Comparator.comparing(Guest::getCheckOutDate).reversed());
+        }
         return sorted;
     }
 
@@ -80,8 +73,7 @@ public class GuestServiceImpl implements GuestService{
     }
 
     @Override
-    public Guest findGuestByName(String name) {
-        if (name == null) return null;
-        return guests.get(name.toLowerCase());
+    public Guest findGuestById(int id) {
+        return guests.get(id);
     }
 }

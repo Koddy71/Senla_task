@@ -27,9 +27,5 @@ public interface RoomService {
 
 	List<Room> getRoomsFreeByDate(LocalDate date);
 
-	List<Room> getRoomsSortedByPrice();
-
-	List<Room> getRoomsSortedByCapacity();
-	
-	List<Room> getRoomsSortedByStars();
+	List<Room> getRoomsSorted(String sortBy);
 }

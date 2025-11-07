@@ -1,4 +1,4 @@
-package ru.ilya.service;
+ package ru.ilya.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,11 +6,10 @@ import java.util.List;
 import ru.ilya.model.Guest;
 
 public interface GuestService {
-	boolean checkIn(String guestName, int roomNumber, LocalDate from, LocalDate to);
-    boolean checkOut(String guestName);
+	Guest checkIn(String guestName, int roomNumber, LocalDate from, LocalDate to);
+    boolean checkOut(int guestId);
     List<Guest> getAllGuests();
-    List<Guest> getGuestsSortedByName();
-    List<Guest> getGuestsSortedByCheckoutDate();
+    List<Guest> getGuestsSorted(String sortedBy);
     int getGuestCount();
-    Guest findGuestByName(String name);
+    Guest findGuestById(int id);
 }

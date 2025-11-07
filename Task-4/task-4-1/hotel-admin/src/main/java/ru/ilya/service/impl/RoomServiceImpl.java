@@ -103,26 +103,17 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public List<Room> getRoomsSortedByPrice() {
+	public List<Room> getRoomsSorted(String sortBy) {
 		List<Room> sorted = new ArrayList<>(rooms.values());
-		sorted.sort(Comparator.comparingDouble(Room::getPrice));
-		Collections.reverse(sorted);
-		return sorted; 
-	}
 
-	@Override
-	public List<Room> getRoomsSortedByCapacity() {
-		List<Room> sorted = new ArrayList<>(rooms.values());
-		sorted.sort(Comparator.comparingInt(Room::getCapacity));
-		Collections.reverse(sorted);
-		return sorted;
-	}
+		if ("price".equalsIgnoreCase(sortBy)) {
+			sorted.sort(Comparator.comparingDouble(Room::getPrice).reversed()); // по убыванию
+		} else if ("capacity".equalsIgnoreCase(sortBy)) {
+			sorted.sort(Comparator.comparingInt(Room::getCapacity).reversed()); // по убыванию
+		} else if ("stars".equalsIgnoreCase(sortBy)) {
+			sorted.sort(Comparator.comparingInt(Room::getStars).reversed()); // по убыванию
+		}
 
-	@Override
-	public List<Room> getRoomsSortedByStars() {
-		List<Room> sorted = new ArrayList<>(rooms.values());
-		sorted.sort(Comparator.comparingInt(Room::getStars));
-		Collections.reverse(sorted);
 		return sorted;
 	}
 }

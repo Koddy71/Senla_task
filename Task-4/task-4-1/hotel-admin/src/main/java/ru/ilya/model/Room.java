@@ -3,6 +3,7 @@ package ru.ilya.model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Room {
 	private int number;
@@ -93,4 +94,20 @@ public class Room {
 				", Звёзды: " + stars +
 				", Статус: " + status.getDescription();
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof Room))
+			return false;
+		Room room = (Room) o;
+		return number == room.number;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(number);
+	}
+
 }
