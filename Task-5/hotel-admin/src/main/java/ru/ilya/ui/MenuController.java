@@ -18,7 +18,7 @@ public class MenuController {
 	}
 
 	public void run() {
-		Navigator nav = new Navigator(rootMenu);
+		Navigator nav = Navigator.getInstance(rootMenu);
 		nav.start();
 	}
 }

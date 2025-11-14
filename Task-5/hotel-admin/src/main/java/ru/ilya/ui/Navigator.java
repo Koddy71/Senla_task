@@ -5,11 +5,19 @@ import java.util.Scanner;
 import java.util.Stack;
 
 public class Navigator {
+	private static Navigator instance;
 	private final Stack<Menu> stack = new Stack<>();
 	private final Scanner sc = new Scanner(System.in);
 
 	public Navigator(Menu root) {
 		stack.push(root);
+	}
+
+	public static Navigator getInstance(Menu root) {
+		if (instance == null) {
+			instance = new Navigator(root);
+		}
+		return instance;
 	}
 
 	private void printCurrent() {
