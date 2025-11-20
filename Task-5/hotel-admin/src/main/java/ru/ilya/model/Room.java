@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Room {
+public class Room extends Priceable{
 	private int number;
 	private RoomStatus status;
 	private int price;

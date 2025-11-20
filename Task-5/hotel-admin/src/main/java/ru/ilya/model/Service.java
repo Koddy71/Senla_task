@@ -2,7 +2,7 @@ package ru.ilya.model;
 
 import java.util.Objects;
 
-public class Service {
+public class Service extends Priceable{
 	private String name;
 	private int price;
 

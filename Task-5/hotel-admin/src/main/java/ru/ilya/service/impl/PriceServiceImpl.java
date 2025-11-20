@@ -1,5 +1,6 @@
 package ru.ilya.service.impl;
 
+import ru.ilya.model.Priceable;
 import ru.ilya.model.Room;
 import ru.ilya.service.PriceService;
 import ru.ilya.service.RoomService;
@@ -19,33 +20,24 @@ public class PriceServiceImpl implements PriceService{
 		this.serviceManager = serviceManager;
 	}
 
-	public List<String> getRoomsAndServices(String orderBy) {
-		List<String> result = new ArrayList<>();
+	public List<Priceable> getRoomsAndServices(String orderBy) {
+       List<Priceable> result = new ArrayList<>();
 
-		List<Room> roomList = new ArrayList<>(roomService.getAllRooms());
-		List<Service> serviceList = new ArrayList<>(serviceManager.getAllServices());
+       List<Room> roomList = new ArrayList<>(roomService.getAllRooms());
+       List<Service> serviceList = new ArrayList<>(serviceManager.getAllServices());
 
-		roomList.sort(Comparator.comparingInt(Room::getPrice));
-		serviceList.sort(Comparator.comparingInt(Service::getPrice));
+       roomList.sort(Comparator.comparingInt(Room::getPrice));
+       serviceList.sort(Comparator.comparingInt(Service::getPrice));
 
-		if ("room".equalsIgnoreCase(orderBy)) {
-			for (Room room : roomList) {
-				result.add("Номер " + room.getNumber() + ": " + room.getPrice() + " руб.");
-			}
-			for (Service service : serviceList) {
-				result.add(service.getInfo());
-			}
-		} else if ("service".equalsIgnoreCase(orderBy)) {
-			for (Service service : serviceList) {
-				result.add(service.getInfo());
-			}
-			for (Room room : roomList) {
-				result.add("Номер " + room.getNumber() + ": " + room.getPrice() + " руб.");
-			}
-		} else {
-			result.add("Ошибка: неверный ввод. Используйте 'room' или 'service'.");
-		}
+       if ("service".equalsIgnoreCase(orderBy)) {
+          result.addAll(serviceList);
+          result.addAll(roomList);
+       } else { 
+          result.addAll(roomList);
+          result.addAll(serviceList);
+       }
 
-		return result;
-	}
+       return result;
+    }
+
 }

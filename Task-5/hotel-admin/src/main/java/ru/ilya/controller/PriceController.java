@@ -1,6 +1,7 @@
 package ru.ilya.controller;
 
 import ru.ilya.service.PriceService;
+import ru.ilya.model.Priceable;
 
 import java.util.List;
 import java.util.Scanner;
@@ -17,9 +18,9 @@ public class PriceController {
 		System.out.print("Что вывести сначала ('room', 'service'): ");
 		String sortBy = sc.nextLine();
 
-		List<String> sorted = priceService.getRoomsAndServices(sortBy);
-		for (String r : sorted) {
-			System.out.println(r);
+		List<Priceable> sorted = priceService.getRoomsAndServices(null);
+		for (Priceable r : sorted) {
+			System.out.println(r.getInfo());
 		}
 	}
-}
+} 

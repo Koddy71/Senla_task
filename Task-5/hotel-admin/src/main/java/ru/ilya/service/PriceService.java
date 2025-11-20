@@ -2,6 +2,8 @@ package ru.ilya.service;
 
 import java.util.List;
 
+import ru.ilya.model.Priceable;
+
 public interface PriceService {
-	List<String> getRoomsAndServices(String orderBy);
+	List<Priceable> getRoomsAndServices(String orderBy);
 }
