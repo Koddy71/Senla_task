@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Scanner;
 
 public class GuestController {
+   private static GuestController instance;
 	private GuestService guestService;
 	private Scanner sc = new Scanner(System.in);
 
-	public GuestController(GuestService guestService) {
+	private GuestController(GuestService guestService) {
 		this.guestService = guestService;
 	}
 
@@ -81,4 +82,11 @@ public class GuestController {
 			System.out.println(g.getInfo());
 		}
 	}
+
+    public static GuestController getInstance(GuestService guestService) {
+       if (instance == null) {
+          instance = new GuestController(guestService);
+       }
+       return instance;
+    }
 }

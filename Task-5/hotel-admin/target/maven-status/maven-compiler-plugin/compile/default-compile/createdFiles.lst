@@ -13,6 +13,7 @@ ru\ilya\service\RoomService.class
 ru\ilya\model\Room.class
 ru\ilya\service\impl\GuestServiceImpl.class
 ru\ilya\model\Service.class
+ru\ilya\model\Priceable.class
 ru\ilya\controller\PriceController.class
 ru\ilya\controller\GuestController.class
 ru\ilya\service\ServiceManager.class

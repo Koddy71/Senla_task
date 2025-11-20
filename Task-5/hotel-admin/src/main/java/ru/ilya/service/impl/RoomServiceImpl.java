@@ -13,7 +13,8 @@ import java.util.Map;
 
 public class RoomServiceImpl implements RoomService {
 	private Map<Integer, Room> rooms = new HashMap<>();
-
+   private static RoomServiceImpl instance;
+   private RoomServiceImpl(){} 
 	@Override
 	public boolean addRoom(Room room) {
 		if (room == null || rooms.containsKey(room.getNumber())) {
@@ -123,4 +124,11 @@ public class RoomServiceImpl implements RoomService {
 		}
 		return sorted;
 	}
+
+   public static RoomServiceImpl getInstance(){
+      if (instance==null){
+         instance = new RoomServiceImpl();
+      }
+      return instance;
+   }
 }

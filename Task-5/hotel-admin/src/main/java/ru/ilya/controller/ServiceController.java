@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ServiceController {
+   private static ServiceController instance;
 	private final ServiceManager serviceManager;
 	private final Scanner sc = new Scanner(System.in);
 
-	public ServiceController(ServiceManager serviceManager) {
+	private ServiceController(ServiceManager serviceManager) {
 		this.serviceManager = serviceManager;
 	}
 
@@ -75,4 +76,11 @@ public class ServiceController {
 			System.out.println("- " + s.getName() + " | Цена: " + s.getPrice());
 		}
 	}
+
+   public static ServiceController getInstance(ServiceManager serviceManager) {
+      if (instance == null) {
+         instance = new ServiceController(serviceManager);
+      }
+      return instance;
+   }
 }

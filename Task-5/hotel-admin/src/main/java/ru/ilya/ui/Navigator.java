@@ -9,7 +9,7 @@ public class Navigator {
 	private final Stack<Menu> stack = new Stack<>();
 	private final Scanner sc = new Scanner(System.in);
 
-	public Navigator(Menu root) {
+	private Navigator(Menu root) {
 		stack.push(root);
 	}
 

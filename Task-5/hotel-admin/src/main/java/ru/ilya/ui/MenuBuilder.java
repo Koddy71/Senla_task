@@ -22,15 +22,14 @@ public class MenuBuilder {
 		this.priceController = priceController;
 	}
 
-	public Menu buildMainMenu() {
-		Menu main = new Menu("Главное меню");
-
-		main.addItem(new MenuItem("Управление гостями", buildGuestMenu()));
-		main.addItem(new MenuItem("Управление номерами", buildRoomMenu()));
-		main.addItem(new MenuItem("Управление услугами", buildServiceMenu()));
-		main.addItem(new MenuItem("Просмотр комнат и услуг", () -> priceController.showRoomsAndService()));
-		return main;
-	}
+    private Menu buildMainMenu() {
+       Menu root = new Menu("Главное меню");
+       root.addItem(new MenuItem("Гости", build(GuestController.class)));
+       root.addItem(new MenuItem("Комнаты", build(RoomController.class)));
+       root.addItem(new MenuItem("Сервисы", build(ServiceController.class)));
+       root.addItem(new MenuItem("Просмотр комнат и услуг", () -> priceController.showRoomsAndService()));
+       return root;
+    }
 
 	private Menu buildGuestMenu() {
 		Menu m = new Menu("Меню гостей");
@@ -64,4 +63,20 @@ public class MenuBuilder {
 		m.addItem(new MenuItem("Показать все услуги", () -> serviceController.printAllServices()));
 		return m;
 	}
+
+   public Menu build(Class<?> type){
+      if (type==GuestController.class){
+         return buildGuestMenu();
+      }
+
+      if (type == RoomController.class){
+         return buildRoomMenu();
+      }
+
+      if (type== ServiceController.class){
+         return buildServiceMenu();
+      }
+
+      return buildMainMenu();
+   }
 }

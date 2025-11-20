@@ -14,8 +14,9 @@ import java.util.List;
 public class PriceServiceImpl implements PriceService{
 	private final RoomService roomService;
 	private final ServiceManager serviceManager;
+   private static PriceServiceImpl instance;
 
-	public PriceServiceImpl(RoomService roomService, ServiceManager serviceManager) {
+	private PriceServiceImpl(RoomService roomService, ServiceManager serviceManager) {
 		this.roomService = roomService;
 		this.serviceManager = serviceManager;
 	}
@@ -40,4 +41,10 @@ public class PriceServiceImpl implements PriceService{
        return result;
     }
 
+    public static PriceServiceImpl getInstance(RoomService roomService, ServiceManager serviceManager){
+      if (instance==null){
+         instance = new PriceServiceImpl(roomService, serviceManager);
+      }
+      return instance;
+    }
 }

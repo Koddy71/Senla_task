@@ -11,6 +11,8 @@ import java.util.HashMap;
 public class ServiceManagerImpl implements ServiceManager {
 
 	private Map<String, Service> services = new HashMap<>();
+   private static ServiceManagerImpl instance;
+   private ServiceManagerImpl() {}
 
 	@Override
 	public boolean addService(Service service) {
@@ -45,4 +47,11 @@ public class ServiceManagerImpl implements ServiceManager {
 	public List<Service> getAllServices() {
 		return new ArrayList<>(services.values());
 	}
+
+   public static ServiceManagerImpl getInstance(){
+      if (instance==null){
+         instance = new ServiceManagerImpl();
+      }
+      return instance;
+   }
 }
