@@ -121,8 +121,10 @@ public class RoomServiceImpl implements RoomService {
          sorted.sort(Comparator.comparingInt(Room::getCapacity).reversed());
       } else if ("stars".equalsIgnoreCase(sortBy)) {
          sorted.sort(Comparator.comparingInt(Room::getStars).reversed());
+      } else{
+         sorted.sort(Comparator.comparingDouble(Room::getPrice).reversed());
       }
-
+      
       return sorted;
    }
 

@@ -63,7 +63,7 @@ public class GuestServiceImpl implements GuestService{
          sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));
       } else if ("checkoutDate".equalsIgnoreCase(sortBy)) {
          sorted.sort(Comparator.comparing(Guest::getCheckOutDate).reversed());
-      }
+      } else{ sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));}
       return sorted;
    }
 

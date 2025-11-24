@@ -8,22 +8,22 @@ import java.util.Scanner;
 
 public class PriceController {
    private static PriceController instance;
-	private final PriceService priceService;
-	private Scanner sc = new Scanner(System.in);
+   private final PriceService priceService;
+   private Scanner sc = new Scanner(System.in);
 
-	private PriceController(PriceService priceService) {
-		this.priceService = priceService;
-	}
+   private PriceController(PriceService priceService) {
+      this.priceService = priceService;
+   }
 
-	public void showRoomsAndService() {
-		System.out.print("Что вывести сначала ('room', 'service'): ");
-		String sortBy = sc.nextLine();
+   public void showRoomsAndService() {
+      System.out.print("Что вывести сначала ('room', 'service'): ");
+      String sortBy = sc.nextLine();
 
-		List<Priceable> sorted = priceService.getRoomsAndServices(sortBy);
-		for (Priceable r : sorted) {
-			System.out.println(r.getInfo());
-		}
-	}
+      List<Priceable> sorted = priceService.getRoomsAndServices(sortBy);
+      for (Priceable r : sorted) {
+         System.out.println(r.getInfo());
+      }
+   }
 
    public static PriceController getInstance(PriceService priceService) {
       if (instance == null) {
@@ -31,4 +31,4 @@ public class PriceController {
       }
       return instance;
    }
-} 
+}

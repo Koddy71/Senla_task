@@ -20,6 +20,11 @@ public class ServiceController {
       System.out.print("Введите название услуги: ");
       String name = sc.nextLine().trim();
 
+      if (name.isEmpty()) {
+         System.out.println("Название услуги не может быть пустым.");
+         return;
+      }
+
       System.out.print("Введите цену услуги (целое число): ");
       int price;
       try {

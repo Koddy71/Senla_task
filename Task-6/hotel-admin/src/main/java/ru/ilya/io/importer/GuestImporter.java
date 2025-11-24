@@ -2,6 +2,7 @@ package ru.ilya.io.importer;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import ru.ilya.io.CsvUtil;
@@ -19,18 +20,31 @@ public class GuestImporter {
 
    public void importCsv(String path) throws IOException {
       List<String[]> rows = CsvUtil.read(path);
-
       for (String[] r : rows) {
-         int id = Integer.parseInt(r[0]);
-         String name = r[1];
-         int roomId = Integer.parseInt(r[2]);
-         LocalDate checkInDate = LocalDate.parse(r[3]);
-         LocalDate checkOutDate = LocalDate.parse(r[4]);
+         if (r.length < 5) {
+            System.out.println("Ошибка: недостаточно данных в строке: " + String.join(",", r));
+            continue;
+         }
 
-         Guest existing = guestService.findGuestById(id);
-         if (existing == null) {
-            guestService.checkIn(name, roomId, checkInDate, checkOutDate);
-         } 
+         try {
+            int id = Integer.parseInt(r[0].trim());
+            String name = r[1].trim();
+            int roomId = Integer.parseInt(r[2].trim());
+            LocalDate checkInDate = LocalDate.parse(r[3].trim());
+            LocalDate checkOutDate = LocalDate.parse(r[4].trim());
+
+            Guest existing = guestService.findGuestById(id);
+            if (existing == null) {
+               guestService.checkIn(name, roomId, checkInDate, checkOutDate);
+            }
+
+         } catch (NumberFormatException e) {
+            System.out.println("Ошибка формата числовых данных: " + String.join(",", r));
+         } catch (DateTimeParseException e) {
+            System.out.println("Ошибка формата даты: " + String.join(",", r));
+         } catch (Exception e) {
+            System.out.println("Ошибка при регистрации гостя: " + e.getMessage());
+         }
       }
    }
 
@@ -40,5 +54,4 @@ public class GuestImporter {
       }
       return instance;
    }
-
 }

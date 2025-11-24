@@ -5,6 +5,7 @@ import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -18,16 +19,35 @@ public class RoomController {
       this.roomService = roomService;
    }
 
+   private Integer safeInt(){
+      try{
+         return Integer.parseInt(sc.nextLine());
+      } catch(NumberFormatException e) {
+         System.out.println("Введите корректное число.");
+         return null;
+      }
+   }
+
    public void addRoom() {
       System.out.print("Введите номер комнаты: ");
-      int number = sc.nextInt();
+      Integer number = safeInt();
+      if (number == null)
+         return;
+
       System.out.print("Введите цену: ");
-      int price = sc.nextInt();
+      Integer price = safeInt();
+      if (price == null)
+         return;
+
       System.out.print("Введите вместимость: ");
-      int capacity = sc.nextInt();
+      Integer capacity = safeInt();
+      if (capacity == null)
+         return;
+
       System.out.print("Введите количество звёзд: ");
-      int stars = sc.nextInt();
-      sc.nextLine();
+      Integer stars = safeInt();
+      if (stars == null)
+         return;
 
       Room room = new Room(number, price, capacity, stars);
       boolean ok = roomService.addRoom(room);
@@ -36,8 +56,9 @@ public class RoomController {
 
    public void removeRoom() {
       System.out.print("Введите ID комнаты: ");
-      int id = sc.nextInt();
-      sc.nextLine();
+      Integer id = safeInt();
+      if (id == null)
+         return;
 
       boolean ok = roomService.removeRoom(id);
       System.out.println(ok ? "Комната удалена!" : "Комната не найдена!");
@@ -56,24 +77,22 @@ public class RoomController {
 
    public void findRoomById() {
       System.out.print("Введите ID комнаты: ");
-      int id = sc.nextInt();
-      sc.nextLine();
+      Integer id = safeInt();
+      if (id == null)
+         return;
 
       Room r = roomService.findRoom(id);
-      if (r != null) {
-         System.out.println(r.getInfo());
-      } else {
-         System.out.println("Комната не найдена.");
-      }
+      System.out.println(r != null ? r.getInfo() : "Комната не найдена.");
    }
 
    public void changeRoomStatus() {
       System.out.print("Введите ID комнаты: ");
-      int id = sc.nextInt();
-      sc.nextLine();
+      Integer id = safeInt();
+      if (id == null)
+         return;
 
       System.out.print("Введите статус (AVAILABLE / OCCUPIED / MAINTENANCE / RESERVED): ");
-      String s = sc.nextLine().toUpperCase();
+      String s = sc.nextLine().trim().toUpperCase();
 
       try {
          RoomStatus status = RoomStatus.valueOf(s);
@@ -84,10 +103,17 @@ public class RoomController {
       }
    }
 
-
    public void getRoomsFreeByDate() {
       System.out.print("Введите дату (гггг-мм-дд): ");
-      LocalDate date = LocalDate.parse(sc.nextLine());
+      String input = sc.nextLine();
+
+      LocalDate date;
+      try {
+         date = LocalDate.parse(input);
+      } catch (DateTimeParseException e) {
+         System.out.println("Неверный формат даты.");
+         return;
+      }
 
       List<Room> rooms = roomService.getRoomsFreeByDate(date);
       if (rooms.isEmpty()) {
@@ -102,7 +128,7 @@ public class RoomController {
 
    public void sortRooms() {
       System.out.print("Сортировать по ('price', 'capacity', 'stars'): ");
-      String sortBy = sc.nextLine();
+      String sortBy = sc.nextLine(); 
 
       List<Room> sorted = roomService.getRoomsSorted(sortBy);
       for (Room r : sorted) {

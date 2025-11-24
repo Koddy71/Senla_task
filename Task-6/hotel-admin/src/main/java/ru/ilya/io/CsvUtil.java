@@ -12,7 +12,7 @@ public class CsvUtil {
    public static List<String[]> read(String path) throws IOException {
       List<String[]> list = new ArrayList<>();
       try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-         br.readLine(); //для заголовка
+         br.readLine(); //для заголовка 
          String line;
          while ((line = br.readLine()) != null) {
             list.add(line.split(","));

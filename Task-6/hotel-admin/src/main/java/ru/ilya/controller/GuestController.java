@@ -4,6 +4,7 @@ import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,31 +18,62 @@ public class GuestController {
       this.guestService = guestService;
    }
 
+   private Integer safeInt() {
+      try {
+         return Integer.parseInt(sc.nextLine());
+      } catch (NumberFormatException e) {
+         System.out.println("Введите корректное число.");
+         return null;
+      }
+   }
+
+   private LocalDate safeDate() {
+      String input = sc.nextLine().trim();
+      try {
+         return LocalDate.parse(input);
+      } catch (DateTimeParseException e) {
+         System.out.println("Неверная дата. Формат: гггг-мм-дд");
+         return null;
+      }
+   }
+
    public void checkInGuest() {
       System.out.print("Введите имя гостя: ");
-      String name = sc.nextLine();
+      String name = sc.nextLine().trim();
+
+      if (name.isEmpty()) {
+         System.out.println("Имя не может быть пустым.");
+         return;
+      }
 
       System.out.print("Введите ID комнаты: ");
-      int roomId = sc.nextInt();
-      sc.nextLine();
+      Integer roomId = safeInt();
+      if (roomId == null)
+         return;
 
       System.out.print("Дата заезда (гггг-мм-дд): ");
-      LocalDate from = LocalDate.parse(sc.nextLine());
+      LocalDate from = safeDate();
+      if (from == null)
+         return;
+
       System.out.print("Дата выезда (гггг-мм-дд): ");
-      LocalDate to = LocalDate.parse(sc.nextLine());
+      LocalDate to = safeDate();
+      if (to == null)
+         return;
 
       Guest guest = guestService.checkIn(name, roomId, from, to);
       if (guest != null) {
          System.out.println("Гость заселён! ID: " + guest.getId());
       } else {
-         System.out.println("Ошибка заселения! Возможно, комната занята или не найдена.");
+         System.out.println("Ошибка заселения! Комната занята, не найдена или даты неверны.");
       }
    }
 
    public void checkOutGuest() {
       System.out.print("Введите ID гостя: ");
-      int id = sc.nextInt();
-      sc.nextLine();
+      Integer id = safeInt();
+      if (id == null)
+         return;
 
       boolean ok = guestService.checkOut(id);
       System.out.println(ok ? "Гость выселен!" : "Ошибка выселения! Гость не найден.");
@@ -60,15 +92,12 @@ public class GuestController {
 
    public void findGuestById() {
       System.out.print("Введите ID гостя: ");
-      int id = sc.nextInt();
-      sc.nextLine();
+      Integer id = safeInt();
+      if (id == null)
+         return;
 
       Guest g = guestService.findGuestById(id);
-      if (g != null) {
-         System.out.println(g.getInfo());
-      } else {
-         System.out.println("Гость не найден.");
-      }
+      System.out.println(g != null ? g.getInfo() : "Гость не найден.");
    }
 
    public void showGuestCount() {
@@ -77,9 +106,9 @@ public class GuestController {
 
    public void sortGuests() {
       System.out.print("Сортировать по ('name' или 'checkoutDate'): ");
-      String sortBy = sc.nextLine();
-
+      String sortBy = sc.nextLine(); 
       List<Guest> sorted = guestService.getGuestsSorted(sortBy);
+
       for (Guest g : sorted) {
          System.out.println(g.getInfo());
       }

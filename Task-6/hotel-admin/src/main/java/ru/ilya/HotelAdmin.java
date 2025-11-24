@@ -45,12 +45,16 @@ public class HotelAdmin {
       ImportExportController importExportController = ImportExportController.getInstance(guestImporter, roomImporter,
             serviceImporter, guestExporter, roomExporter, serviceExporter);
 
-      MenuBuilder factory = new MenuBuilder(guestController, roomController, serviceController, priceController,
-            importExportController);
+      try{
+         MenuBuilder factory = new MenuBuilder(guestController, roomController, serviceController, priceController, importExportController);
 
-      Builder builder = new Builder(factory);
+         Builder builder = new Builder(factory);
 
-      MenuController menuController = new MenuController(builder);
-      menuController.run();
+         MenuController menuController = new MenuController(builder);
+         menuController.run();
+      } catch (Exception e) {
+         System.out.println("Произошла критическая ошибка.");
+         System.out.println("Причина: " + e.getMessage());
+      }
    }
 }

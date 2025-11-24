@@ -27,13 +27,34 @@ public class ServiceImporter {
       List<String[]> rows = CsvUtil.read(path);
 
       for (String[] r : rows) {
-         int id = Integer.parseInt(r[0]);
-         String name = r[1];
-         int price = Integer.parseInt(r[2]);
+         if (r.length < 3) {
+            System.out.println("Ошибка: некорректные значения в строке: " + String.join(",", r));
+            continue;
+         }
 
-         Service service = new Service(id, name, price);
+         try {
+            int id = Integer.parseInt(r[0].trim());
+            String name = r[1].trim();
+            int price = Integer.parseInt(r[2].trim());
 
-         serviceManager.addService(service);
+            if (name.isEmpty()) {
+               System.out.println("Ошибка: название услуги пустое: " + String.join(",", r));
+               continue;
+            }
+
+            if (price < 0) {
+               System.out.println("Ошибка: цена не может быть отрицательной: " + String.join(",", r));
+               continue;
+            }
+
+            Service service = new Service(id, name, price);
+            serviceManager.addService(service);
+
+         } catch (NumberFormatException e) {
+            System.out.println("Ошибка формата числовых данных: " + String.join(",", r));
+         } catch (Exception e) {
+            System.out.println("Ошибка при добавлении услуги: " + e.getMessage());
+         }
       }
    }
 }
