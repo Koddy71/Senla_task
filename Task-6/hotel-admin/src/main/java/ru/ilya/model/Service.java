@@ -15,6 +15,12 @@ public class Service extends Priceable{
 		this.price = price;
 	}
 
+    public Service(int id, String name, int price) {
+       this.id = id;
+       this.name = name;
+       this.price = price;
+    }
+
     public int getId() {
        return id;
     }

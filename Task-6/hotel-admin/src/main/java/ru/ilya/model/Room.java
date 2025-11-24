@@ -26,6 +26,15 @@ public class Room extends Priceable{
 		this.status = RoomStatus.AVAILABLE;
 	}
 
+    public Room(int id, int number, int price, int capacity, int stars, RoomStatus status) {
+       this.id = id;
+       this.number = number;
+       this.price = price;
+       this.capacity = capacity;
+       this.stars = stars;
+       this.status = status;
+    }
+
     public int getId() {
        return id;
     }

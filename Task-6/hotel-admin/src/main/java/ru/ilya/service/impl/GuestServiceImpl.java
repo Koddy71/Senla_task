@@ -26,10 +26,10 @@ public class GuestServiceImpl implements GuestService{
    }
 
    @Override
-   public Guest checkIn(String guestName, int roomNumber, LocalDate from, LocalDate to) {
+   public Guest checkIn(String guestName, int id, LocalDate from, LocalDate to) {
       if (guestName == null || from == null || to == null || !to.isAfter(from)) return null;
 
-      Room room = roomService.findRoom(roomNumber);
+      Room room = roomService.findRoom(id);
       if (room == null) return null;
       if (room.getStatus() != RoomStatus.AVAILABLE) return null;
       if (!room.isFreeOn(from) || !room.isFreeOn(to.minusDays(1))) return null;
