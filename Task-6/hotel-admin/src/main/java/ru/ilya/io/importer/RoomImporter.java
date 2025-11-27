@@ -24,7 +24,8 @@ public class RoomImporter {
       return instance;
    }
    
-   public void importCsv(String path) throws IOException {
+   public int importCsv(String path) throws IOException {
+      int count=0;
       List<String[]> rows = CsvUtil.read(path);
       for (String[] r : rows) {
          if (r.length <6){
@@ -34,10 +35,10 @@ public class RoomImporter {
          try {
             int id = Integer.parseInt(r[0].trim());
             int number = Integer.parseInt(r[1].trim());
-            RoomStatus status = RoomStatus.valueOf(r[2].trim());
-            int price = Integer.parseInt(r[3].trim());
-            int capacity = Integer.parseInt(r[4].trim());
-            int stars = Integer.parseInt(r[5].trim());
+            int price = Integer.parseInt(r[2].trim());
+            int capacity = Integer.parseInt(r[3].trim());
+            int stars = Integer.parseInt(r[4].trim());
+            RoomStatus status = RoomStatus.valueOf(r[5].trim());
 
             if (number <= 0 || price < 0 || capacity <= 0 || stars < 0) {
                System.out.println("Ошибка: некорректные значения в строке: " + String.join(",", r));
@@ -45,7 +46,12 @@ public class RoomImporter {
             }
 
             Room room = new Room(id, number, price, capacity, stars, status);
-            roomService.addRoom(room);
+            boolean ok = roomService.addRoom(room);
+            if (ok) {
+               count++; 
+            } else {
+               System.out.println("Комната не добавлена (возможно, ID уже существует): " + String.join(",", r));
+            }
 
          } catch (NumberFormatException e) {
             System.out.println("Ошибка формата данных: " + String.join(",", r));
@@ -53,5 +59,6 @@ public class RoomImporter {
             System.out.println("Ошибка статуса комнаты: " + String.join(",", r));
          }
       }
+      return count;
    }
 }

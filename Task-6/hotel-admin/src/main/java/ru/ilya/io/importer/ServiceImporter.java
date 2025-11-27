@@ -23,7 +23,8 @@ public class ServiceImporter {
       return instance;
    }
 
-   public void importCsv(String path) throws IOException {
+   public int importCsv(String path) throws IOException {
+      int count =0;
       List<String[]> rows = CsvUtil.read(path);
 
       for (String[] r : rows) {
@@ -48,7 +49,12 @@ public class ServiceImporter {
             }
 
             Service service = new Service(id, name, price);
-            serviceManager.addService(service);
+            boolean ok = serviceManager.addService(service);
+            if (ok) {
+               count++; // ← успешно импортировано
+            } else {
+               System.out.println("Услуга не добавлена (возможно, ID уже существует): " + String.join(",", r));
+            }
 
          } catch (NumberFormatException e) {
             System.out.println("Ошибка формата числовых данных: " + String.join(",", r));
@@ -56,5 +62,6 @@ public class ServiceImporter {
             System.out.println("Ошибка при добавлении услуги: " + e.getMessage());
          }
       }
+      return count;
    }
 }

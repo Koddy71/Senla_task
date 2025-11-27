@@ -18,7 +18,8 @@ public class GuestImporter {
       this.guestService = guestService;
    }
 
-   public void importCsv(String path) throws IOException {
+   public int importCsv(String path) throws IOException {
+      int count=0;
       List<String[]> rows = CsvUtil.read(path);
       for (String[] r : rows) {
          if (r.length < 5) {
@@ -35,7 +36,12 @@ public class GuestImporter {
 
             Guest existing = guestService.findGuestById(id);
             if (existing == null) {
-               guestService.checkIn(name, roomId, checkInDate, checkOutDate);
+               Guest g = guestService.checkIn(name, roomId, checkInDate, checkOutDate);
+               if (g!=null){
+                  count++;
+               } else{
+                  System.out.println("Не удалось заселить гостя: " + String.join(",", r));
+               }
             }
 
          } catch (NumberFormatException e) {
@@ -46,6 +52,7 @@ public class GuestImporter {
             System.out.println("Ошибка при регистрации гостя: " + e.getMessage());
          }
       }
+      return count;
    }
 
    public static GuestImporter getInstance(GuestService guestService) {

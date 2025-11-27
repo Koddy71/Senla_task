@@ -45,6 +45,10 @@ public class HotelAdmin {
       ImportExportController importExportController = ImportExportController.getInstance(guestImporter, roomImporter,
             serviceImporter, guestExporter, roomExporter, serviceExporter);
 
+      importExportController.importRooms(); 
+      importExportController.importServices(); 
+      importExportController.importGuests();
+
       try{
          MenuBuilder factory = new MenuBuilder(guestController, roomController, serviceController, priceController, importExportController);
 
