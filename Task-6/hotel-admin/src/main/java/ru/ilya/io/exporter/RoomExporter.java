@@ -13,7 +13,7 @@ public class RoomExporter {
 
    private final RoomService roomService;
 
-   public RoomExporter(RoomService roomService) {
+   private RoomExporter(RoomService roomService) {
       this.roomService = roomService;
    }
 

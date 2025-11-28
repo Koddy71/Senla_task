@@ -13,7 +13,7 @@ public class GuestExporter {
    
    private final GuestService guestService;
 
-   public GuestExporter(GuestService guestService) {
+   private GuestExporter(GuestService guestService) {
       this.guestService = guestService;
    }
 

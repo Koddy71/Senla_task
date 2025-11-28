@@ -13,7 +13,7 @@ public class ServiceExporter {
 
    private final ServiceManager serviceManager;
 
-   public ServiceExporter(ServiceManager serviceManager) {
+   private ServiceExporter(ServiceManager serviceManager) {
       this.serviceManager = serviceManager;
    }
    
