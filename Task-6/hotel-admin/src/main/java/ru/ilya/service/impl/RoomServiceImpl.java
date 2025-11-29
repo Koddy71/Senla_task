@@ -17,26 +17,26 @@ public class RoomServiceImpl implements RoomService {
 
    @Override
    public boolean addRoom(Room room) {
-      if (room == null || rooms.containsKey(room.getId())) {
+      if (room == null || rooms.containsKey(room.getNumber())) {
          return false;
       }
-      rooms.put(room.getId(), room);
+      rooms.put(room.getNumber(), room);
       return true;
    }
 
    @Override
-   public boolean removeRoom(int id) {
-      return rooms.remove(id) != null;
+   public boolean removeRoom(int number) {
+      return rooms.remove(number) != null;
    }
 
    @Override
-   public Room findRoom(int id) {
-      return rooms.get(id);
+   public Room findRoom(int number) {
+      return rooms.get(number);
    }
 
    @Override
-   public boolean checkIn(int id) {
-      Room room = findRoom(id);
+   public boolean checkIn(int number) {
+      Room room = findRoom(number);
       if (room != null && room.getStatus() == RoomStatus.AVAILABLE) {
          room.setStatus(RoomStatus.OCCUPIED);
          return true;

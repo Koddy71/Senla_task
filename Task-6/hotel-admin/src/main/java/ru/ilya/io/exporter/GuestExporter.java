@@ -27,15 +27,15 @@ public class GuestExporter {
    public void exportCsv(String path) throws IOException {
       List<String> lines = new ArrayList<>();
 
-      lines.add("id,name,roomId,checkInDate,checkOutDate");
+      lines.add("id,name,roomNumber,checkInDate,checkOutDate");
 
       for (Guest g : guestService.getAllGuests()) {
-         int roomId = g.getRoom().getId();
+         int roomNumber = g.getRoom().getNumber();
 
          lines.add(
                g.getId() + "," +
                g.getName() + "," +
-               roomId + "," +
+               roomNumber+ "," +
                g.getCheckInDate() + "," +
                g.getCheckOutDate());
       }

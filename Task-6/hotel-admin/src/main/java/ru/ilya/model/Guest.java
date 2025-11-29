@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Guest {
 	private int id;
@@ -15,10 +14,10 @@ public class Guest {
 	private LocalDate checkOutDate;
 	private List<Service> services = new ArrayList<>();
 
-   private static AtomicInteger idGenerator = new AtomicInteger(1);
+   private static int idCounter = 0;
 
 	public Guest(String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
-		this.id = idGenerator.getAndIncrement();
+		this.id = idCounter++;
       this.name = name;
 		this.room = room;
 		this.checkInDate = checkInDate;

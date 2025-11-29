@@ -4,21 +4,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Room extends Priceable{
-   private int id;
 	private int number;
 	private RoomStatus status;
 	private int price;
 	private int capacity; 
 	private int stars;    
-   private static AtomicInteger idGenerator = new AtomicInteger(1);
 
 	private List<Guest> stayHistory = new ArrayList<>();
 
 	public Room(int number, int price, int capacity, int stars) {
-      this.id=idGenerator.incrementAndGet();
 		this.number = number;
 		this.price = price;
 		this.capacity = capacity;
@@ -26,17 +22,12 @@ public class Room extends Priceable{
 		this.status = RoomStatus.AVAILABLE;
 	}
 
-    public Room(int id, int number, int price, int capacity, int stars, RoomStatus status) {
-       this.id = id;
+    public Room(int number, int price, int capacity, int stars, RoomStatus status) {
        this.number = number;
        this.price = price;
        this.capacity = capacity;
        this.stars = stars;
        this.status = status;
-    }
-
-    public int getId() {
-       return id;
     }
 
 	public void setStatus(RoomStatus status){
@@ -105,8 +96,7 @@ public class Room extends Priceable{
 	}
 
 	public String getInfo() {
-		return "ID: " + id +
-            "| Номер: " + number +
+		return "Номер: " + number +
 				", Цена: " + price +
 				", Вместимость: " + capacity +
 				", Звёзды: " + stars +
@@ -120,12 +110,12 @@ public class Room extends Priceable{
 		if (!(o instanceof Room))
 			return false;
 		Room room = (Room) o;
-		return id == room.id;
+		return number == room.number;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(number);
 	}
 
 }

@@ -1,16 +1,15 @@
 package ru.ilya.model;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Service extends Priceable{
    private int id;
 	private String name;
 	private int price;
-   private static AtomicInteger idGenerator = new AtomicInteger(1);
+   private static int idCounter= 0;
 
 	public Service(String name, int price) {
-      this.id = idGenerator.incrementAndGet();
+      this.id = idCounter++;
 		this.name = name;
 		this.price = price;
 	}

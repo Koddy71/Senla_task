@@ -51,16 +51,16 @@ public class RoomController {
 
       Room room = new Room(number, price, capacity, stars);
       boolean ok = roomService.addRoom(room);
-      System.out.println(ok ? "Комната добавлена! ID: " + room.getId() : "Ошибка добавления!");
+      System.out.println(ok ? "Комната добавлена!" : "Ошибка добавления!");
    }
 
    public void removeRoom() {
-      System.out.print("Введите ID комнаты: ");
-      Integer id = safeInt();
-      if (id == null)
+      System.out.print("Введите номер комнаты: ");
+      Integer number = safeInt();
+      if (number == null)
          return;
 
-      boolean ok = roomService.removeRoom(id);
+      boolean ok = roomService.removeRoom(number);
       System.out.println(ok ? "Комната удалена!" : "Комната не найдена!");
    }
 
@@ -75,20 +75,20 @@ public class RoomController {
       }
    }
 
-   public void findRoomById() {
-      System.out.print("Введите ID комнаты: ");
-      Integer id = safeInt();
-      if (id == null)
+   public void findRoomByNumber() {
+      System.out.print("Введите номер комнаты: ");
+      Integer number = safeInt();
+      if (number == null)
          return;
 
-      Room r = roomService.findRoom(id);
+      Room r = roomService.findRoom(number);
       System.out.println(r != null ? r.getInfo() : "Комната не найдена.");
    }
 
    public void changeRoomStatus() {
-      System.out.print("Введите ID комнаты: ");
-      Integer id = safeInt();
-      if (id == null)
+      System.out.print("Введите номер комнаты: ");
+      Integer number = safeInt();
+      if (number == null)
          return;
 
       System.out.print("Введите статус (AVAILABLE / OCCUPIED / MAINTENANCE / RESERVED): ");
@@ -96,7 +96,7 @@ public class RoomController {
 
       try {
          RoomStatus status = RoomStatus.valueOf(s);
-         boolean ok = roomService.changeStatus(id, status);
+         boolean ok = roomService.changeStatus(number, status);
          System.out.println(ok ? "Статус изменён!" : "Комната не найдена.");
       } catch (IllegalArgumentException e) {
          System.out.println("Неверный статус.");

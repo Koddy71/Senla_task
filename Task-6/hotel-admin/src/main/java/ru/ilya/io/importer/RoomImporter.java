@@ -28,29 +28,28 @@ public class RoomImporter {
       int count=0;
       List<String[]> rows = CsvUtil.read(path);
       for (String[] r : rows) {
-         if (r.length <6){
+         if (r.length <5){
             System.out.println("Недостаточно данных в строке" + String.join(",",r));
             continue;
          }
          try {
-            int id = Integer.parseInt(r[0].trim());
-            int number = Integer.parseInt(r[1].trim());
-            int price = Integer.parseInt(r[2].trim());
-            int capacity = Integer.parseInt(r[3].trim());
-            int stars = Integer.parseInt(r[4].trim());
-            RoomStatus status = RoomStatus.valueOf(r[5].trim());
+            int number = Integer.parseInt(r[0].trim());
+            int price = Integer.parseInt(r[1].trim());
+            int capacity = Integer.parseInt(r[2].trim());
+            int stars = Integer.parseInt(r[3].trim());
+            RoomStatus status = RoomStatus.valueOf(r[4].trim());
 
             if (number <= 0 || price < 0 || capacity <= 0 || stars < 0) {
                System.out.println("Ошибка: некорректные значения в строке: " + String.join(",", r));
                continue;
             }
 
-            Room room = new Room(id, number, price, capacity, stars, status);
+            Room room = new Room(number, price, capacity, stars, status);
             boolean ok = roomService.addRoom(room);
             if (ok) {
                count++; 
             } else {
-               System.out.println("Комната не добавлена (возможно, ID уже существует): " + String.join(",", r));
+               System.out.println("Комната не добавлена (возможно, такой номер уже существует): " + String.join(",", r));
             }
 
          } catch (NumberFormatException e) {

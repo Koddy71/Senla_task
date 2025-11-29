@@ -52,7 +52,7 @@ public class MenuBuilder {
       m.addItem(new MenuItem("Добавить комнату", () -> roomController.addRoom()));
       m.addItem(new MenuItem("Удалить комнату", () -> roomController.removeRoom()));
       m.addItem(new MenuItem("Показать все комнаты", () -> roomController.showAllRooms()));
-      m.addItem(new MenuItem("Найти комнату по ID", () -> roomController.findRoomById()));
+      m.addItem(new MenuItem("Найти комнату по ID", () -> roomController.findRoomByNumber()));
       m.addItem(new MenuItem("Изменить статус комнаты", () -> roomController.changeRoomStatus()));
       m.addItem(new MenuItem("Показать доступные комнаты на дату", () -> roomController.getRoomsFreeByDate()));
       m.addItem(new MenuItem("Сортировать комнаты", () -> roomController.sortRooms()));
