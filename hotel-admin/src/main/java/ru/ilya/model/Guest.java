@@ -14,7 +14,7 @@ public class Guest {
 	private LocalDate checkOutDate;
 	private List<Service> services = new ArrayList<>();
 
-   private static int idCounter = 0;
+   private static int idCounter = 1;
 
 	public Guest(String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
 		this.id = idCounter++;
@@ -30,6 +30,10 @@ public class Guest {
     this.room = room;
     this.checkInDate = checkInDate;
     this.checkOutDate = checkOutDate;
+
+    if(id>idCounter){
+      idCounter=id+1;
+    }
    }
 
    public void setId(int id){

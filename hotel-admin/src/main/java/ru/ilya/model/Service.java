@@ -6,7 +6,7 @@ public class Service extends Priceable{
    private int id;
 	private String name;
 	private int price;
-   private static int idCounter= 0;
+   private static int idCounter= 1;
 
 	public Service(String name, int price) {
       this.id = idCounter++;
@@ -18,6 +18,10 @@ public class Service extends Priceable{
        this.id = id;
        this.name = name;
        this.price = price;
+
+       if (id >= idCounter) {
+          idCounter = id + 1;
+       }
     }
 
     public int getId() {

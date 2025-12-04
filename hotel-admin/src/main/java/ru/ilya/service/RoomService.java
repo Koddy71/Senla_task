@@ -10,17 +10,17 @@ public interface RoomService {
 
    boolean addRoom(Room room);
 
-   boolean removeRoom(int id);
+   boolean removeRoom(int number);
 
-   Room findRoom(int id);
+   Room findRoom(int number);
 
-   boolean checkIn(int id);
+   boolean checkIn(int number);
 
-   boolean checkOut(int id);
+   boolean checkOut(int number);
 
-   boolean changeStatus(int id, RoomStatus status);
+   boolean changeStatus(int number, RoomStatus status);
 
-   boolean changePrice(int id, int newPrice);
+   boolean changePrice(int number, int newPrice);
 
    List<Room> getAllRooms();
 

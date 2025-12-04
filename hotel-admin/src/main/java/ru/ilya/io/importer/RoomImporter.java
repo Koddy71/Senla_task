@@ -37,7 +37,7 @@ public class RoomImporter {
             int price = Integer.parseInt(r[1].trim());
             int capacity = Integer.parseInt(r[2].trim());
             int stars = Integer.parseInt(r[3].trim());
-            RoomStatus status = RoomStatus.valueOf(r[4].trim());
+            RoomStatus status = RoomStatus.valueOf(r[4].trim().toUpperCase());
 
             if (number <= 0 || price < 0 || capacity <= 0 || stars < 0) {
                System.out.println("Ошибка: некорректные значения в строке: " + String.join(",", r));

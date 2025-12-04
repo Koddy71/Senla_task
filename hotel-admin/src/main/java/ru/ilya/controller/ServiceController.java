@@ -38,7 +38,7 @@ public class ServiceController {
 
       boolean ok = serviceManager.addService(s);
       System.out.println(
-            ok ? "Услуга добавлена. ID: " + s.getId() : "Услуга с таким ID уже существует (что маловероятно).");
+            ok ? "Услуга добавлена. ID: " + s.getId() : "Услуга с таким ID уже существует.");
    }
 
    public void removeService() {

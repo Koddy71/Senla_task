@@ -45,8 +45,8 @@ public class RoomServiceImpl implements RoomService {
    }
 
    @Override
-   public boolean checkOut(int id) {
-      Room room = findRoom(id);
+   public boolean checkOut(int number) {
+      Room room = findRoom(number);
       if (room != null && room.getStatus() == RoomStatus.OCCUPIED) {
          room.setStatus(RoomStatus.AVAILABLE);
          return true;
@@ -55,8 +55,8 @@ public class RoomServiceImpl implements RoomService {
    }
 
    @Override
-   public boolean changeStatus(int id, RoomStatus status) {
-      Room room = findRoom(id);
+   public boolean changeStatus(int number, RoomStatus status) {
+      Room room = findRoom(number);
       if (room != null) {
          room.setStatus(status);
          return true;
@@ -64,8 +64,8 @@ public class RoomServiceImpl implements RoomService {
       return false;
    }
 
-   public boolean changePrice(int id, int newPrice) {
-      Room room = findRoom(id);
+   public boolean changePrice(int number, int newPrice) {
+      Room room = findRoom(number);
       if (room != null && newPrice > 0) {
          room.setPrice(newPrice);
          return true;
