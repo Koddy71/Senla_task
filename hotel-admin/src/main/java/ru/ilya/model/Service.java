@@ -2,11 +2,17 @@ package ru.ilya.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)     //для неизвсетного поля
 public class Service extends Priceable{
    private int id;
 	private String name;
 	private int price;
    private static int idCounter= 1;
+
+   // для сериализации
+   public Service() {}
 
 	public Service(String name, int price) {
       this.id = idCounter++;

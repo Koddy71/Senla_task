@@ -1,10 +1,6 @@
 package ru.ilya;
 
-import ru.ilya.controller.GuestController;
-import ru.ilya.controller.ImportExportController;
-import ru.ilya.controller.PriceController;
-import ru.ilya.controller.RoomController;
-import ru.ilya.controller.ServiceController;
+import ru.ilya.controller.*;
 import ru.ilya.service.GuestService;
 import ru.ilya.service.PriceService;
 import ru.ilya.service.RoomService;
@@ -18,15 +14,11 @@ import ru.ilya.state.StateManager;
 import ru.ilya.ui.Builder;
 import ru.ilya.ui.MenuBuilder;
 import ru.ilya.ui.MenuController;
-import ru.ilya.io.importer.GuestImporter;
-import ru.ilya.io.importer.RoomImporter;
-import ru.ilya.io.importer.ServiceImporter;
+import ru.ilya.io.importer.*;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
-import ru.ilya.io.exporter.GuestExporter;
-import ru.ilya.io.exporter.RoomExporter;
-import ru.ilya.io.exporter.ServiceExporter;
+import ru.ilya.io.exporter.*;
 
 public class HotelAdmin {
    public static void main(String[] args) {
