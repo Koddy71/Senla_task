@@ -1,15 +1,24 @@
 package ru.ilya.state;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule; // Добавляем импорт модуля для Java 8 Date/Time
 import java.io.File;
 import java.io.IOException;
 
 public class StateManager {
-   private static final String STATE_PATH = "src/main/resources/state.json";  
-   private static final ObjectMapper mapper = new ObjectMapper();
+   private static final String STATE_PATH = "src/main/resources/state.json";
+   private static final ObjectMapper mapper;
 
-   public static void save(ProgramState state){
+   static {
+      // Регистрируем модуль для работы с Java 8 Date/Time API
+      mapper = new ObjectMapper();
+      mapper.registerModule(new JavaTimeModule()); // Регистрируем модуль для LocalDate и других типов
+      mapper.enable(SerializationFeature.INDENT_OUTPUT);
+   }
+
+   public static void save(ProgramState state) {
       try {
          File file = new File(STATE_PATH);
 
@@ -39,11 +48,17 @@ public class StateManager {
       try {
          File file = new File(STATE_PATH);
 
-         // Если файл пустой или отсутствует, возвращаем null
+         // Проверяем, существует ли файл и не пуст ли он
          if (!file.exists() || file.length() == 0) {
+            System.out.println("Файл состояния пуст или не существует.");
             return null;
          }
 
+         // Читаем файл в строку и печатаем его содержимое для отладки
+         String fileContent = new String(java.nio.file.Files.readAllBytes(file.toPath()));
+         System.out.println("Содержимое файла состояния:\n" + fileContent);
+
+         // Пытаемся десериализовать состояние
          return mapper.readValue(file, ProgramState.class);
 
       } catch (MismatchedInputException e) {
@@ -53,4 +68,5 @@ public class StateManager {
          throw new RuntimeException("Невозможно загрузить состояние программы", e);
       }
    }
+
 }

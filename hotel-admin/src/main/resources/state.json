@@ -1,0 +1,51 @@
+{
+  "guests" : [ {
+    "id" : 1,
+    "name" : "Artem",
+    "room" : {
+      "price" : 4000,
+      "number" : 2,
+      "status" : "OCCUPIED",
+      "capacity" : 2,
+      "stars" : 5,
+      "info" : "Номер: 2, Цена: 4000, Вместимость: 2, Звёзды: 5, Статус: Занят"
+    },
+    "checkInDate" : [ 2025, 9, 10 ],
+    "checkOutDate" : [ 2025, 9, 12 ],
+    "services" : [ ],
+    "info" : "ID: 1 | Artem (Номер: 2, с 2025-09-10 по 2025-09-12)",
+    "totalCost" : 8000.0,
+    "stayInfo" : "Artem был с 2025-09-10 по 2025-09-12"
+  } ],
+  "rooms" : [ {
+    "price" : 2000,
+    "number" : 1,
+    "status" : "AVAILABLE",
+    "capacity" : 2,
+    "stars" : 4,
+    "info" : "Номер: 1, Цена: 2000, Вместимость: 2, Звёзды: 4, Статус: Свободен"
+  }, {
+    "price" : 4000,
+    "number" : 2,
+    "status" : "OCCUPIED",
+    "capacity" : 2,
+    "stars" : 5,
+    "info" : "Номер: 2, Цена: 4000, Вместимость: 2, Звёзды: 5, Статус: Занят"
+  } ],
+  "services" : [ {
+    "price" : 1000,
+    "id" : 1,
+    "name" : "SPA",
+    "info" : "ID: 1| услуга SPA - 1000 руб."
+  }, {
+    "price" : 1500,
+    "id" : 2,
+    "name" : "Swimming-pool",
+    "info" : "ID: 2| услуга Swimming-pool - 1500 руб."
+  }, {
+    "price" : 350,
+    "id" : 3,
+    "name" : "Breakfast",
+    "info" : "ID: 3| услуга Breakfast - 350 руб."
+  } ]
+}
