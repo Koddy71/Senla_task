@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
 
+
 public class Navigator {
 	private static Navigator instance;
 	private final Stack<Menu> stack = new Stack<>();

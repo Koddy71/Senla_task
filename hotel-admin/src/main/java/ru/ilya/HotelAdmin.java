@@ -13,12 +13,17 @@ import ru.ilya.service.impl.GuestServiceImpl;
 import ru.ilya.service.impl.PriceServiceImpl;
 import ru.ilya.service.impl.RoomServiceImpl;
 import ru.ilya.service.impl.ServiceManagerImpl;
+import ru.ilya.state.ProgramState;
+import ru.ilya.state.StateManager;
 import ru.ilya.ui.Builder;
 import ru.ilya.ui.MenuBuilder;
 import ru.ilya.ui.MenuController;
 import ru.ilya.io.importer.GuestImporter;
 import ru.ilya.io.importer.RoomImporter;
 import ru.ilya.io.importer.ServiceImporter;
+import ru.ilya.model.Guest;
+import ru.ilya.model.Room;
+import ru.ilya.model.Service;
 import ru.ilya.io.exporter.GuestExporter;
 import ru.ilya.io.exporter.RoomExporter;
 import ru.ilya.io.exporter.ServiceExporter;
@@ -45,16 +50,39 @@ public class HotelAdmin {
       ImportExportController importExportController = ImportExportController.getInstance(guestImporter, roomImporter,
             serviceImporter, guestExporter, roomExporter, serviceExporter);
 
-      importExportController.importRooms(); 
-      importExportController.importServices(); 
-      importExportController.importGuests();
+      ProgramState state = StateManager.load();
+      if (state != null) {
+         for (Room room : state.getRooms()) {
+            roomService.addRoom(room);
+         }
+
+         for (Guest guest : state.getGuests()) {
+            guestService.checkIn(
+                     guest.getName(),
+                     guest.getRoom().getNumber(),
+                     guest.getCheckInDate(),
+                     guest.getCheckOutDate()
+            );
+         }
+
+         for (Service s : state.getServices()) {
+            serviceManager.addService(s);
+         }
+         System.out.println("Состояние программы восстановлено.");
+      } else {
+         System.out.println("Нет сохранённого состояния. Импортируем CSV-файлы...");
+         importExportController.importRooms();
+         importExportController.importGuests();
+         importExportController.importServices();
+      }
+
 
       try{
          MenuBuilder factory = new MenuBuilder(guestController, roomController, serviceController, priceController, importExportController);
 
          Builder builder = new Builder(factory);
 
-         MenuController menuController = new MenuController(builder);
+         MenuController menuController = new MenuController(builder, roomService, guestService, serviceManager);
          menuController.run();
       } catch (Exception e) {
          System.out.println("Произошла критическая ошибка.");

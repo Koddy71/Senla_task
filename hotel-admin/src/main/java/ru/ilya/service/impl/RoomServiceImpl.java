@@ -1,5 +1,6 @@
 package ru.ilya.service.impl;
 
+import ru.ilya.config.RoomConfig;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
@@ -56,6 +57,11 @@ public class RoomServiceImpl implements RoomService {
 
    @Override
    public boolean changeStatus(int number, RoomStatus status) {
+      if (!RoomConfig.isRoomStatusChangeEnable()){
+         System.out.println("Изменение статуса номеров отключено в настройках.");
+         return false;
+      }
+      
       Room room = findRoom(number);
       if (room != null) {
          room.setStatus(status);

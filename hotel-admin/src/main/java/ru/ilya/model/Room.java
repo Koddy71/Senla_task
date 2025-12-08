@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import ru.ilya.config.RoomConfig;
+
 public class Room extends Priceable{
 	private int number;
 	private RoomStatus status;
@@ -12,6 +16,7 @@ public class Room extends Priceable{
 	private int capacity; 
 	private int stars;    
 
+   @JsonIgnore
 	private List<Guest> stayHistory = new ArrayList<>();
 
 	public Room(int number, int price, int capacity, int stars) {
@@ -81,8 +86,15 @@ public class Room extends Priceable{
 
 	public void addStay(Guest guest) {
 		stayHistory.add(guest);
+
+      int limit = RoomConfig.getHistoryRoomLimit();
+      List<Guest> history = getStayHistory();
+      if (history.size()>limit){
+         history.remove(0);
+      }
 	}
 
+   @JsonIgnore
 	public List<Guest> getStayHistory(){
 		return stayHistory;
 	}
