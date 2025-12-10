@@ -3,8 +3,7 @@ package ru.ilya.ui;
 import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
-import ru.ilya.state.ProgramState;
-import ru.ilya.state.StateManager;
+import ru.ilya.service.JsonFileService;
 
 public class MenuController {
 	private final Navigator navigator;
@@ -24,16 +23,16 @@ public class MenuController {
       this.serviceManager = serviceManager;
 	}
 
-   private void saveState() {
-    ProgramState state = new ProgramState(
-        guestService.getAllGuests(),
-        roomService.getAllRooms(),
-        serviceManager.getAllServices()
-    );
+    private void saveState() {
+       JsonFileService.saveGuests(guestService.getAllGuests());
+       System.out.println("Гости сохранены.");
 
-    StateManager.save(state);
-    System.out.println("Состояние программы сохранено.");
-   }
+       JsonFileService.saveRooms(roomService.getAllRooms());
+       System.out.println("Комнаты сохранены.");
+
+       JsonFileService.saveServices(serviceManager.getAllServices());
+       System.out.println("Услуги сохранены.");
+    }
 
 	public void run() {
 		navigator.start();

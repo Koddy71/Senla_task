@@ -1,16 +1,10 @@
 package ru.ilya;
 
+import java.util.List;
+
 import ru.ilya.controller.*;
-import ru.ilya.service.GuestService;
-import ru.ilya.service.PriceService;
-import ru.ilya.service.RoomService;
-import ru.ilya.service.ServiceManager;
-import ru.ilya.service.impl.GuestServiceImpl;
-import ru.ilya.service.impl.PriceServiceImpl;
-import ru.ilya.service.impl.RoomServiceImpl;
-import ru.ilya.service.impl.ServiceManagerImpl;
-import ru.ilya.state.ProgramState;
-import ru.ilya.state.StateManager;
+import ru.ilya.service.*;
+import ru.ilya.service.impl.*;
 import ru.ilya.ui.Builder;
 import ru.ilya.ui.MenuBuilder;
 import ru.ilya.ui.MenuController;
@@ -42,13 +36,16 @@ public class HotelAdmin {
       ImportExportController importExportController = ImportExportController.getInstance(guestImporter, roomImporter,
             serviceImporter, guestExporter, roomExporter, serviceExporter);
 
-      ProgramState state = StateManager.load();
-      if (state != null) {
-         for (Room room : state.getRooms()) {
+      List<Room> rooms = JsonFileService.loadRooms();
+      List<Guest> guests = JsonFileService.loadGuests();
+      List<Service> services = JsonFileService.loadServices();
+
+      if (!rooms.isEmpty() || !guests.isEmpty() || !services.isEmpty()) {
+         for (Room room : rooms) {
             roomService.addRoom(room);
          }
 
-         for (Guest guest : state.getGuests()) {
+         for (Guest guest : guests) {
             guestService.checkIn(
                      guest.getName(),
                      guest.getRoom().getNumber(),
@@ -57,9 +54,10 @@ public class HotelAdmin {
             );
          }
 
-         for (Service s : state.getServices()) {
+         for (Service s : services) {
             serviceManager.addService(s);
          }
+
          System.out.println("Состояние программы восстановлено.");
       } else {
          System.out.println("Нет сохранённого состояния. Импортируем CSV-файлы...");
@@ -67,7 +65,6 @@ public class HotelAdmin {
          importExportController.importGuests();
          importExportController.importServices();
       }
-
 
       try{
          MenuBuilder factory = new MenuBuilder(guestController, roomController, serviceController, priceController, importExportController);
