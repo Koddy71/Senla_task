@@ -1,0 +1,16 @@
+[ {
+  "price" : 1000,
+  "id" : 1,
+  "name" : "SPA",
+  "info" : "ID: 1| услуга SPA - 1000 руб."
+}, {
+  "price" : 1500,
+  "id" : 2,
+  "name" : "Swimming-pool",
+  "info" : "ID: 2| услуга Swimming-pool - 1500 руб."
+}, {
+  "price" : 350,
+  "id" : 3,
+  "name" : "Breakfast",
+  "info" : "ID: 3| услуга Breakfast - 350 руб."
+} ]

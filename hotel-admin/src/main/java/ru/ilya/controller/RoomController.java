@@ -3,6 +3,7 @@ package ru.ilya.controller;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
+import ru.ilya.config.RoomConfig;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -86,6 +87,11 @@ public class RoomController {
    }
 
    public void changeRoomStatus() {
+      if (!RoomConfig.isRoomStatusChangeEnable()) {
+         System.out.println("Изменение статуса отключено (config.properties)");
+         return;
+      }
+
       System.out.print("Введите номер комнаты: ");
       Integer number = safeInt();
       if (number == null)

@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;  //для неизвестного поля
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Guest {
 	private int id;
 	private String name;
@@ -15,6 +18,9 @@ public class Guest {
 	private List<Service> services = new ArrayList<>();
 
    private static int idCounter = 1;
+
+   // для сериализации
+   public Guest(){}
 
 	public Guest(String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
 		this.id = idCounter++;

@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import ru.ilya.config.RoomConfig;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;  //чтобы избежать рекурсии
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;  //для неизвестного поля
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Room extends Priceable{
 	private int number;
 	private RoomStatus status;
@@ -12,7 +18,11 @@ public class Room extends Priceable{
 	private int capacity; 
 	private int stars;    
 
+   @JsonIgnore
 	private List<Guest> stayHistory = new ArrayList<>();
+
+    // для сериализации
+   public Room(){}  
 
 	public Room(int number, int price, int capacity, int stars) {
 		this.number = number;
@@ -81,8 +91,15 @@ public class Room extends Priceable{
 
 	public void addStay(Guest guest) {
 		stayHistory.add(guest);
+
+      int limit = RoomConfig.getHistoryRoomLimit();
+      List<Guest> history = getStayHistory();
+      if (history.size()>limit){
+         history.remove(0);
+      }
 	}
 
+   @JsonIgnore
 	public List<Guest> getStayHistory(){
 		return stayHistory;
 	}
