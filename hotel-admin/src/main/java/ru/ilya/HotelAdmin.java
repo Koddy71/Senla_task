@@ -2,6 +2,8 @@ package ru.ilya;
 
 import java.util.List;
 
+import ru.ilya.autoconfig.AppConfig;
+import ru.ilya.autoconfig.ConfigInjector;
 import ru.ilya.controller.*;
 import ru.ilya.service.*;
 import ru.ilya.service.impl.*;
@@ -16,9 +18,14 @@ import ru.ilya.io.exporter.*;
 
 public class HotelAdmin {
    public static void main(String[] args) {
-      RoomService roomService = RoomServiceImpl.getInstance();
+      String configPath = "src/main/resources/config.properties";
+      ConfigInjector injector = new ConfigInjector(configPath);
+      AppConfig appConfig = new AppConfig();
+      injector.configure(appConfig);
+
+      RoomService roomService = RoomServiceImpl.getInstance(appConfig);
       ServiceManager serviceManager = ServiceManagerImpl.getInstance();
-      GuestService guestService = GuestServiceImpl.getInstance(roomService, serviceManager);
+      GuestService guestService = GuestServiceImpl.getInstance(roomService, serviceManager, appConfig);
       PriceService priceService = PriceServiceImpl.getInstance(roomService, serviceManager);
 
       GuestImporter guestImporter = GuestImporter.getInstance(guestService);

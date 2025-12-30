@@ -1,6 +1,6 @@
 package ru.ilya.service.impl;
 
-import ru.ilya.config.RoomConfig;
+import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
@@ -13,7 +13,10 @@ public class RoomServiceImpl implements RoomService {
    private Map<Integer, Room> rooms = new HashMap<>();
    private static RoomServiceImpl instance;
 
-   private RoomServiceImpl() {
+   private final AppConfig appConfig;
+
+   private RoomServiceImpl(AppConfig appConfig) {
+      this.appConfig=appConfig;
    }
 
    @Override
@@ -57,7 +60,7 @@ public class RoomServiceImpl implements RoomService {
 
    @Override
    public boolean changeStatus(int number, RoomStatus status) {
-      if (!RoomConfig.isRoomStatusChangeEnable()){
+      if (!appConfig.isRoomStatusChangeEnable()){
          System.out.println("Изменение статуса номеров отключено в настройках.");
          return false;
       }
@@ -134,10 +137,10 @@ public class RoomServiceImpl implements RoomService {
       return sorted;
    }
 
-   public static RoomServiceImpl getInstance() {
+   public static RoomServiceImpl getInstance(AppConfig appConfig) {
       if (instance == null) {
-         instance = new RoomServiceImpl();
-      }
+         instance = new RoomServiceImpl(appConfig);
+      }  
       return instance;
    }
 }
