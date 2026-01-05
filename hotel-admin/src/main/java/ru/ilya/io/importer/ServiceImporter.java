@@ -3,25 +3,16 @@ package ru.ilya.io.importer;
 import java.io.IOException;
 import java.util.List;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
 
 public class ServiceImporter {
-   private static ServiceImporter instance;
+   @Inject
+   private ServiceManager serviceManager;
 
-   private final ServiceManager serviceManager;
-
-   public ServiceImporter(ServiceManager serviceManager) {
-      this.serviceManager = serviceManager;
-   }
-
-   public static ServiceImporter getInstance(ServiceManager serviceManager) {
-      if (instance == null) {
-         instance = new ServiceImporter(serviceManager);
-      }
-      return instance;
-   }
+   public ServiceImporter(){}
 
    public int importCsv(String path) throws IOException {
       int count =0;

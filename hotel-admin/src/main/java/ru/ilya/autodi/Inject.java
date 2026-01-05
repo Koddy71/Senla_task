@@ -1,0 +1,8 @@
+package ru.ilya.autodi;
+
+import java.lang.annotation.*;
+
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Inject {
+}

@@ -5,6 +5,7 @@ import java.io.IOException;
 import ru.ilya.io.importer.GuestImporter;
 import ru.ilya.io.importer.RoomImporter;
 import ru.ilya.io.importer.ServiceImporter;
+import ru.ilya.autodi.Inject;
 import ru.ilya.io.exporter.GuestExporter;
 import ru.ilya.io.exporter.RoomExporter;
 import ru.ilya.io.exporter.ServiceExporter;
@@ -14,32 +15,25 @@ public class ImportExportController {
    private static final String GUESTS_PATH  = "src/main/resources/guests.csv";
    private static final String SERVICES_FILE = "src/main/resources/services.csv";
 
-   private static ImportExportController instance;
+   @Inject
+   private GuestImporter guestImporter;
 
-   private final GuestImporter guestImporter;
-   private final RoomImporter roomImporter;
-   private final ServiceImporter serviceImporter;
+   @Inject
+   private RoomImporter roomImporter;
 
-   private final GuestExporter guestExporter;
-   private final RoomExporter roomExporter;
-   private final ServiceExporter serviceExporter;
+   @Inject
+   private ServiceImporter serviceImporter;
 
-   private ImportExportController(
-         GuestImporter guestImporter,
-         RoomImporter roomImporter,
-         ServiceImporter serviceImporter,
-         GuestExporter guestExporter,
-         RoomExporter roomExporter,
-         ServiceExporter serviceExporter) {
+   @Inject
+   private GuestExporter guestExporter;
 
-      this.guestImporter = guestImporter;
-      this.roomImporter = roomImporter;
-      this.serviceImporter = serviceImporter;
+   @Inject
+   private RoomExporter roomExporter;
 
-      this.guestExporter = guestExporter;
-      this.roomExporter = roomExporter;
-      this.serviceExporter = serviceExporter;
-   }
+   @Inject
+   private ServiceExporter serviceExporter;
+
+   public ImportExportController(){}
 
    public void importGuests() {
       try {
@@ -108,21 +102,5 @@ public class ImportExportController {
       } catch (IOException e) {
          System.out.println("Ошибка при экспорте услуг: " + e.getMessage());
       }
-   }
-
-   public static ImportExportController getInstance(
-         GuestImporter guestImporter,
-         RoomImporter roomImporter,
-         ServiceImporter serviceImporter,
-         GuestExporter guestExporter,
-         RoomExporter roomExporter,
-         ServiceExporter serviceExporter) {
-
-      if (instance == null) {
-         instance = new ImportExportController(
-               guestImporter, roomImporter, serviceImporter,
-               guestExporter, roomExporter, serviceExporter);
-      }
-      return instance;
    }
 }

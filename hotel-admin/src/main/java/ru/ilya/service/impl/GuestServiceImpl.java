@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
@@ -16,18 +17,18 @@ import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
 
 public class GuestServiceImpl implements GuestService{
-   private static GuestServiceImpl instance;
-
 	private Map<Integer, Guest> guests = new HashMap<>();
-   private RoomService roomService;
-   private ServiceManager serviceManager;
-   private final AppConfig appConfig;
 
-   private GuestServiceImpl(RoomService roomService, ServiceManager serviceManager, AppConfig appConfig) {
-      this.roomService = roomService;
-      this.serviceManager = serviceManager;
-      this.appConfig = appConfig;
-   }
+   @Inject
+   private RoomService roomService;
+
+   @Inject
+   private ServiceManager serviceManager;
+
+   @Inject
+   private AppConfig appConfig;
+
+   public GuestServiceImpl(){}
 
    @Override
    public Guest checkIn(String guestName, int number, LocalDate from, LocalDate to) {
@@ -86,12 +87,5 @@ public class GuestServiceImpl implements GuestService{
    @Override
    public Guest findGuestById(int id) {
       return guests.get(id);
-   }
-
-   public static GuestServiceImpl getInstance(RoomService roomService, ServiceManager serviceManager, AppConfig appConfig) {
-      if (instance == null) {
-         instance = new GuestServiceImpl(roomService, serviceManager, appConfig);
-      }
-      return instance;
    }
 }

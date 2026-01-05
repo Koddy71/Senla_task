@@ -1,6 +1,7 @@
 package ru.ilya.service.impl;
 
 import ru.ilya.autoconfig.AppConfig;
+import ru.ilya.autodi.Inject;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
@@ -9,15 +10,12 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class RoomServiceImpl implements RoomService {
-
    private Map<Integer, Room> rooms = new HashMap<>();
-   private static RoomServiceImpl instance;
 
-   private final AppConfig appConfig;
+   @Inject
+   private AppConfig appConfig;
 
-   private RoomServiceImpl(AppConfig appConfig) {
-      this.appConfig=appConfig;
-   }
+   public RoomServiceImpl(){}
 
    @Override
    public boolean addRoom(Room room) {
@@ -135,12 +133,5 @@ public class RoomServiceImpl implements RoomService {
       }
       
       return sorted;
-   }
-
-   public static RoomServiceImpl getInstance(AppConfig appConfig) {
-      if (instance == null) {
-         instance = new RoomServiceImpl(appConfig);
-      }  
-      return instance;
    }
 }

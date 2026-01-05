@@ -1,5 +1,6 @@
 package ru.ilya.controller;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
@@ -10,13 +11,12 @@ import java.util.Scanner;
 
 public class GuestController {
 
-   private static GuestController instance;
-   private final GuestService guestService;
+   @Inject
+   private GuestService guestService;
+
    private final Scanner sc = new Scanner(System.in);
 
-   private GuestController(GuestService guestService) {
-      this.guestService = guestService;
-   }
+   public GuestController(){}
 
    private Integer safeInt() {
       try {
@@ -112,12 +112,5 @@ public class GuestController {
       for (Guest g : sorted) {
          System.out.println(g.getInfo());
       }
-   }
-
-   public static GuestController getInstance(GuestService guestService) {
-      if (instance == null) {
-         instance = new GuestController(guestService);
-      }
-      return instance;
    }
 }

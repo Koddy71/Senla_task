@@ -4,25 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
 public class GuestExporter {
-   private static GuestExporter instance;
-   
-   private final GuestService guestService;
+   @Inject
+   private GuestService guestService;
 
-   private GuestExporter(GuestService guestService) {
-      this.guestService = guestService;
-   }
-
-   public static GuestExporter getInstance(GuestService guestService) {
-      if (instance == null) {
-         instance = new GuestExporter(guestService);
-      }
-      return instance;
-   }
+   public GuestExporter(){}
 
    public void exportCsv(String path) throws IOException {
       List<String> lines = new ArrayList<>();

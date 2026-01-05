@@ -3,6 +3,7 @@ package ru.ilya.controller;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
+import ru.ilya.autodi.Inject;
 import ru.ilya.config.RoomConfig;
 
 import java.time.LocalDate;
@@ -11,14 +12,12 @@ import java.util.List;
 import java.util.Scanner;
 
 public class RoomController {
+   @Inject
+   private RoomService roomService;
 
-   private static RoomController instance;
-   private final RoomService roomService;
    private final Scanner sc = new Scanner(System.in);
 
-   private RoomController(RoomService roomService) {
-      this.roomService = roomService;
-   }
+   public RoomController(){}
 
    private Integer safeInt(){
       try{
@@ -140,12 +139,5 @@ public class RoomController {
       for (Room r : sorted) {
          System.out.println(r.getInfo());
       }
-   }
-
-   public static RoomController getInstance(RoomService roomService) {
-      if (instance == null) {
-         instance = new RoomController(roomService);
-      }
-      return instance;
    }
 }

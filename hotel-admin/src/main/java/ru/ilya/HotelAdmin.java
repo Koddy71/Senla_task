@@ -4,17 +4,15 @@ import java.util.List;
 
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.autoconfig.ConfigInjector;
+import ru.ilya.autodi.DIInjector;
 import ru.ilya.controller.*;
 import ru.ilya.service.*;
-import ru.ilya.service.impl.*;
 import ru.ilya.ui.Builder;
 import ru.ilya.ui.MenuBuilder;
 import ru.ilya.ui.MenuController;
-import ru.ilya.io.importer.*;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
-import ru.ilya.io.exporter.*;
 
 public class HotelAdmin {
    public static void main(String[] args) {
@@ -23,25 +21,18 @@ public class HotelAdmin {
       AppConfig appConfig = new AppConfig();
       injector.configure(appConfig);
 
-      RoomService roomService = RoomServiceImpl.getInstance(appConfig);
-      ServiceManager serviceManager = ServiceManagerImpl.getInstance();
-      GuestService guestService = GuestServiceImpl.getInstance(roomService, serviceManager, appConfig);
-      PriceService priceService = PriceServiceImpl.getInstance(roomService, serviceManager);
+      DIInjector di = new DIInjector();
+      di.inject(appConfig);
 
-      GuestImporter guestImporter = GuestImporter.getInstance(guestService);
-      RoomImporter roomImporter = RoomImporter.getInstance(roomService);
-      ServiceImporter serviceImporter = ServiceImporter.getInstance(serviceManager);
+      RoomService roomService = di.getInstance(RoomService.class);
+      GuestService guestService = di.getInstance(GuestService.class);
+      ServiceManager serviceManager = di.getInstance(ServiceManager.class);
 
-      GuestExporter guestExporter = GuestExporter.getInstance(guestService);
-      RoomExporter roomExporter = RoomExporter.getInstance(roomService);
-      ServiceExporter serviceExporter = ServiceExporter.getInstance(serviceManager);
-
-      GuestController guestController = GuestController.getInstance(guestService);
-      RoomController roomController = RoomController.getInstance(roomService);
-      ServiceController serviceController = ServiceController.getInstance(serviceManager);
-      PriceController priceController = PriceController.getInstance(priceService);
-      ImportExportController importExportController = ImportExportController.getInstance(guestImporter, roomImporter,
-            serviceImporter, guestExporter, roomExporter, serviceExporter);
+      GuestController guestController = di.getInstance(GuestController.class);
+      RoomController roomController = di.getInstance(RoomController.class);
+      ServiceController serviceController = di.getInstance(ServiceController.class);
+      PriceController priceController = di.getInstance(PriceController.class);
+      ImportExportController importExportController = di.getInstance(ImportExportController.class);
 
       List<Room> rooms = JsonFileService.loadRooms();
       List<Guest> guests = JsonFileService.loadGuests();
