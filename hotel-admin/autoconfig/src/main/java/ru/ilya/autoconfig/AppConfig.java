@@ -1,5 +1,7 @@
 package ru.ilya.autoconfig;
 
+import ru.ilya.autodi.ConfigProperty;
+
 public class AppConfig {
    @ConfigProperty
    private boolean roomStatusChangeEnable;

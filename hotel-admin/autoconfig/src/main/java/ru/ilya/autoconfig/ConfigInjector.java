@@ -1,11 +1,14 @@
 package ru.ilya.autoconfig;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import ru.ilya.autodi.ConfigProperty;
+import ru.ilya.autodi.ValueType;
 
 public class ConfigInjector {
    private final String defaultConfigFileName;
@@ -54,20 +57,29 @@ public class ConfigInjector {
       }
    }
 
-   private Properties loadProperties(String fileName){
-      if (cache.containsKey(fileName)){
-         return cache.get(fileName);
-      }
+   private Properties loadProperties(String configFileName) {
+    try {
+        Properties properties = new Properties();
 
-      Properties props = new Properties();
-      try(FileReader reader = new FileReader(fileName)){
-         props.load(reader);
-      } catch (IOException e){
-         throw new RuntimeException("Не удалось загрузить файл конфигурации: " + fileName, e);
-      }
-      cache.put(fileName, props);
-      return props;
-   }
+        InputStream is = getClass()
+                .getClassLoader()
+                .getResourceAsStream(configFileName);
+
+        if (is == null) {
+            throw new RuntimeException(
+                    "Файл конфигурации не найден в classpath: " + configFileName
+            );
+        }
+
+        properties.load(is);
+        return properties;
+
+    } catch (IOException e) {
+        throw new RuntimeException(
+                "Не удалось загрузить файл конфигурации: " + configFileName, e
+        );
+    }
+}
 
    private Object convertValue(String raw, Class<?> fieldType, ValueType valueType) {
       ValueType typeToUse = valueType;

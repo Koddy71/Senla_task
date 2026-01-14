@@ -42,7 +42,7 @@ public class ServiceImporter {
             Service service = new Service(id, name, price);
             boolean ok = serviceManager.addService(service);
             if (ok) {
-               count++; // ← успешно импортировано
+               count++; 
             } else {
                System.out.println("Услуга не добавлена (возможно, ID уже существует): " + String.join(",", r));
             }

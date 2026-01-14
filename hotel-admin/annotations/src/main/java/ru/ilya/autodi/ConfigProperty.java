@@ -1,6 +1,8 @@
-package ru.ilya.autoconfig;
+package ru.ilya.autodi;
 
-import java.lang.annotation.*;;
+import java.lang.annotation.*;
+
+import ru.ilya.autodi.ValueType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

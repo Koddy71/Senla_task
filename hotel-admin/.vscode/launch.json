@@ -6,6 +6,13 @@
    "configurations": [
       {
          "type": "java",
+         "name": "HotelAdmin",
+         "request": "launch",
+         "mainClass": "ru.ilya.HotelAdmin",
+         "projectName": "core"
+      },
+      {
+         "type": "java",
          "name": "Current File",
          "request": "launch",
          "mainClass": "${file}"

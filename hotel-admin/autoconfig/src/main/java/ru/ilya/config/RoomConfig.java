@@ -6,7 +6,7 @@ import java.util.Properties;
 
 public class RoomConfig {
    private static final Properties properties = new Properties();
-   private static final String CONFIG_PATH = "src/main/resources/config.properties";
+   private static final String CONFIG_PATH = "core/src/main/resources/config.properties";
 
    static {
       try(FileReader reader = new FileReader(CONFIG_PATH)){

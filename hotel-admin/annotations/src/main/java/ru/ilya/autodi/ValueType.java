@@ -1,4 +1,4 @@
-package ru.ilya.autoconfig;
+package ru.ilya.autodi;
 
 public enum ValueType {
    AUTO, 

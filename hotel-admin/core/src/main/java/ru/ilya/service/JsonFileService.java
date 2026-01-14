@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JsonFileService {
-   private static final String GUESTS_FILE_PATH = "src/main/resources/guests.json";
-   private static final String ROOMS_FILE_PATH = "src/main/resources/rooms.json";
-   private static final String SERVICES_FILE_PATH = "src/main/resources/services.json";
+   private static final String GUESTS_FILE_PATH = "core/src/main/resources/guests.json";
+   private static final String ROOMS_FILE_PATH = "core/src/main/resources/rooms.json";
+   private static final String SERVICES_FILE_PATH = "core/src/main/resources/services.json";
    private static final ObjectMapper mapper;
 
    static {
