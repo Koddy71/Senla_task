@@ -11,19 +11,20 @@ public class Task2 {
    }
 
    private static void print(String name, boolean turn){
-      for (int i=0; i<=3; i++){
+      while (true) {
          synchronized(lock){
             while(flag!=turn){
                try{
                   lock.wait();
                } catch (InterruptedException e){
                   Thread.currentThread().interrupt();
+                  return;
                }
             }
 
             System.out.println(name);
             flag= !flag;
-            lock.notify();
+            lock.notifyAll();
          }
       }
    }
