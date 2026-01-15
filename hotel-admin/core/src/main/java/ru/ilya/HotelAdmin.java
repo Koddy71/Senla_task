@@ -1,6 +1,6 @@
 package ru.ilya;
 
-import ru.ilya.autodi.ApplicationContext;
+import ru.ilya.autoconfig.ApplicationContext;
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.autoconfig.ConfigInjector;
 import ru.ilya.ui.MenuController;
@@ -11,7 +11,9 @@ public class HotelAdmin {
    public static void main(String[] args) {
 
       AppConfig config = new AppConfig();
-      new ConfigInjector("config.properties").configure(config);
+
+      ConfigInjector configInjector =new ConfigInjector("config.properties");
+      configInjector.configure(config);
 
       ApplicationContext context = new ApplicationContext();
       context.addSingleton(config);

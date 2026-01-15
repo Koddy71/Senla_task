@@ -1,9 +1,11 @@
-package ru.ilya.autodi;
+package ru.ilya.autoconfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+
+import ru.ilya.autodi.Inject;
 
 public class ApplicationContext {
 
@@ -24,7 +26,7 @@ public class ApplicationContext {
          Class<?> impl = bindings.getOrDefault(type, type);
 
          if (instances.containsKey(impl)) {
-               return (T) instances.get(impl);
+            return (T) instances.get(impl);
          }
 
          Constructor<?>[] constructors = impl.getDeclaredConstructors();
@@ -36,7 +38,7 @@ public class ApplicationContext {
          Object[] params = new Object[paramTypes.length];
 
          for (int i = 0; i < paramTypes.length; i++) {
-               params[i] = getInstance(paramTypes[i]);
+            params[i] = getInstance(paramTypes[i]);
          }
 
          Object obj = constructor.newInstance(params);
@@ -49,11 +51,9 @@ public class ApplicationContext {
 
       } catch (Exception e) {
          throw new RuntimeException(
-                  "DI ошибка для класса: " + type.getName(), e
-         );
+               "DI ошибка для класса: " + type.getName(), e);
       }
    }
-
 
    private void injectFields(Object obj) throws IllegalAccessException {
       for (Field field : obj.getClass().getDeclaredFields()) {

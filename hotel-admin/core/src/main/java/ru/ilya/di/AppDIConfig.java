@@ -1,6 +1,6 @@
 package ru.ilya.di;
 
-import ru.ilya.autodi.ApplicationContext;
+import ru.ilya.autoconfig.ApplicationContext;
 import ru.ilya.service.*;
 import ru.ilya.service.impl.*;
 import ru.ilya.controller.*;

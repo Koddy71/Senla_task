@@ -11,9 +11,9 @@ import ru.ilya.io.exporter.RoomExporter;
 import ru.ilya.io.exporter.ServiceExporter;
 
 public class ImportExportController {
-   private static final String ROOMS_PATH = "src/main/resources/rooms.csv"; 
-   private static final String GUESTS_PATH  = "src/main/resources/guests.csv";
-   private static final String SERVICES_FILE = "src/main/resources/services.csv";
+   private static final String ROOMS_PATH = "core/src/main/resources/rooms.csv"; 
+   private static final String GUESTS_PATH  = "core/src/main/resources/guests.csv";
+   private static final String SERVICES_FILE = "core/src/main/resources/services.csv";
 
    @Inject
    private GuestImporter guestImporter;
