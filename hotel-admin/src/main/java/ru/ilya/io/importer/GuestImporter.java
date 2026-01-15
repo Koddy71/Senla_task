@@ -5,18 +5,16 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
 public class GuestImporter {
-   private static GuestImporter instance;
+   @Inject
+   private GuestService guestService;
 
-   private final GuestService guestService;
-
-   public GuestImporter(GuestService guestService) {
-      this.guestService = guestService;
-   }
+   public GuestImporter(){}
 
    public int importCsv(String path) throws IOException {
       int count=0;
@@ -53,12 +51,5 @@ public class GuestImporter {
          }
       }
       return count;
-   }
-
-   public static GuestImporter getInstance(GuestService guestService) {
-      if (instance == null) {
-         instance = new GuestImporter(guestService);
-      }
-      return instance;
    }
 }

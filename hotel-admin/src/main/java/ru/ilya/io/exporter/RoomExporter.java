@@ -4,25 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Room;
 import ru.ilya.service.RoomService;
 
 public class RoomExporter {
-   private static RoomExporter instance;
+   @Inject
+   private RoomService roomService;
 
-   private final RoomService roomService;
-
-   private RoomExporter(RoomService roomService) {
-      this.roomService = roomService;
-   }
-
-   public static RoomExporter getInstance(RoomService roomService) {
-      if (instance == null) {
-         instance = new RoomExporter(roomService);
-      }
-      return instance;
-   }
+   public RoomExporter(){}
    
    public void exportCsv(String path) throws IOException {
       List<String> lines = new ArrayList<>();

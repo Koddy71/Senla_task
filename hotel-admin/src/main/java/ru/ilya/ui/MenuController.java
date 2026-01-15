@@ -16,23 +16,23 @@ public class MenuController {
 	public MenuController(Builder builder, RoomService roomService, GuestService guestService, ServiceManager serviceManager) {
 		this.builder=builder;
       this.builder.buildConsoleMenu();
-      this.navigator=Navigator.getInstance(builder.getRootMenu());
+      this.navigator=new Navigator(builder.getRootMenu());
 
       this.roomService = roomService;
       this.guestService = guestService;
       this.serviceManager = serviceManager;
 	}
 
-    private void saveState() {
-       JsonFileService.saveGuests(guestService.getAllGuests());
-       System.out.println("Гости сохранены.");
+   private void saveState() {
+      JsonFileService.saveGuests(guestService.getAllGuests());
+      System.out.println("Гости сохранены.");
 
-       JsonFileService.saveRooms(roomService.getAllRooms());
-       System.out.println("Комнаты сохранены.");
+      JsonFileService.saveRooms(roomService.getAllRooms());
+      System.out.println("Комнаты сохранены.");
 
-       JsonFileService.saveServices(serviceManager.getAllServices());
-       System.out.println("Услуги сохранены.");
-    }
+      JsonFileService.saveServices(serviceManager.getAllServices());
+      System.out.println("Услуги сохранены.");
+   }
 
 	public void run() {
 		navigator.start();

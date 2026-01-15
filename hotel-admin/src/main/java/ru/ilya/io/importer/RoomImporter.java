@@ -3,26 +3,17 @@ package ru.ilya.io.importer;
 import java.io.IOException;
 import java.util.List;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
 
 public class RoomImporter {
-   private static RoomImporter instance;
+   @Inject
+   private RoomService roomService;
 
-   private final RoomService roomService;
-
-   public RoomImporter(RoomService roomService) {
-      this.roomService = roomService;
-   }
-
-   public static RoomImporter getInstance(RoomService roomService) {
-      if (instance == null) {
-         instance = new RoomImporter(roomService);
-      }
-      return instance;
-   }
+   public RoomImporter(){}
    
    public int importCsv(String path) throws IOException {
       int count=0;

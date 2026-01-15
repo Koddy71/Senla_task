@@ -1,5 +1,6 @@
 package ru.ilya.controller;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
 
@@ -8,13 +9,12 @@ import java.util.Scanner;
 
 public class ServiceController {
 
-   private static ServiceController instance;
-   private final ServiceManager serviceManager;
+   @Inject
+   private ServiceManager serviceManager;
+
    private final Scanner sc = new Scanner(System.in);
 
-   private ServiceController(ServiceManager serviceManager) {
-      this.serviceManager = serviceManager;
-   }
+   public ServiceController(){}
 
    public void addService() {
       System.out.print("Введите название услуги: ");
@@ -107,12 +107,5 @@ public class ServiceController {
       for (Service s : services) {
          System.out.println(s.getInfo());
       }
-   }
-
-   public static ServiceController getInstance(ServiceManager serviceManager) {
-      if (instance == null) {
-         instance = new ServiceController(serviceManager);
-      }
-      return instance;
    }
 }

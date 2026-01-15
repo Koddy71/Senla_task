@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.ilya.autodi.Inject;
+import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
@@ -15,15 +17,18 @@ import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
 
 public class GuestServiceImpl implements GuestService{
-   private static GuestServiceImpl instance;
 	private Map<Integer, Guest> guests = new HashMap<>();
+
+   @Inject
    private RoomService roomService;
+
+   @Inject
    private ServiceManager serviceManager;
 
-   private GuestServiceImpl(RoomService roomService, ServiceManager serviceManager) {
-      this.roomService = roomService;
-      this.serviceManager = serviceManager;
-   }
+   @Inject
+   private AppConfig appConfig;
+
+   public GuestServiceImpl(){}
 
    @Override
    public Guest checkIn(String guestName, int number, LocalDate from, LocalDate to) {
@@ -38,6 +43,13 @@ public class GuestServiceImpl implements GuestService{
       guests.put(guest.getId(), guest); 
       room.setStatus(RoomStatus.OCCUPIED);
       room.addStay(guest);
+
+      int limit = appConfig.getRoomHistoryLimit();
+      List<Guest> history = room.getStayHistory();
+      if (history.size()>limit){
+         history.remove(0);
+      }
+
       return guest;
    }
 
@@ -75,12 +87,5 @@ public class GuestServiceImpl implements GuestService{
    @Override
    public Guest findGuestById(int id) {
       return guests.get(id);
-   }
-
-   public static GuestServiceImpl getInstance(RoomService roomService, ServiceManager serviceManager) {
-      if (instance == null) {
-         instance = new GuestServiceImpl(roomService, serviceManager);
-      }
-      return instance;
    }
 }
