@@ -4,7 +4,7 @@ import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
 import ru.ilya.autodi.Inject;
-import ru.ilya.config.RoomConfig;
+import ru.ilya.autoconfig.AppConfig;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -14,6 +14,9 @@ import java.util.Scanner;
 public class RoomController {
    @Inject
    private RoomService roomService;
+
+   @Inject
+   private AppConfig appConfig;
 
    private final Scanner sc = new Scanner(System.in);
 
@@ -86,7 +89,7 @@ public class RoomController {
    }
 
    public void changeRoomStatus() {
-      if (!RoomConfig.isRoomStatusChangeEnable()) {
+      if (!appConfig.isRoomStatusChangeEnable()) {
          System.out.println("Изменение статуса отключено (config.properties)");
          return;
       }

@@ -7,7 +7,6 @@ import ru.ilya.ui.MenuController;
 import ru.ilya.di.AppDIConfig;
 
 public class HotelAdmin {
-
    public static void main(String[] args) {
 
       AppConfig config = new AppConfig();

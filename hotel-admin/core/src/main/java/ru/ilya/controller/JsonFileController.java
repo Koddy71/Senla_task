@@ -1,4 +1,4 @@
-package ru.ilya.service;
+package ru.ilya.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JsonFileService {
+public class JsonFileController {
    private static final String GUESTS_FILE_PATH = "core/src/main/resources/guests.json";
    private static final String ROOMS_FILE_PATH = "core/src/main/resources/rooms.json";
    private static final String SERVICES_FILE_PATH = "core/src/main/resources/services.json";

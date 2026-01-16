@@ -14,6 +14,7 @@ public class AppDIConfig {
       ctx.bind(GuestService.class, GuestServiceImpl.class);
       ctx.bind(ServiceManager.class, ServiceManagerImpl.class);
       ctx.bind(PriceService.class, PriceServiceImpl.class);
+      ctx.bind(StateRestoreService.class, StateRestoreServiceImpl.class);
 
       ctx.bind(GuestController.class, GuestController.class);
       ctx.bind(RoomController.class, RoomController.class);
