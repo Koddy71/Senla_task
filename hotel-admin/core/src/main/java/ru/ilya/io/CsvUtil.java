@@ -10,15 +10,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CsvUtil {
-   public static List<String[]> read(String path) throws IOException {
+   private static File createFileIfNeeded(String path) throws IOException{   //пришлось сделать статичным
       File file = new File(path);
 
-      if (!file.exists()){
-         throw new IOException("Файл не найден: " + path);
+      if (!file.exists()) {
+         File parent = file.getParentFile();
+         if (parent != null && !parent.exists()) {
+            if (!parent.mkdirs()) {
+               throw new IOException("Не удалось создать директорию: " + path);
+            }
+         }
+         if (!file.createNewFile()) {
+            throw new IOException("Не удалось создать файл: " + path);
+         }
       }
-      if(!file.isFile()){
-         throw new IOException("Указанный путь не является файлом: "+ path);
-      }
+
+      return file;
+   }
+
+
+   public static List<String[]> read(String path) throws IOException {
+      File file = createFileIfNeeded(path);
+
+      if (file.length() == 0) {
+         System.out.println("Файла не было. Создан пустой файл: " + path);
+      } 
 
       List<String[]> list = new ArrayList<>();
       try(BufferedReader br = new BufferedReader(new FileReader(file))){
@@ -33,19 +49,7 @@ public class CsvUtil {
 
 
    public static void write(String path, List<String> lines) throws IOException {
-      File file = new File(path);
-
-      if(!file.exists()){
-         File parent = file.getParentFile();
-         if (parent!=null && !parent.exists()){
-            if(!parent.mkdirs()){
-               throw new IOException("Не удалось создать директорию: "+path);
-            }
-         }
-         if (!file.createNewFile()){
-            throw new IOException("Не удалось создать файл: "+path);
-         }
-      }
+      File file = createFileIfNeeded(path);
 
       try(BufferedWriter bw = new BufferedWriter(new FileWriter(file))){
          for (String l : lines){

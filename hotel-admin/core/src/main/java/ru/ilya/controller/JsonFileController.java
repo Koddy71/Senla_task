@@ -26,6 +26,20 @@ public class JsonFileController {
       mapper.enable(SerializationFeature.INDENT_OUTPUT); 
    }
 
+   private static void createFileIfNeeded(File file) throws IOException {
+      File parent = file.getParentFile();
+      if (parent != null && !parent.exists()) {
+         if (!parent.mkdirs()) {
+            throw new IOException("Не удалось создать директорию: " + parent.getPath());
+         }
+      }
+      if (!file.exists()) {
+         if (!file.createNewFile()) {
+            throw new IOException("Не удалось создать файл: " + file.getPath());
+         }
+      }
+   }
+
    public static void saveGuests(List<Guest> guests) {
       try {
          File file = new File(GUESTS_FILE_PATH);
@@ -56,29 +70,23 @@ public class JsonFileController {
       }
    }
 
-   private static void createFileIfNeeded(File file) throws IOException {
-      File parent = file.getParentFile();
-      if (parent != null && !parent.exists()) {
-         if (!parent.mkdirs()) {
-            throw new IOException("Не удалось создать директорию: " + parent.getPath());
-         }
-      }
-      if (!file.exists()) {
-         if (!file.createNewFile()) {
-            throw new IOException("Не удалось создать файл: " + file.getPath());
-         }
-      }
-   }
-
    public static List<Guest> loadGuests() {
       try {
          File file = new File(GUESTS_FILE_PATH);
-         if (!file.exists() || file.length() == 0) {
-            System.out.println("Файл с данными гостей пуст или не существует.");
+         boolean wasCreated = !file.exists();
+         createFileIfNeeded(file);
+
+         if (wasCreated) {
+            System.out.println("Файл с данными гостей не существовал, создан новый пустой файл.");
             return new ArrayList<>();
          }
-         return mapper.readValue(file, new TypeReference<List<Guest>>() {
-         });
+
+         if (file.length() == 0) {
+            System.out.println("Файл с данными гостей существует, но он пуст.");
+            return new ArrayList<>();
+         }
+
+         return mapper.readValue(file, new TypeReference<List<Guest>>() {});
       } catch (IOException e) {
          throw new RuntimeException("Ошибка при загрузке данных гостей.", e);
       }
@@ -87,12 +95,20 @@ public class JsonFileController {
    public static List<Room> loadRooms() {
       try {
          File file = new File(ROOMS_FILE_PATH);
-         if (!file.exists() || file.length() == 0) {
-            System.out.println("Файл с данными комнат пуст или не существует.");
+         boolean wasCreated = !file.exists();
+         createFileIfNeeded(file);
+
+         if (wasCreated) {
+            System.out.println("Файл с данными комнат не существовал, создан новый пустой файл.");
             return new ArrayList<>();
          }
-         return mapper.readValue(file, new TypeReference<List<Room>>() {
-         });
+
+         if (file.length() == 0) {
+            System.out.println("Файл с данными комнат существует, но ое пуст.");
+            return new ArrayList<>();
+         }
+
+         return mapper.readValue(file, new TypeReference<List<Room>>() {});
       } catch (IOException e) {
          throw new RuntimeException("Ошибка при загрузке данных комнат.", e);
       }
@@ -101,12 +117,20 @@ public class JsonFileController {
    public static List<Service> loadServices() {
       try {
          File file = new File(SERVICES_FILE_PATH);
-         if (!file.exists() || file.length() == 0) {
-            System.out.println("Файл с данными услуг пуст или не существует.");
+         boolean wasCreated = !file.exists();
+         createFileIfNeeded(file);
+
+         if (wasCreated) {
+            System.out.println("Файл с данными услуг не существовал, создан новый пустой файл.");
             return new ArrayList<>();
          }
-         return mapper.readValue(file, new TypeReference<List<Service>>() {
-         });
+
+         if (file.length() == 0) {
+            System.out.println("Файл с данными услуг существует, но он пуст.");
+            return new ArrayList<>();
+         }
+
+         return mapper.readValue(file, new TypeReference<List<Service>>() {});
       } catch (IOException e) {
          throw new RuntimeException("Ошибка при загрузке данных услуг.", e);
       }
