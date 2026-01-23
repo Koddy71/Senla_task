@@ -3,7 +3,7 @@ package ru.ilya.ui;
 
 import ru.ilya.service.*;
 import ru.ilya.autodi.Inject;
-import ru.ilya.controller.ImportExportController;
+import ru.ilya.controller.CsvFileController;
 
 public class MenuController {
 
@@ -20,7 +20,7 @@ public class MenuController {
    private ServiceManager serviceManager;
 
    @Inject
-   private ImportExportController importExportController;
+   private CsvFileController csvFileController;
 
    @Inject
    private StateRestoreService stateRestoreService;
@@ -34,6 +34,6 @@ public class MenuController {
       navigator = Navigator.getInstance(builder.getRootMenu());
       stateRestoreService.restore();
       navigator.start();
-      stateRestoreService.saveFromJson();
+      stateRestoreService.save();
    }
 }

@@ -19,7 +19,7 @@ public class AppDIConfig {
       ctx.bind(GuestController.class, GuestController.class);
       ctx.bind(RoomController.class, RoomController.class);
       ctx.bind(ServiceController.class, ServiceController.class);
-      ctx.bind(ImportExportController.class, ImportExportController.class);
+      ctx.bind(CsvFileController.class, CsvFileController.class);
 
       ctx.bind(MenuBuilder.class, MenuBuilder.class);
       ctx.bind(Builder.class, Builder.class);

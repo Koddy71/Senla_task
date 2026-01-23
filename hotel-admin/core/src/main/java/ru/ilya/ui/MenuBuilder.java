@@ -1,7 +1,7 @@
 package ru.ilya.ui;
 
 import ru.ilya.controller.GuestController;
-import ru.ilya.controller.ImportExportController;
+import ru.ilya.controller.CsvFileController;
 import ru.ilya.controller.RoomController;
 import ru.ilya.controller.PriceController;
 import ru.ilya.controller.ServiceController;
@@ -11,19 +11,19 @@ public class MenuBuilder {
    private final RoomController roomController;
    private final ServiceController serviceController;
    private final PriceController priceController;
-   private final ImportExportController importExportController;
+   private final CsvFileController csvFileController;
 
    public MenuBuilder(GuestController guestController,
          RoomController roomController,
          ServiceController serviceController,
          PriceController priceController,
-         ImportExportController importExportController) {
+         CsvFileController csvFileController) {
 
       this.guestController = guestController;
       this.roomController = roomController;
       this.serviceController = serviceController;
       this.priceController = priceController;
-      this.importExportController = importExportController;
+      this.csvFileController = csvFileController;
    }
 
    private Menu buildMainMenu() {
@@ -32,7 +32,7 @@ public class MenuBuilder {
       root.addItem(new MenuItem("Комнаты", build(RoomController.class)));
       root.addItem(new MenuItem("Сервисы", build(ServiceController.class)));
       root.addItem(new MenuItem("Просмотр комнат и услуг", () -> priceController.showRoomsAndService()));
-      root.addItem(new MenuItem("Импорт / Экспорт данных", build(ImportExportController.class)));
+      root.addItem(new MenuItem("Импорт / Экспорт данных", build(CsvFileController.class)));
       return root;
    }
 
@@ -72,13 +72,13 @@ public class MenuBuilder {
    private Menu buildImportExportMenu() {
       Menu menu = new Menu("Импорт / Экспорт данных");
 
-      menu.addItem(new MenuItem("Импорт гостей", () -> importExportController.importGuests()));
-      menu.addItem(new MenuItem("Импорт комнат", () -> importExportController.importRooms()));
-      menu.addItem(new MenuItem("Импорт услуг", () -> importExportController.importServices()));
+      menu.addItem(new MenuItem("Импорт гостей", () -> csvFileController.importGuests()));
+      menu.addItem(new MenuItem("Импорт комнат", () -> csvFileController.importRooms()));
+      menu.addItem(new MenuItem("Импорт услуг", () -> csvFileController.importServices()));
 
-      menu.addItem(new MenuItem("Экспорт гостей", () -> importExportController.exportGuests()));
-      menu.addItem(new MenuItem("Экспорт комнат", () -> importExportController.exportRooms()));
-      menu.addItem(new MenuItem("Экспорт услуг", () -> importExportController.exportServices()));
+      menu.addItem(new MenuItem("Экспорт гостей", () -> csvFileController.exportGuests()));
+      menu.addItem(new MenuItem("Экспорт комнат", () -> csvFileController.exportRooms()));
+      menu.addItem(new MenuItem("Экспорт услуг", () -> csvFileController.exportServices()));
 
       return menu;
    }
@@ -96,7 +96,7 @@ public class MenuBuilder {
          return buildServiceMenu();
       }
 
-      if (type == ImportExportController.class){
+      if (type == CsvFileController.class){
          return buildImportExportMenu();
       }
 

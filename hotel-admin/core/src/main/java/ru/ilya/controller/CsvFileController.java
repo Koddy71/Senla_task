@@ -10,7 +10,7 @@ import ru.ilya.io.exporter.GuestExporter;
 import ru.ilya.io.exporter.RoomExporter;
 import ru.ilya.io.exporter.ServiceExporter;
 
-public class ImportExportController {
+public class CsvFileController {
    private static final String ROOMS_PATH = "core/src/main/resources/rooms.csv"; 
    private static final String GUESTS_PATH  = "core/src/main/resources/guests.csv";
    private static final String SERVICES_FILE = "core/src/main/resources/services.csv";
@@ -33,7 +33,7 @@ public class ImportExportController {
    @Inject
    private ServiceExporter serviceExporter;
 
-   public ImportExportController(){}
+   public CsvFileController(){}
 
    public void importGuests() {
       try {
