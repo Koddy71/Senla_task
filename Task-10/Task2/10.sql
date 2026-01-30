@@ -5,3 +5,5 @@ where price = (
    FROM printer
    where price is not null
 );
+
+-- Найти принтеры, имеющие самую высокую цену. Вывести поля: model, price.
