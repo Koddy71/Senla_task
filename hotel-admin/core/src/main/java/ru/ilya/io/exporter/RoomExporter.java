@@ -18,15 +18,14 @@ public class RoomExporter {
    public void exportCsv(String path) throws IOException {
       List<String> lines = new ArrayList<>();
 
-      lines.add("number,price,capacity,stars,status");
+      lines.add("number,price,capacity,stars");
 
       for (Room r : roomService.getAllRooms()) {
          lines.add(
                r.getNumber() + "," +
                r.getPrice() + "," +
                r.getCapacity() + "," +
-               r.getStars() + "," +
-               r.getStatus());
+               r.getStars());
       }
 
       CsvUtil.write(path, lines);

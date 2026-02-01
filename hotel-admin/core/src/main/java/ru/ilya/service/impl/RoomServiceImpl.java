@@ -39,8 +39,7 @@ public class RoomServiceImpl implements RoomService {
    @Override
    public boolean checkIn(int number) {
       Room room = findRoom(number);
-      if (room != null && room.getStatus() == RoomStatus.AVAILABLE) {
-         room.setStatus(RoomStatus.OCCUPIED);
+      if (room != null && room.isFreeOn(LocalDate.now())) {
          return true;
       }
       return false;
@@ -49,8 +48,7 @@ public class RoomServiceImpl implements RoomService {
    @Override
    public boolean checkOut(int number) {
       Room room = findRoom(number);
-      if (room != null && room.getStatus() == RoomStatus.OCCUPIED) {
-         room.setStatus(RoomStatus.AVAILABLE);
+      if (room != null) {
          return true;
       }
       return false;
@@ -88,8 +86,9 @@ public class RoomServiceImpl implements RoomService {
    @Override
    public List<Room> getFreeRooms() {
       List<Room> freeRooms = new ArrayList<>();
+      LocalDate today = LocalDate.now();
       for (Room r : rooms.values()) {
-         if (r.getStatus() == RoomStatus.AVAILABLE) {
+         if (r.isFreeOn(today)) {
             freeRooms.add(r);
          }
       }
@@ -99,8 +98,9 @@ public class RoomServiceImpl implements RoomService {
    @Override
    public int countFreeRooms() {
       int count = 0;
+      LocalDate today = LocalDate.now();
       for (Room r : rooms.values()) {
-         if (r.getStatus() == RoomStatus.AVAILABLE) {
+         if (r.isFreeOn(today)) {
             count++;
          }
       }

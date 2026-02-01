@@ -82,7 +82,7 @@ public class Guest {
 
 		double servicesCost = 0;
 		for (Service s : services) {
-			servicesCost += s.getPrice();
+			servicesCost += s.getPrice()*nights;
 		}
 		return roomCost + servicesCost;
 	}
