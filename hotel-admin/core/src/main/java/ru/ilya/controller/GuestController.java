@@ -113,4 +113,40 @@ public class GuestController {
          System.out.println(g.getInfo());
       }
    }
+
+   public void addService() {
+      System.out.print("Введите ID гостя: ");
+      Integer guestId = safeInt();
+      if (guestId == null)
+         return;
+
+      System.out.print("Введите ID услуги: ");
+      Integer serviceId = safeInt();
+      if (serviceId == null)
+         return;
+
+      boolean success = guestService.addServiceToGuest(guestId, serviceId);
+      if (success) {
+         System.out.println("Услуга успешно добавлена гостю.");
+      } else {
+         System.out.println("Не удалось добавить услугу. Возможно, гость или услуга не найдены, либо услуга уже добавлена.");
+      }
+   }
+
+   public void removeService() {
+        System.out.print("Введите ID гостя: ");
+        Integer guestId = safeInt();
+        if (guestId == null) return;
+
+        System.out.print("Введите ID услуги: ");
+        Integer serviceId = safeInt();
+        if (serviceId == null) return;
+
+        boolean success = guestService.removeServiceFromGuest(guestId, serviceId);
+        if (success) {
+            System.out.println("Услуга успешно удалена у гостя.");
+        } else {
+            System.out.println("Не удалось удалить услугу. Возможно, гость или услуга не найдены.");
+        }
+   }
 }

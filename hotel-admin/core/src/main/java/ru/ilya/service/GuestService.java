@@ -12,4 +12,6 @@ public interface GuestService {
    List<Guest> getGuestsSorted(String sortedBy);
    int getGuestCount();
    Guest findGuestById(int id);
+   boolean addServiceToGuest(int guestId, int serviceId);
+   boolean removeServiceFromGuest(int guestId, int serviceId);
 }

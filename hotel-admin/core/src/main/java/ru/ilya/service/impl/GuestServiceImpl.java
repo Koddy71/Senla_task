@@ -11,6 +11,7 @@ import ru.ilya.autodi.Inject;
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
+import ru.ilya.model.Service;
 import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
@@ -83,4 +84,37 @@ public class GuestServiceImpl implements GuestService{
    public Guest findGuestById(int id) {
       return guests.get(id);
    }
+
+   @Override
+   public boolean addServiceToGuest(int guestId, int serviceId) {
+      Guest guest = guests.get(guestId);
+      Service service = serviceManager.findService(serviceId);
+      if (service==null || guest==null){
+         return false;
+      }
+
+      if(!guest.getServices().contains(service)){
+         guest.addService(service);
+         return true;
+      }
+
+      return false;
+   }
+
+   @Override
+   public boolean removeServiceFromGuest(int guestId, int serviceId) {
+      Guest guest = guests.get(guestId);
+      Service service = serviceManager.findService(serviceId);
+      if (service == null || guest == null) {
+         return false;
+      }
+
+      if (!guest.getServices().contains(service)) {
+         guest.removeService(service);
+         return true;
+      }
+
+      return false;
+   }
+
 }

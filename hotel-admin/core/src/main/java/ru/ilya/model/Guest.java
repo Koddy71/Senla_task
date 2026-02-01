@@ -1,6 +1,5 @@
 package ru.ilya.model;
 
-import ru.ilya.model.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +73,10 @@ public class Guest {
 		services.add(service);
 	}
 
+   public void removeService(Service service){
+      services.remove(service);
+   }
+
 	public double getTotalCost() {
 		long nights = checkOutDate.toEpochDay() - checkInDate.toEpochDay();
 		if (nights <= 0)
@@ -87,8 +90,24 @@ public class Guest {
 		return roomCost + servicesCost;
 	}
 
+   public String serviceInfo(){
+      String servicesInfo = "";
+
+      if (!services.isEmpty()) {
+         boolean isFirst = true;
+         for (Service service : services) {
+            if (!isFirst) {
+               servicesInfo += ", ";
+            }
+            servicesInfo += service.getName();
+            isFirst = false;
+         }
+      }
+      return servicesInfo;
+   }
+
 	public String getInfo(){
-		return "ID: " + id + " | " + name + " (Номер: " + room.getNumber() + ", с " + checkInDate + " по " + checkOutDate + ")";
+		return "ID: " + id + " | " + name + " (Номер: " + room.getNumber() + ", с " + checkInDate + " по " + checkOutDate + "), (Услуги: " + serviceInfo() + "). Итог: " + getTotalCost() + " рублей.";
 	}
 
 	public String getStayInfo() {

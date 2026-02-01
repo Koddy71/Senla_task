@@ -29,8 +29,9 @@ public class GuestImporter {
             int id = Integer.parseInt(r[0].trim());
             String name = r[1].trim();
             int roomId = Integer.parseInt(r[2].trim());
-            LocalDate checkInDate = LocalDate.parse(r[3].trim());
-            LocalDate checkOutDate = LocalDate.parse(r[4].trim());
+            int serviceId = Integer.parseInt(r[3].trim());
+            LocalDate checkInDate = LocalDate.parse(r[4].trim());
+            LocalDate checkOutDate = LocalDate.parse(r[5].trim());
 
             Guest existing = guestService.findGuestById(id);
             if (existing == null) {
@@ -40,6 +41,7 @@ public class GuestImporter {
                } else{
                   System.out.println("Не удалось заселить гостя: " + String.join(",", r));
                }
+               
             }
 
          } catch (NumberFormatException e) {
