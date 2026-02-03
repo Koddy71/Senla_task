@@ -29,15 +29,27 @@ public class GuestImporter {
             int id = Integer.parseInt(r[0].trim());
             String name = r[1].trim();
             int roomId = Integer.parseInt(r[2].trim());
-            int serviceId = Integer.parseInt(r[3].trim());
-            LocalDate checkInDate = LocalDate.parse(r[4].trim());
-            LocalDate checkOutDate = LocalDate.parse(r[5].trim());
+            LocalDate checkInDate = LocalDate.parse(r[3].trim());
+            LocalDate checkOutDate = LocalDate.parse(r[4].trim());
 
             Guest existing = guestService.findGuestById(id);
             if (existing == null) {
                Guest g = guestService.checkIn(name, roomId, checkInDate, checkOutDate);
                if (g!=null){
                   count++;
+
+                  if (r.length == 6 && !r[5].trim().isEmpty()) {
+                     String[] serviceIds = r[5].trim().split("|");
+                     for (String serviceIdStr : serviceIds) {
+                        try {
+                           int serviceId = Integer.parseInt(serviceIdStr.trim());
+                           guestService.addServiceToGuest(g.getId(), serviceId);
+                        } catch (NumberFormatException e) {
+                           System.out.println("Ошибка формата ID услуги: " + serviceIdStr);
+                        }
+                     }
+                  }
+
                } else{
                   System.out.println("Не удалось заселить гостя: " + String.join(",", r));
                }
