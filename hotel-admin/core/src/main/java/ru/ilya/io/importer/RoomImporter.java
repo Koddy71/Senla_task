@@ -6,7 +6,6 @@ import java.util.List;
 import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Room;
-import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
 
 public class RoomImporter {

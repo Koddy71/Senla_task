@@ -49,18 +49,32 @@ public class Guest {
 		return id;
 	}
 	
+   public void setName(String name){
+      this.name=name;
+   }
+
 	public String getName() {
 		return name;
 	}
+
+   public void setRoom(Room room) {
+      this.room = room;
+   }
 
 	public Room getRoom() {
 		return room;
 	}
 
+   public void setCheckInDate(LocalDate checkInDate) {
+      this.checkInDate=checkInDate;
+   }
 	public LocalDate getCheckInDate() {
 		return checkInDate;
 	}
 
+   public void setCheckOutDate(LocalDate checkOutDate) {
+      this.checkOutDate = checkOutDate;
+   }
 	public LocalDate getCheckOutDate() {
 		return checkOutDate;
 	}

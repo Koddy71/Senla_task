@@ -39,7 +39,7 @@ public class GuestImporter {
                   count++;
 
                   if (r.length == 6 && !r[5].trim().isEmpty()) {
-                     String[] serviceIds = r[5].trim().split("|");
+                     String[] serviceIds = r[5].trim().split("\\|");
                      for (String serviceIdStr : serviceIds) {
                         try {
                            int serviceId = Integer.parseInt(serviceIdStr.trim());
