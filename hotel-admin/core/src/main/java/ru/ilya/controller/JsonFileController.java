@@ -130,7 +130,10 @@ public class JsonFileController {
             return new ArrayList<>();
          }
 
-         return mapper.readValue(file, new TypeReference<List<Service>>() {});
+         List<Service> services = mapper.readValue(file, new TypeReference<List<Service>>() {});
+         int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
+         Service.setIdCounter(maxId + 1);
+         return services;
       } catch (IOException e) {
          throw new RuntimeException("Ошибка при загрузке данных услуг.", e);
       }

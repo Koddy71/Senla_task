@@ -30,15 +30,15 @@ public class Guest {
 	}
 
    public Guest(int id, String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
-    this.id = id;
-    this.name = name;
-    this.room = room;
-    this.checkInDate = checkInDate;
-    this.checkOutDate = checkOutDate;
+      this.id = id;
+      this.name = name;
+      this.room = room;
+      this.checkInDate = checkInDate;
+      this.checkOutDate = checkOutDate;
 
-    if(id>idCounter){
-      idCounter=id+1;
-    }
+      if(id>idCounter){
+         idCounter=id+1;
+      }
    }
 
    public void setId(int id){

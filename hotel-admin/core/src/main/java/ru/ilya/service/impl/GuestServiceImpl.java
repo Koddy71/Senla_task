@@ -109,7 +109,7 @@ public class GuestServiceImpl implements GuestService{
          return false;
       }
 
-      if (!guest.getServices().contains(service)) {
+      if (guest.getServices().contains(service)) {
          guest.removeService(service);
          return true;
       }

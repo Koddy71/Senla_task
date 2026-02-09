@@ -43,6 +43,8 @@ public class DaoController {
          for (Service service : services) {
             try {
                serviceManager.addService(service);
+               int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
+               Service.setIdCounter(maxId + 1);
             } catch (Exception e) {
                System.err.println("Ошибка при добавлении услуги " + service.getName() + ": " + e.getMessage());
             }
