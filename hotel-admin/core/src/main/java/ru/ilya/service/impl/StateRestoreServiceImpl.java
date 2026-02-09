@@ -1,6 +1,7 @@
 package ru.ilya.service.impl;
 
 import ru.ilya.autoconfig.AppConfig;
+import ru.ilya.autoconfig.DatabaseManager;
 import ru.ilya.model.*;
 import ru.ilya.service.*;
 import ru.ilya.controller.CsvFileController;
@@ -124,10 +125,20 @@ public class StateRestoreServiceImpl implements StateRestoreService {
    private void saveToDb() {
       System.out.println("Сохранение данных в БД...");
       DaoController daoController = DaoController.getInstance();
-      daoController.clearDatabase();
-      daoController.saveRooms(roomService);
-      daoController.saveServices(serviceManager);
-      daoController.saveGuests(guestService);
+      DatabaseManager dbManager = DatabaseManager.getInstance();
+      try{ 
+         dbManager.beginTransaction();
+
+         daoController.clearDatabase();
+         daoController.saveRooms(roomService);
+         daoController.saveServices(serviceManager);
+         daoController.saveGuests(guestService);
+
+         dbManager.commitTransaction();
+      } catch(Exception e){
+         dbManager.rollbackTransaction();
+         throw new RuntimeException("Ошибка сохранения состояния в БД. Транзакция откатилась.", e);
+      }
       System.out.println("Данные сохранены в БД.");
    }
 }
