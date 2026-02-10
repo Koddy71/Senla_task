@@ -6,7 +6,6 @@ import java.util.List;
 import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Room;
-import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
 
 public class RoomImporter {
@@ -19,7 +18,7 @@ public class RoomImporter {
       int count=0;
       List<String[]> rows = CsvUtil.read(path);
       for (String[] r : rows) {
-         if (r.length <5){
+         if (r.length <4){
             System.out.println("Недостаточно данных в строке" + String.join(",",r));
             continue;
          }
@@ -28,14 +27,13 @@ public class RoomImporter {
             int price = Integer.parseInt(r[1].trim());
             int capacity = Integer.parseInt(r[2].trim());
             int stars = Integer.parseInt(r[3].trim());
-            RoomStatus status = RoomStatus.valueOf(r[4].trim().toUpperCase());
 
             if (number <= 0 || price < 0 || capacity <= 0 || stars < 0) {
                System.out.println("Ошибка: некорректные значения в строке: " + String.join(",", r));
                continue;
             }
 
-            Room room = new Room(number, price, capacity, stars, status);
+            Room room = new Room(number, price, capacity, stars);
             boolean ok = roomService.addRoom(room);
             if (ok) {
                count++; 

@@ -12,7 +12,8 @@ public class Service extends Priceable{
    private static int idCounter= 1;
 
    // для сериализации
-   public Service() {}
+   public Service() {
+   }
 
 	public Service(String name, int price) {
       this.id = idCounter++;
@@ -30,6 +31,20 @@ public class Service extends Priceable{
        }
     }
 
+   public static void setIdCounter(int next) {
+      if (next > idCounter) {
+         idCounter = next;
+      }
+   }
+
+   public static int getIdCounter() {
+      return idCounter;
+   }
+
+   public void setId(int id){
+      this.id=id;
+   }
+   
     public int getId() {
        return id;
     }

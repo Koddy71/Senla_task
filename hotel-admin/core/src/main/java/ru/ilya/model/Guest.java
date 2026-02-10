@@ -1,6 +1,5 @@
 package ru.ilya.model;
 
-import ru.ilya.model.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,15 +30,15 @@ public class Guest {
 	}
 
    public Guest(int id, String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
-    this.id = id;
-    this.name = name;
-    this.room = room;
-    this.checkInDate = checkInDate;
-    this.checkOutDate = checkOutDate;
+      this.id = id;
+      this.name = name;
+      this.room = room;
+      this.checkInDate = checkInDate;
+      this.checkOutDate = checkOutDate;
 
-    if(id>idCounter){
-      idCounter=id+1;
-    }
+      if(id>idCounter){
+         idCounter=id+1;
+      }
    }
 
    public void setId(int id){
@@ -50,18 +49,32 @@ public class Guest {
 		return id;
 	}
 	
+   public void setName(String name){
+      this.name=name;
+   }
+
 	public String getName() {
 		return name;
 	}
+
+   public void setRoom(Room room) {
+      this.room = room;
+   }
 
 	public Room getRoom() {
 		return room;
 	}
 
+   public void setCheckInDate(LocalDate checkInDate) {
+      this.checkInDate=checkInDate;
+   }
 	public LocalDate getCheckInDate() {
 		return checkInDate;
 	}
 
+   public void setCheckOutDate(LocalDate checkOutDate) {
+      this.checkOutDate = checkOutDate;
+   }
 	public LocalDate getCheckOutDate() {
 		return checkOutDate;
 	}
@@ -74,6 +87,10 @@ public class Guest {
 		services.add(service);
 	}
 
+   public void removeService(Service service){
+      services.remove(service);
+   }
+
 	public double getTotalCost() {
 		long nights = checkOutDate.toEpochDay() - checkInDate.toEpochDay();
 		if (nights <= 0)
@@ -82,13 +99,29 @@ public class Guest {
 
 		double servicesCost = 0;
 		for (Service s : services) {
-			servicesCost += s.getPrice();
+			servicesCost += s.getPrice()*nights;
 		}
 		return roomCost + servicesCost;
 	}
 
+   public String serviceInfo(){
+      String servicesInfo = "";
+
+      if (!services.isEmpty()) {
+         boolean isFirst = true;
+         for (Service service : services) {
+            if (!isFirst) {
+               servicesInfo += ", ";
+            }
+            servicesInfo += service.getName();
+            isFirst = false;
+         }
+      }
+      return servicesInfo;
+   }
+
 	public String getInfo(){
-		return "ID: " + id + " | " + name + " (Номер: " + room.getNumber() + ", с " + checkInDate + " по " + checkOutDate + ")";
+		return "ID: " + id + " | " + name + " (Номер: " + room.getNumber() + ", с " + checkInDate + " по " + checkOutDate + "), (Услуги: " + serviceInfo() + "). Итог: " + getTotalCost() + " рублей.";
 	}
 
 	public String getStayInfo() {

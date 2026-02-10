@@ -40,6 +40,8 @@ public class MenuBuilder {
       Menu m = new Menu("Меню гостей");
       m.addItem(new MenuItem("Заселить гостя", () -> guestController.checkInGuest()));
       m.addItem(new MenuItem("Выселить гостя (по ID)", () -> guestController.checkOutGuest()));
+      m.addItem(new MenuItem("Добавить услугу", ()-> guestController.addService()));
+      m.addItem(new MenuItem("Удалить услугу", () -> guestController.removeService()));
       m.addItem(new MenuItem("Показать всех гостей", () -> guestController.showAllGuests()));
       m.addItem(new MenuItem("Найти гостя по ID", () -> guestController.findGuestById()));
       m.addItem(new MenuItem("Показать количество гостей", () -> guestController.showGuestCount()));
@@ -63,9 +65,9 @@ public class MenuBuilder {
       Menu m = new Menu("Меню услуг");
       m.addItem(new MenuItem("Добавить услугу", () -> serviceController.addService()));
       m.addItem(new MenuItem("Удалить услугу", () -> serviceController.removeService()));
-      m.addItem(new MenuItem("Найти услугу", () -> serviceController.findService()));
-      m.addItem(new MenuItem("Изменить цену услуги", () -> serviceController.changePrice()));
       m.addItem(new MenuItem("Показать все услуги", () -> serviceController.printAllServices()));
+      m.addItem(new MenuItem("Найти услугу по ID", () -> serviceController.findService()));
+      m.addItem(new MenuItem("Изменить цену услуги", () -> serviceController.changePrice()));
       return m;
    }
 

@@ -3,10 +3,10 @@ package ru.ilya.autoconfig;
 import ru.ilya.autodi.ConfigProperty;
 
 public class AppConfig {
-   @ConfigProperty
+   @ConfigProperty(propertyName = "room.status.change.enable")
    private boolean roomStatusChangeEnable;
 
-   @ConfigProperty
+   @ConfigProperty(propertyName = "room.history.limit")
    private int roomHistoryLimit;
 
    @ConfigProperty(propertyName = "storage.type")

@@ -37,9 +37,23 @@ public class GuestImporter {
                Guest g = guestService.checkIn(name, roomId, checkInDate, checkOutDate);
                if (g!=null){
                   count++;
+
+                  if (r.length == 6 && !r[5].trim().isEmpty()) {
+                     String[] serviceIds = r[5].trim().split("\\|");
+                     for (String serviceIdStr : serviceIds) {
+                        try {
+                           int serviceId = Integer.parseInt(serviceIdStr.trim());
+                           guestService.addServiceToGuest(g.getId(), serviceId);
+                        } catch (NumberFormatException e) {
+                           System.out.println("Ошибка формата ID услуги: " + serviceIdStr);
+                        }
+                     }
+                  }
+
                } else{
                   System.out.println("Не удалось заселить гостя: " + String.join(",", r));
                }
+               
             }
 
          } catch (NumberFormatException e) {

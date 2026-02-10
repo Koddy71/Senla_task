@@ -11,7 +11,7 @@ import ru.ilya.autodi.Inject;
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
-import ru.ilya.model.RoomStatus;
+import ru.ilya.model.Service;
 import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
@@ -36,12 +36,10 @@ public class GuestServiceImpl implements GuestService{
 
       Room room = roomService.findRoom(number);
       if (room == null) return null;
-      if (room.getStatus() != RoomStatus.AVAILABLE) return null;
       if (!room.isFreeOn(from) || !room.isFreeOn(to.minusDays(1))) return null;
 
       Guest guest = new Guest(guestName, room, from, to);
       guests.put(guest.getId(), guest); 
-      room.setStatus(RoomStatus.OCCUPIED);
       room.addStay(guest);
 
       int limit = appConfig.getRoomHistoryLimit();
@@ -58,8 +56,6 @@ public class GuestServiceImpl implements GuestService{
       Guest g = guests.remove(guestId);
       if (g == null)
          return false;
-      Room r = g.getRoom();
-      r.setStatus(RoomStatus.AVAILABLE);
       return true;
    }
 
@@ -88,4 +84,37 @@ public class GuestServiceImpl implements GuestService{
    public Guest findGuestById(int id) {
       return guests.get(id);
    }
+
+   @Override
+   public boolean addServiceToGuest(int guestId, int serviceId) {
+      Guest guest = guests.get(guestId);
+      Service service = serviceManager.findService(serviceId);
+      if (service==null || guest==null){
+         return false;
+      }
+
+      if(!guest.getServices().contains(service)){
+         guest.addService(service);
+         return true;
+      }
+
+      return false;
+   }
+
+   @Override
+   public boolean removeServiceFromGuest(int guestId, int serviceId) {
+      Guest guest = guests.get(guestId);
+      Service service = serviceManager.findService(serviceId);
+      if (service == null || guest == null) {
+         return false;
+      }
+
+      if (guest.getServices().contains(service)) {
+         guest.removeService(service);
+         return true;
+      }
+
+      return false;
+   }
+
 }
