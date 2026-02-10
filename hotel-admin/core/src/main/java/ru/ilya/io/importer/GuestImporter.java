@@ -14,10 +14,11 @@ public class GuestImporter {
    @Inject
    private GuestService guestService;
 
-   public GuestImporter(){}
+   public GuestImporter() {
+   }
 
    public int importCsv(String path) throws IOException {
-      int count=0;
+      int count = 0;
       List<String[]> rows = CsvUtil.read(path);
       for (String[] r : rows) {
          if (r.length < 5) {
@@ -35,7 +36,7 @@ public class GuestImporter {
             Guest existing = guestService.findGuestById(id);
             if (existing == null) {
                Guest g = guestService.checkIn(name, roomId, checkInDate, checkOutDate);
-               if (g!=null){
+               if (g != null) {
                   count++;
 
                   if (r.length == 6 && !r[5].trim().isEmpty()) {
@@ -50,10 +51,10 @@ public class GuestImporter {
                      }
                   }
 
-               } else{
+               } else {
                   System.out.println("Не удалось заселить гостя: " + String.join(",", r));
                }
-               
+
             }
 
          } catch (NumberFormatException e) {

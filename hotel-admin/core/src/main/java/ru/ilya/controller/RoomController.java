@@ -20,12 +20,13 @@ public class RoomController {
 
    private final Scanner sc = new Scanner(System.in);
 
-   public RoomController(){}
+   public RoomController() {
+   }
 
-   private Integer safeInt(){
-      try{
+   private Integer safeInt() {
+      try {
          return Integer.parseInt(sc.nextLine());
-      } catch(NumberFormatException e) {
+      } catch (NumberFormatException e) {
          System.out.println("Введите корректное число.");
          return null;
       }
@@ -136,7 +137,7 @@ public class RoomController {
 
    public void sortRooms() {
       System.out.print("Сортировать по ('price', 'capacity', 'stars'): ");
-      String sortBy = sc.nextLine(); 
+      String sortBy = sc.nextLine();
 
       List<Room> sorted = roomService.getRoomsSorted(sortBy);
       for (Room r : sorted) {

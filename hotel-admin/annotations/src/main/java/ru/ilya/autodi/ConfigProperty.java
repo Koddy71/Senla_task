@@ -8,6 +8,8 @@ import ru.ilya.autodi.ValueType;
 @Target(ElementType.FIELD)
 public @interface ConfigProperty {
    String configFilename() default "";
+
    String propertyName() default "";
+
    ValueType type() default ValueType.AUTO;
 }

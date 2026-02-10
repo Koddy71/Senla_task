@@ -11,7 +11,7 @@ public class HotelAdmin {
 
       AppConfig config = new AppConfig();
 
-      ConfigInjector configInjector =new ConfigInjector("config.properties");
+      ConfigInjector configInjector = new ConfigInjector("config.properties");
       configInjector.configure(config);
 
       ApplicationContext context = new ApplicationContext();

@@ -11,8 +11,8 @@ import ru.ilya.io.exporter.RoomExporter;
 import ru.ilya.io.exporter.ServiceExporter;
 
 public class CsvFileController {
-   private static final String ROOMS_PATH = "core/src/main/resources/rooms.csv"; 
-   private static final String GUESTS_PATH  = "core/src/main/resources/guests.csv";
+   private static final String ROOMS_PATH = "core/src/main/resources/rooms.csv";
+   private static final String GUESTS_PATH = "core/src/main/resources/guests.csv";
    private static final String SERVICES_FILE = "core/src/main/resources/services.csv";
 
    @Inject
@@ -33,11 +33,12 @@ public class CsvFileController {
    @Inject
    private ServiceExporter serviceExporter;
 
-   public CsvFileController(){}
+   public CsvFileController() {
+   }
 
    public void importGuests() {
       try {
-         int imported = guestImporter.importCsv(GUESTS_PATH); 
+         int imported = guestImporter.importCsv(GUESTS_PATH);
 
          if (imported == 0) {
             System.out.println("Импорт завершён. Не удалось добавить ни одного гостя.");
@@ -51,7 +52,7 @@ public class CsvFileController {
 
    public void importRooms() {
       try {
-         int imported = roomImporter.importCsv(ROOMS_PATH); 
+         int imported = roomImporter.importCsv(ROOMS_PATH);
 
          if (imported == 0) {
             System.out.println("Импорт комнат завершён. Не удалось добавить ни одной комнаты.");
@@ -65,7 +66,7 @@ public class CsvFileController {
 
    public void importServices() {
       try {
-         int imported = serviceImporter.importCsv(SERVICES_FILE); 
+         int imported = serviceImporter.importCsv(SERVICES_FILE);
 
          if (imported == 0) {
             System.out.println("Импорт услуг завершён. Не удалось добавить ни одной услуги.");
@@ -79,7 +80,7 @@ public class CsvFileController {
 
    public void exportGuests() {
       try {
-         guestExporter.exportCsv(GUESTS_PATH); 
+         guestExporter.exportCsv(GUESTS_PATH);
          System.out.println("Гости успешно экспортированы.");
       } catch (IOException e) {
          System.out.println("Ошибка при экспорте гостей: " + e.getMessage());
@@ -88,7 +89,7 @@ public class CsvFileController {
 
    public void exportRooms() {
       try {
-         roomExporter.exportCsv(ROOMS_PATH); 
+         roomExporter.exportCsv(ROOMS_PATH);
          System.out.println("Комнаты успешно экспортированы.");
       } catch (IOException e) {
          System.out.println("Ошибка при экспорте комнат: " + e.getMessage());
@@ -97,7 +98,7 @@ public class CsvFileController {
 
    public void exportServices() {
       try {
-         serviceExporter.exportCsv(SERVICES_FILE); 
+         serviceExporter.exportCsv(SERVICES_FILE);
          System.out.println("Услуги успешно экспортированы.");
       } catch (IOException e) {
          System.out.println("Ошибка при экспорте услуг: " + e.getMessage());

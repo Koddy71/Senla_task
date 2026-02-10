@@ -18,29 +18,16 @@ public class JsonFileController {
    private static final String GUESTS_FILE_PATH = "core/src/main/resources/guests.json";
    private static final String ROOMS_FILE_PATH = "core/src/main/resources/rooms.json";
    private static final String SERVICES_FILE_PATH = "core/src/main/resources/services.json";
-   private static final ObjectMapper mapper;
+   
+   private final ObjectMapper mapper;
 
-   static {
+   public JsonFileController() {
       mapper = new ObjectMapper();
       mapper.registerModule(new JavaTimeModule());
-      mapper.enable(SerializationFeature.INDENT_OUTPUT); 
+      mapper.enable(SerializationFeature.INDENT_OUTPUT);
    }
 
-   private static void createFileIfNeeded(File file) throws IOException {
-      File parent = file.getParentFile();
-      if (parent != null && !parent.exists()) {
-         if (!parent.mkdirs()) {
-            throw new IOException("Не удалось создать директорию: " + parent.getPath());
-         }
-      }
-      if (!file.exists()) {
-         if (!file.createNewFile()) {
-            throw new IOException("Не удалось создать файл: " + file.getPath());
-         }
-      }
-   }
-
-   public static void saveGuests(List<Guest> guests) {
+   public void saveGuests(List<Guest> guests) {
       try {
          File file = new File(GUESTS_FILE_PATH);
          createFileIfNeeded(file);
@@ -50,7 +37,7 @@ public class JsonFileController {
       }
    }
 
-   public static void saveRooms(List<Room> rooms) {
+   public void saveRooms(List<Room> rooms) {
       try {
          File file = new File(ROOMS_FILE_PATH);
          createFileIfNeeded(file);
@@ -60,7 +47,7 @@ public class JsonFileController {
       }
    }
 
-   public static void saveServices(List<Service> services) {
+   public void saveServices(List<Service> services) {
       try {
          File file = new File(SERVICES_FILE_PATH);
          createFileIfNeeded(file);
@@ -70,7 +57,7 @@ public class JsonFileController {
       }
    }
 
-   public static List<Guest> loadGuests() {
+   public List<Guest> loadGuests() {
       try {
          File file = new File(GUESTS_FILE_PATH);
          boolean wasCreated = !file.exists();
@@ -86,13 +73,14 @@ public class JsonFileController {
             return new ArrayList<>();
          }
 
-         return mapper.readValue(file, new TypeReference<List<Guest>>() {});
+         return mapper.readValue(file, new TypeReference<List<Guest>>() {
+         });
       } catch (IOException e) {
          throw new RuntimeException("Ошибка при загрузке данных гостей.", e);
       }
    }
 
-   public static List<Room> loadRooms() {
+   public List<Room> loadRooms() {
       try {
          File file = new File(ROOMS_FILE_PATH);
          boolean wasCreated = !file.exists();
@@ -108,13 +96,14 @@ public class JsonFileController {
             return new ArrayList<>();
          }
 
-         return mapper.readValue(file, new TypeReference<List<Room>>() {});
+         return mapper.readValue(file, new TypeReference<List<Room>>() {
+         });
       } catch (IOException e) {
          throw new RuntimeException("Ошибка при загрузке данных комнат.", e);
       }
    }
 
-   public static List<Service> loadServices() {
+   public List<Service> loadServices() {
       try {
          File file = new File(SERVICES_FILE_PATH);
          boolean wasCreated = !file.exists();
@@ -130,12 +119,27 @@ public class JsonFileController {
             return new ArrayList<>();
          }
 
-         List<Service> services = mapper.readValue(file, new TypeReference<List<Service>>() {});
+         List<Service> services = mapper.readValue(file, new TypeReference<List<Service>>() {
+         });
          int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
          Service.setIdCounter(maxId + 1);
          return services;
       } catch (IOException e) {
          throw new RuntimeException("Ошибка при загрузке данных услуг.", e);
+      }
+   }
+
+   private void createFileIfNeeded(File file) throws IOException {
+      File parent = file.getParentFile();
+      if (parent != null && !parent.exists()) {
+         if (!parent.mkdirs()) {
+            throw new IOException("Не удалось создать директорию: " + parent.getPath());
+         }
+      }
+      if (!file.exists()) {
+         if (!file.createNewFile()) {
+            throw new IOException("Не удалось создать файл: " + file.getPath());
+         }
       }
    }
 }

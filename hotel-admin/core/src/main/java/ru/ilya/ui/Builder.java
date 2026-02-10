@@ -4,15 +4,15 @@ public class Builder {
    private final MenuBuilder factory;
    private Menu rootMenu;
 
-   public Builder(MenuBuilder factory){
-      this.factory=factory;
+   public Builder(MenuBuilder factory) {
+      this.factory = factory;
    }
 
-   public void buildConsoleMenu(){
+   public void buildConsoleMenu() {
       rootMenu = factory.build(null);
    }
 
-   public Menu getRootMenu(){
+   public Menu getRootMenu() {
       return rootMenu;
    }
 }

@@ -3,9 +3,9 @@ package ru.ilya.model;
 public abstract class Priceable {
    protected int price;
 
-   public int getPrice() { 
+   public int getPrice() {
       return price;
    }
 
-   public abstract String getInfo(); 
+   public abstract String getInfo();
 }

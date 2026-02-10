@@ -13,7 +13,8 @@ public class PriceController {
 
    private Scanner sc = new Scanner(System.in);
 
-   public PriceController(){}
+   public PriceController() {
+   }
 
    public void showRoomsAndService() {
       System.out.print("Что вывести сначала ('room', 'service'): ");

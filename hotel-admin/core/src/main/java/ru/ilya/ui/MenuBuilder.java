@@ -40,7 +40,7 @@ public class MenuBuilder {
       Menu m = new Menu("Меню гостей");
       m.addItem(new MenuItem("Заселить гостя", () -> guestController.checkInGuest()));
       m.addItem(new MenuItem("Выселить гостя (по ID)", () -> guestController.checkOutGuest()));
-      m.addItem(new MenuItem("Добавить услугу", ()-> guestController.addService()));
+      m.addItem(new MenuItem("Добавить услугу", () -> guestController.addService()));
       m.addItem(new MenuItem("Удалить услугу", () -> guestController.removeService()));
       m.addItem(new MenuItem("Показать всех гостей", () -> guestController.showAllGuests()));
       m.addItem(new MenuItem("Найти гостя по ID", () -> guestController.findGuestById()));
@@ -98,7 +98,7 @@ public class MenuBuilder {
          return buildServiceMenu();
       }
 
-      if (type == CsvFileController.class){
+      if (type == CsvFileController.class) {
          return buildImportExportMenu();
       }
 

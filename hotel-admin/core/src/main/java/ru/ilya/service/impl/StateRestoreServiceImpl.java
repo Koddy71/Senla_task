@@ -28,6 +28,15 @@ public class StateRestoreServiceImpl implements StateRestoreService {
    @Inject
    private CsvFileController csvFileController;
 
+   @Inject
+   private DaoController daoController;
+
+   @Inject
+   private JsonFileController jsonFileController;
+
+   @Inject
+   private DatabaseManager dbManager;
+
    @Override
    public void restore() {
       if ("json".equalsIgnoreCase(config.getStorageType())) {
@@ -35,7 +44,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
       } else if ("csv".equalsIgnoreCase(config.getStorageType())) {
          restoreFromCsv();
       } else if ("db".equalsIgnoreCase(config.getStorageType())) {
-        restoreFromDb();
+         restoreFromDb();
       } else {
          throw new RuntimeException(
                "Неизвестный тип хранилища: " + config.getStorageType());
@@ -49,7 +58,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
       } else if ("csv".equalsIgnoreCase(config.getStorageType())) {
          saveToCsv();
       } else if ("db".equalsIgnoreCase(config.getStorageType())) {
-        saveToDb(); 
+         saveToDb();
       } else {
          throw new RuntimeException(
                "Неизвестный тип хранилища: " + config.getStorageType());
@@ -57,9 +66,9 @@ public class StateRestoreServiceImpl implements StateRestoreService {
    }
 
    private void restoreFromJson() {
-      List<Room> rooms = JsonFileController.loadRooms();
-      List<Guest> guests = JsonFileController.loadGuests();
-      List<Service> services = JsonFileController.loadServices();
+      List<Room> rooms = jsonFileController.loadRooms();
+      List<Guest> guests = jsonFileController.loadGuests();
+      List<Service> services = jsonFileController.loadServices();
 
       if (rooms.isEmpty() && guests.isEmpty() && services.isEmpty()) {
          System.out.println("JSON пуст. Нечего восстанавливать.");
@@ -85,7 +94,6 @@ public class StateRestoreServiceImpl implements StateRestoreService {
       System.out.println("Состояние восстановлено из JSON.");
    }
 
-
    private void restoreFromCsv() {
       System.out.println("Импорт данных из CSV...");
       csvFileController.importRooms();
@@ -95,22 +103,20 @@ public class StateRestoreServiceImpl implements StateRestoreService {
 
    private void restoreFromDb() {
       System.out.println("Загрузка данных из БД...");
-      DaoController daoController = DaoController.getInstance();
       daoController.restoreRooms(roomService);
       daoController.restoreServices(serviceManager);
       daoController.restoreGuests(roomService, guestService);
       System.out.println("Данные из БД загружены.");
    }
 
-   
    private void saveToJson() {
-      JsonFileController.saveGuests(guestService.getAllGuests());
+      jsonFileController.saveGuests(guestService.getAllGuests());
       System.out.println("Гости сохранены.");
 
-      JsonFileController.saveRooms(roomService.getAllRooms());
+      jsonFileController.saveRooms(roomService.getAllRooms());
       System.out.println("Комнаты сохранены.");
 
-      JsonFileController.saveServices(serviceManager.getAllServices());
+      jsonFileController.saveServices(serviceManager.getAllServices());
       System.out.println("Услуги сохранены.");
    }
 
@@ -124,9 +130,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
 
    private void saveToDb() {
       System.out.println("Сохранение данных в БД...");
-      DaoController daoController = DaoController.getInstance();
-      DatabaseManager dbManager = DatabaseManager.getInstance();
-      try{ 
+      try {
          dbManager.beginTransaction();
 
          daoController.clearDatabase();
@@ -135,7 +139,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
          daoController.saveGuests(guestService);
 
          dbManager.commitTransaction();
-      } catch(Exception e){
+      } catch (Exception e) {
          dbManager.rollbackTransaction();
          throw new RuntimeException("Ошибка сохранения состояния в БД. Транзакция откатилась.", e);
       }

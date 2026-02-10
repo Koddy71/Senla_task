@@ -15,7 +15,8 @@ public class RoomServiceImpl implements RoomService {
    @Inject
    private AppConfig appConfig;
 
-   public RoomServiceImpl(){}
+   public RoomServiceImpl() {
+   }
 
    @Override
    public boolean addRoom(Room room) {
@@ -56,11 +57,11 @@ public class RoomServiceImpl implements RoomService {
 
    @Override
    public boolean changeStatus(int number, RoomStatus status) {
-      if (!appConfig.isRoomStatusChangeEnable()){
+      if (!appConfig.isRoomStatusChangeEnable()) {
          System.out.println("Изменение статуса номеров отключено в настройках.");
          return false;
       }
-      
+
       Room room = findRoom(number);
       if (room != null) {
          room.setStatus(status);
@@ -128,10 +129,10 @@ public class RoomServiceImpl implements RoomService {
          sorted.sort(Comparator.comparingInt(Room::getCapacity).reversed());
       } else if ("stars".equalsIgnoreCase(sortBy)) {
          sorted.sort(Comparator.comparingInt(Room::getStars).reversed());
-      } else{
+      } else {
          sorted.sort(Comparator.comparingDouble(Room::getPrice).reversed());
       }
-      
+
       return sorted;
    }
 }

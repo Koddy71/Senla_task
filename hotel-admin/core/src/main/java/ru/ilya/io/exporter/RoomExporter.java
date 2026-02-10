@@ -13,8 +13,9 @@ public class RoomExporter {
    @Inject
    private RoomService roomService;
 
-   public RoomExporter(){}
-   
+   public RoomExporter() {
+   }
+
    public void exportCsv(String path) throws IOException {
       List<String> lines = new ArrayList<>();
 
@@ -23,9 +24,9 @@ public class RoomExporter {
       for (Room r : roomService.getAllRooms()) {
          lines.add(
                r.getNumber() + "," +
-               r.getPrice() + "," +
-               r.getCapacity() + "," +
-               r.getStars());
+                     r.getPrice() + "," +
+                     r.getCapacity() + "," +
+                     r.getStars());
       }
 
       CsvUtil.write(path, lines);

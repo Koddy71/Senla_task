@@ -12,7 +12,8 @@ public class ServiceManagerImpl implements ServiceManager {
 
    private Map<Integer, Service> services = new HashMap<>();
 
-   public ServiceManagerImpl() {}
+   public ServiceManagerImpl() {
+   }
 
    @Override
    public boolean addService(Service service) {

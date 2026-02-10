@@ -12,10 +12,11 @@ public class ServiceImporter {
    @Inject
    private ServiceManager serviceManager;
 
-   public ServiceImporter(){}
+   public ServiceImporter() {
+   }
 
    public int importCsv(String path) throws IOException {
-      int count =0;
+      int count = 0;
       List<String[]> rows = CsvUtil.read(path);
 
       for (String[] r : rows) {
@@ -42,7 +43,7 @@ public class ServiceImporter {
             Service service = new Service(id, name, price);
             boolean ok = serviceManager.addService(service);
             if (ok) {
-               count++; 
+               count++;
             } else {
                System.out.println("Услуга не добавлена (возможно, ID уже существует): " + String.join(",", r));
             }

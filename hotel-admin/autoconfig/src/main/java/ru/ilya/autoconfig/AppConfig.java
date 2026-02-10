@@ -12,7 +12,7 @@ public class AppConfig {
    @ConfigProperty(propertyName = "storage.type")
    private String storageType;
 
-   public boolean isRoomStatusChangeEnable(){
+   public boolean isRoomStatusChangeEnable() {
       return roomStatusChangeEnable;
    }
 
@@ -20,7 +20,7 @@ public class AppConfig {
       return roomHistoryLimit;
    }
 
-   public String getStorageType(){
+   public String getStorageType() {
       return storageType;
    }
 }

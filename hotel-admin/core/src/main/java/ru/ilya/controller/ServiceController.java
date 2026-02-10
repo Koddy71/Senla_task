@@ -14,7 +14,8 @@ public class ServiceController {
 
    private final Scanner sc = new Scanner(System.in);
 
-   public ServiceController(){}
+   public ServiceController() {
+   }
 
    public void addService() {
       System.out.print("Введите название услуги: ");
@@ -34,7 +35,7 @@ public class ServiceController {
          return;
       }
 
-      Service s = new Service(name, price); 
+      Service s = new Service(name, price);
 
       boolean ok = serviceManager.addService(s);
       System.out.println(

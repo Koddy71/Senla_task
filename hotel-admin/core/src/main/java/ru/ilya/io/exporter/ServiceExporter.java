@@ -13,8 +13,9 @@ public class ServiceExporter {
    @Inject
    private ServiceManager serviceManager;
 
-   public ServiceExporter(){}
-   
+   public ServiceExporter() {
+   }
+
    public void exportCsv(String path) throws IOException {
       List<String> lines = new ArrayList<>();
 
@@ -23,8 +24,8 @@ public class ServiceExporter {
       for (Service s : serviceManager.getAllServices()) {
          lines.add(
                s.getId() + "," +
-               s.getName() + "," +
-               s.getPrice());
+                     s.getName() + "," +
+                     s.getPrice());
       }
 
       CsvUtil.write(path, lines);

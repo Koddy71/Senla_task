@@ -1,6 +1,5 @@
 package ru.ilya.ui;
 
-
 import ru.ilya.service.*;
 import ru.ilya.autodi.Inject;
 import ru.ilya.controller.CsvFileController;
@@ -27,10 +26,11 @@ public class MenuController {
 
    private Navigator navigator;
 
-   public MenuController() {}
+   public MenuController() {
+   }
 
    public void run() {
-      builder.buildConsoleMenu(); 
+      builder.buildConsoleMenu();
       navigator = Navigator.getInstance(builder.getRootMenu());
       stateRestoreService.restore();
       navigator.start();

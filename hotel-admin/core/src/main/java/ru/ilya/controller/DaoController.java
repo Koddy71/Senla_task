@@ -1,5 +1,6 @@
 package ru.ilya.controller;
 
+import ru.ilya.autodi.Inject;
 import ru.ilya.dao.*;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
@@ -11,15 +12,17 @@ import ru.ilya.service.ServiceManager;
 import java.util.List;
 
 public class DaoController {
-   private static DaoController instance;
-   private final RoomDao roomDao;
-   private final GuestDao guestDao;
-   private final ServiceDao serviceDao;
 
-   private DaoController() {
-      this.roomDao = new RoomDao();
-      this.guestDao = new GuestDao();
-      this.serviceDao = new ServiceDao();
+   @Inject
+   private RoomDao roomDao;
+
+   @Inject
+   private ServiceDao serviceDao;
+
+   @Inject
+   private GuestDao guestDao;
+
+   public DaoController() {
    }
 
    public void restoreRooms(RoomService roomService) {
@@ -72,11 +75,11 @@ public class DaoController {
                      guest.getCheckInDate(),
                      guest.getCheckOutDate());
 
-               if (g!= null){
-                  for(Service service : guest.getServices()){
+               if (g != null) {
+                  for (Service service : guest.getServices()) {
                      guestService.addServiceToGuest(g.getId(), service.getId());
                   }
-               }     
+               }
             } catch (Exception e) {
                System.err.println("Ошибка при восстановлении гостя " + guest.getName() + ": " + e.getMessage());
             }
@@ -124,12 +127,5 @@ public class DaoController {
             System.err.println("Ошибка при сохранении гостя " + guest.getName() + ": " + e.getMessage());
          }
       }
-   }
-
-   public static DaoController getInstance() {
-      if (instance == null) {
-         instance = new DaoController();
-      }
-      return instance;
    }
 }

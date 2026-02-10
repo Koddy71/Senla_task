@@ -14,7 +14,8 @@ public class GuestExporter {
    @Inject
    private GuestService guestService;
 
-   public GuestExporter(){}
+   public GuestExporter() {
+   }
 
    public void exportCsv(String path) throws IOException {
       List<String> lines = new ArrayList<>();
@@ -27,21 +28,21 @@ public class GuestExporter {
          StringBuilder serviceIDs = new StringBuilder();
          List<Service> services = g.getServices();
 
-         for (int i=0; i<services.size();i++){
+         for (int i = 0; i < services.size(); i++) {
             Service service = services.get(i);
             serviceIDs.append(service.getId());
-            if(i<services.size()-1){
+            if (i < services.size() - 1) {
                serviceIDs.append("|");
             }
          }
-         
+
          lines.add(
                g.getId() + "," +
-               g.getName() + "," +
-               roomNumber+ "," +
-               g.getCheckInDate() + "," +
-               g.getCheckOutDate()+ "," +
-               serviceIDs.toString());
+                     g.getName() + "," +
+                     roomNumber + "," +
+                     g.getCheckInDate() + "," +
+                     g.getCheckOutDate() + "," +
+                     serviceIDs);
       }
 
       CsvUtil.write(path, lines);

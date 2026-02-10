@@ -12,14 +12,15 @@ public class RoomImporter {
    @Inject
    private RoomService roomService;
 
-   public RoomImporter(){}
-   
+   public RoomImporter() {
+   }
+
    public int importCsv(String path) throws IOException {
-      int count=0;
+      int count = 0;
       List<String[]> rows = CsvUtil.read(path);
       for (String[] r : rows) {
-         if (r.length <4){
-            System.out.println("Недостаточно данных в строке" + String.join(",",r));
+         if (r.length < 4) {
+            System.out.println("Недостаточно данных в строке" + String.join(",", r));
             continue;
          }
          try {
@@ -36,9 +37,10 @@ public class RoomImporter {
             Room room = new Room(number, price, capacity, stars);
             boolean ok = roomService.addRoom(room);
             if (ok) {
-               count++; 
+               count++;
             } else {
-               System.out.println("Комната не добавлена (возможно, такой номер уже существует): " + String.join(",", r));
+               System.out
+                     .println("Комната не добавлена (возможно, такой номер уже существует): " + String.join(",", r));
             }
 
          } catch (NumberFormatException e) {

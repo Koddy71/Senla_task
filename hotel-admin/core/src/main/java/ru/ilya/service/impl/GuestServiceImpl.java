@@ -16,8 +16,8 @@ import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
 
-public class GuestServiceImpl implements GuestService{
-	private Map<Integer, Guest> guests = new HashMap<>();
+public class GuestServiceImpl implements GuestService {
+   private Map<Integer, Guest> guests = new HashMap<>();
 
    @Inject
    private RoomService roomService;
@@ -28,23 +28,27 @@ public class GuestServiceImpl implements GuestService{
    @Inject
    private AppConfig appConfig;
 
-   public GuestServiceImpl(){}
+   public GuestServiceImpl() {
+   }
 
    @Override
    public Guest checkIn(String guestName, int number, LocalDate from, LocalDate to) {
-      if (guestName == null || from == null || to == null || !to.isAfter(from)) return null;
+      if (guestName == null || from == null || to == null || !to.isAfter(from))
+         return null;
 
       Room room = roomService.findRoom(number);
-      if (room == null) return null;
-      if (!room.isFreeOn(from) || !room.isFreeOn(to.minusDays(1))) return null;
+      if (room == null)
+         return null;
+      if (!room.isFreeOn(from) || !room.isFreeOn(to.minusDays(1)))
+         return null;
 
       Guest guest = new Guest(guestName, room, from, to);
-      guests.put(guest.getId(), guest); 
+      guests.put(guest.getId(), guest);
       room.addStay(guest);
 
       int limit = appConfig.getRoomHistoryLimit();
       List<Guest> history = room.getStayHistory();
-      if (history.size()>limit){
+      if (history.size() > limit) {
          history.remove(0);
       }
 
@@ -71,7 +75,9 @@ public class GuestServiceImpl implements GuestService{
          sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));
       } else if ("checkoutDate".equalsIgnoreCase(sortBy)) {
          sorted.sort(Comparator.comparing(Guest::getCheckOutDate).reversed());
-      } else{ sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));}
+      } else {
+         sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));
+      }
       return sorted;
    }
 
@@ -89,11 +95,11 @@ public class GuestServiceImpl implements GuestService{
    public boolean addServiceToGuest(int guestId, int serviceId) {
       Guest guest = guests.get(guestId);
       Service service = serviceManager.findService(serviceId);
-      if (service==null || guest==null){
+      if (service == null || guest == null) {
          return false;
       }
 
-      if(!guest.getServices().contains(service)){
+      if (!guest.getServices().contains(service)) {
          guest.addService(service);
          return true;
       }

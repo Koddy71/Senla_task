@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ilya.autoconfig.DatabaseManager;
+import ru.ilya.autodi.Inject;
 import ru.ilya.model.Service;
 
 public class ServiceDao implements GenericDao<Service, Integer> {
@@ -23,34 +24,40 @@ public class ServiceDao implements GenericDao<Service, Integer> {
    private static final String COLUMN_NAME = "name";
    private static final String COLUMN_PRICE = "price";
 
+   @Inject
+   private DatabaseManager dbManager;
+
+   public ServiceDao(){
+   }
+   
    @Override
    public Service create(Service service) {
-      try (Connection conn = DatabaseManager.getInstance().getConnection();
-            PreparedStatement statement = conn.prepareStatement(INSERT_SQL)){
-               statement.setInt(1, service.getId());
-               statement.setString(2, service.getName());
-               statement.setInt(3, service.getPrice());
-               statement.executeUpdate();
-               return service;
-            } catch (SQLException e) {
-               throw new RuntimeException("Ошибка вставки услуги в БД", e);
-            }  
+      try (Connection conn = dbManager.getConnection();
+            PreparedStatement statement = conn.prepareStatement(INSERT_SQL)) {
+         statement.setInt(1, service.getId());
+         statement.setString(2, service.getName());
+         statement.setInt(3, service.getPrice());
+         statement.executeUpdate();
+         return service;
+      } catch (SQLException e) {
+         throw new RuntimeException("Ошибка вставки услуги в БД", e);
+      }
    }
 
    @Override
    public Service findById(Integer id) {
-      try (Connection conn = DatabaseManager.getInstance().getConnection();
+      try (Connection conn = dbManager.getConnection();
             PreparedStatement statement = conn.prepareStatement(SELECT_BY_ID_SQL)) {
-               statement.setInt(1, id);
-               try (ResultSet rs = statement.executeQuery()) {
-                  if (rs.next()) {
-                     Service service = new Service();
-                     service.setId(rs.getInt(COLUMN_ID));
-                     service.setName(rs.getString(COLUMN_NAME));
-                     service.setPrice(rs.getInt(COLUMN_PRICE));
-                     return service;
-                  }
-               }
+         statement.setInt(1, id);
+         try (ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+               Service service = new Service();
+               service.setId(rs.getInt(COLUMN_ID));
+               service.setName(rs.getString(COLUMN_NAME));
+               service.setPrice(rs.getInt(COLUMN_PRICE));
+               return service;
+            }
+         }
       } catch (SQLException e) {
          throw new RuntimeException("Ошибка выборки услуги из БД", e);
       }
@@ -60,51 +67,51 @@ public class ServiceDao implements GenericDao<Service, Integer> {
    @Override
    public List<Service> findAll() {
       List<Service> list = new ArrayList<>();
-      try (Connection conn = DatabaseManager.getInstance().getConnection();
+      try (Connection conn = dbManager.getConnection();
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(SELECT_ALL_SQL)) {
-               while (rs.next()) {
-                  Service service = new Service();
-                  service.setId(rs.getInt(COLUMN_ID));
-                  service.setName(rs.getString(COLUMN_NAME));
-                  service.setPrice(rs.getInt(COLUMN_PRICE));
-                  list.add(service);
-               }
-            } catch (SQLException e) {
-               throw new RuntimeException("Ошибка выборки всех услуг из БД", e);
-            }
+         while (rs.next()) {
+            Service service = new Service();
+            service.setId(rs.getInt(COLUMN_ID));
+            service.setName(rs.getString(COLUMN_NAME));
+            service.setPrice(rs.getInt(COLUMN_PRICE));
+            list.add(service);
+         }
+      } catch (SQLException e) {
+         throw new RuntimeException("Ошибка выборки всех услуг из БД", e);
+      }
       return list;
    }
 
    @Override
    public Service update(Service service) {
-      try (Connection conn = DatabaseManager.getInstance().getConnection();
+      try (Connection conn = dbManager.getConnection();
             PreparedStatement statement = conn.prepareStatement(UPDATE_SQL)) {
-               statement.setString(1, service.getName());
-               statement.setInt(2, service.getPrice());
-               statement.setInt(3, service.getId());
-               statement.executeUpdate();
-               return service;
-            } catch (SQLException e) {
-               throw new RuntimeException("Ошибка обновления услуги в БД", e);
-            }
+         statement.setString(1, service.getName());
+         statement.setInt(2, service.getPrice());
+         statement.setInt(3, service.getId());
+         statement.executeUpdate();
+         return service;
+      } catch (SQLException e) {
+         throw new RuntimeException("Ошибка обновления услуги в БД", e);
+      }
    }
 
    @Override
    public boolean delete(Integer id) {
-      try (Connection conn = DatabaseManager.getInstance().getConnection();
+      try (Connection conn = dbManager.getConnection();
             PreparedStatement statement = conn.prepareStatement(DELETE_SQL)) {
-               statement.setInt(1, id);
-               int affected = statement.executeUpdate();
-               return affected > 0;
-            } catch (SQLException e) {
-               throw new RuntimeException("Ошибка удаления услуги из БД", e);
-            }
+         statement.setInt(1, id);
+         int affected = statement.executeUpdate();
+         return affected > 0;
+      } catch (SQLException e) {
+         throw new RuntimeException("Ошибка удаления услуги из БД", e);
+      }
    }
 
    @Override
    public void deleteAll() {
-      try (Connection conn = DatabaseManager.getInstance().getConnection();
+      try (Connection conn = dbManager.getConnection();
             Statement statement = conn.createStatement()) {
          statement.executeUpdate(DELETE_ALL_SQL);
       } catch (SQLException e) {

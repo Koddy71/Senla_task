@@ -1,7 +1,7 @@
 package ru.ilya.autodi;
 
 public enum ValueType {
-   AUTO, 
+   AUTO,
    STRING,
    INT,
    LONG,
