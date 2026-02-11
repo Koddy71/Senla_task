@@ -17,170 +17,181 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GuestDao implements GenericDao<Guest, Integer> {
-   private static final String INSERT_GUEST_SQL = "INSERT INTO guest(id, name, roomNumber, checkInDate, checkOutDate) VALUES (?, ?, ?, ?, ?)";
-   private static final String INSERT_GUEST_SERVICE_SQL = "INSERT INTO guest_service(guest_id, service_id) VALUES (?, ?)";
-   private static final String SELECT_GUEST_BY_ID_SQL = "SELECT id, name, roomNumber, checkInDate, checkOutDate FROM guest WHERE id = ?";
-   private static final String SELECT_ALL_GUESTS_SQL = "SELECT id, name, roomNumber, checkInDate, checkOutDate FROM guest";
-   private static final String UPDATE_GUEST_SQL = "UPDATE guest SET name = ?, roomNumber = ?, checkInDate = ?, checkOutDate = ? WHERE id = ?";
-   private static final String DELETE_GUEST_SERVICES_SQL = "DELETE FROM guest_service WHERE guest_id = ?";
-   private static final String DELETE_GUEST_SQL = "DELETE FROM guest WHERE id = ?";
-   private static final String SELECT_GUEST_SERVICES_SQL = """
-         SELECT s.id, s.name, s.price FROM service s
-         JOIN guest_service gs ON s.id = gs.service_id
-         WHERE gs.guest_id = ?
-         """;
-   private static final String DELETE_GUEST_SERVICES_ALL_SQL = "DELETE FROM guest_service";
-   private static final String DELETE_GUEST_ALL_SQL = "DELETE FROM guest";
+    private static final String INSERT_GUEST_SQL = """
+            INSERT INTO guest(id, name, roomNumber, checkInDate, checkOutDate)
+            VALUES (?, ?, ?, ?, ?)
+            """;
+    private static final String INSERT_GUEST_SERVICE_SQL = """
+            INSERT INTO guest_service(guest_id, service_id) VALUES (?, ?)
+            """;;
+    private static final String SELECT_GUEST_BY_ID_SQL = """
+            SELECT id, name, roomNumber, checkInDate, checkOutDate FROM guest WHERE id = ?
+            """;
+    private static final String SELECT_ALL_GUESTS_SQL = """
+            SELECT id, name, roomNumber, checkInDate, checkOutDate FROM guest
+            """;
+    private static final String UPDATE_GUEST_SQL = """
+            UPDATE guest SET name = ?, roomNumber = ?, checkInDate = ?, checkOutDate = ? WHERE id = ?
+            """;
+    private static final String DELETE_GUEST_SERVICES_SQL = "DELETE FROM guest_service WHERE guest_id = ?";
+    private static final String DELETE_GUEST_SQL = "DELETE FROM guest WHERE id = ?";
+    private static final String SELECT_GUEST_SERVICES_SQL = """
+            SELECT s.id, s.name, s.price FROM service s
+            JOIN guest_service gs ON s.id = gs.service_id
+            WHERE gs.guest_id = ?
+            """;
+    private static final String DELETE_GUEST_SERVICES_ALL_SQL = "DELETE FROM guest_service";
+    private static final String DELETE_GUEST_ALL_SQL = "DELETE FROM guest";
 
-   private static final String COLUMN_ID = "id";
-   private static final String COLUMN_NAME = "name";
-   private static final String COLUMN_ROOM_NUMBER = "roomNumber";
-   private static final String COLUMN_CHECK_IN_DATE = "checkInDate";
-   private static final String COLUMN_CHECK_OUT_DATE = "checkOutDate";
-   private static final String COLUMN_PRICE = "price";
-   
-   @Inject
-   private DatabaseManager dbManager;
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_NAME = "name";
+    private static final String COLUMN_ROOM_NUMBER = "roomNumber";
+    private static final String COLUMN_CHECK_IN_DATE = "checkInDate";
+    private static final String COLUMN_CHECK_OUT_DATE = "checkOutDate";
+    private static final String COLUMN_PRICE = "price";
 
-   public GuestDao() {
-   }
+    @Inject
+    private DatabaseManager dbManager;
 
-   @Override
-   public Guest create(Guest guest) {
-      try (Connection conn = dbManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(INSERT_GUEST_SQL)) {
-         statement.setInt(1, guest.getId());
-         statement.setString(2, guest.getName());
-         statement.setInt(3, guest.getRoom().getNumber());
-         statement.setDate(4, Date.valueOf(guest.getCheckInDate()));
-         statement.setDate(5, Date.valueOf(guest.getCheckOutDate()));
-         statement.executeUpdate();
-         for (Service s : guest.getServices()) {
-            addServiceToGuest(guest.getId(), s.getId(), conn);
-         }
-         return guest;
-      } catch (SQLException e) {
-         throw new RuntimeException("Ошибка вставки гостя в БД", e);
-      }
-   }
+    public GuestDao() {
+    }
 
-   @Override
-   public Guest findById(Integer id) {
-      try (Connection conn = dbManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(SELECT_GUEST_BY_ID_SQL)) {
-         statement.setInt(1, id);
-         try (ResultSet rs = statement.executeQuery()) {
-            if (rs.next()) {
-               Guest guest = new Guest();
-               guest.setId(rs.getInt(COLUMN_ID));
-               guest.setName(rs.getString(COLUMN_NAME));
-               int roomNumber = rs.getInt(COLUMN_ROOM_NUMBER);
-               Room room = new Room();
-               room.setNumber(roomNumber);
-               guest.setRoom(room);
-               guest.setCheckInDate(rs.getDate(COLUMN_CHECK_IN_DATE).toLocalDate());
-               guest.setCheckOutDate(rs.getDate(COLUMN_CHECK_OUT_DATE).toLocalDate());
-               loadGuestServices(guest, conn);
-               return guest;
+    @Override
+    public Guest create(Guest guest) {
+        try (Connection conn = dbManager.getConnection();
+                PreparedStatement statement = conn.prepareStatement(INSERT_GUEST_SQL)) {
+            statement.setInt(1, guest.getId());
+            statement.setString(2, guest.getName());
+            statement.setInt(3, guest.getRoom().getNumber());
+            statement.setDate(4, Date.valueOf(guest.getCheckInDate()));
+            statement.setDate(5, Date.valueOf(guest.getCheckOutDate()));
+            statement.executeUpdate();
+            for (Service s : guest.getServices()) {
+                addServiceToGuest(guest.getId(), s.getId(), conn);
             }
-         }
-      } catch (SQLException e) {
-         throw new RuntimeException("Ошибка выборки гостя из БД", e);
-      }
-      return null;
-   }
+            return guest;
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка вставки гостя в БД", e);
+        }
+    }
 
-   @Override
-   public List<Guest> findAll() {
-      List<Guest> list = new ArrayList<>();
-      try (Connection conn = dbManager.getConnection();
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(SELECT_ALL_GUESTS_SQL)) {
-         while (rs.next()) {
-            Guest guest = new Guest();
-            guest.setId(rs.getInt(COLUMN_ID));
-            guest.setName(rs.getString(COLUMN_NAME));
-            int roomNumber = rs.getInt(COLUMN_ROOM_NUMBER);
-            Room room = new Room();
-            room.setNumber(roomNumber);
-            guest.setRoom(room);
-            guest.setCheckInDate(rs.getDate(COLUMN_CHECK_IN_DATE).toLocalDate());
-            guest.setCheckOutDate(rs.getDate(COLUMN_CHECK_OUT_DATE).toLocalDate());
-            loadGuestServices(guest, conn);
-            list.add(guest);
-         }
-      } catch (SQLException e) {
-         throw new RuntimeException("Ошибка выборки всех гостей из БД", e);
-      }
-      return list;
-   }
+    @Override
+    public Guest findById(Integer id) {
+        try (Connection conn = dbManager.getConnection();
+                PreparedStatement statement = conn.prepareStatement(SELECT_GUEST_BY_ID_SQL)) {
+            statement.setInt(1, id);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    Guest guest = new Guest();
+                    guest.setId(rs.getInt(COLUMN_ID));
+                    guest.setName(rs.getString(COLUMN_NAME));
+                    int roomNumber = rs.getInt(COLUMN_ROOM_NUMBER);
+                    Room room = new Room();
+                    room.setNumber(roomNumber);
+                    guest.setRoom(room);
+                    guest.setCheckInDate(rs.getDate(COLUMN_CHECK_IN_DATE).toLocalDate());
+                    guest.setCheckOutDate(rs.getDate(COLUMN_CHECK_OUT_DATE).toLocalDate());
+                    loadGuestServices(guest, conn);
+                    return guest;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка выборки гостя из БД", e);
+        }
+        return null;
+    }
 
-   @Override
-   public Guest update(Guest guest) {
-      try (Connection conn = dbManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(UPDATE_GUEST_SQL)) {
-         statement.setString(1, guest.getName());
-         statement.setInt(2, guest.getRoom().getNumber());
-         statement.setDate(3, Date.valueOf(guest.getCheckInDate()));
-         statement.setDate(4, Date.valueOf(guest.getCheckOutDate()));
-         statement.setInt(5, guest.getId());
-         statement.executeUpdate();
-         try (PreparedStatement delStmt = conn.prepareStatement(DELETE_GUEST_SERVICES_SQL)) {
-            delStmt.setInt(1, guest.getId());
-            delStmt.executeUpdate();
-         }
-         for (Service s : guest.getServices()) {
-            addServiceToGuest(guest.getId(), s.getId(), conn);
-         }
-         return guest;
-      } catch (SQLException e) {
-         throw new RuntimeException("Ошибка обновления гостя в БД", e);
-      }
-   }
-
-   @Override
-   public boolean delete(Integer id) {
-      try (Connection conn = dbManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(DELETE_GUEST_SQL)) {
-         statement.setInt(1, id);
-         int affected = statement.executeUpdate();
-         return affected > 0;
-      } catch (SQLException e) {
-         throw new RuntimeException("Ошибка удаления гостя из БД", e);
-      }
-   }
-
-   @Override
-   public void deleteAll() {
-      try (Connection conn = dbManager.getConnection();
-            Statement statement = conn.createStatement()) {
-         statement.executeUpdate(DELETE_GUEST_SERVICES_ALL_SQL);
-         statement.executeUpdate(DELETE_GUEST_ALL_SQL);
-      } catch (SQLException e) {
-         throw new RuntimeException("Ошибка очистки guest", e);
-      }
-   }
-
-   private void addServiceToGuest(int guestId, int serviceId, Connection conn) throws SQLException {
-      try (PreparedStatement statement = conn.prepareStatement(INSERT_GUEST_SERVICE_SQL)) {
-         statement.setInt(1, guestId);
-         statement.setInt(2, serviceId);
-         statement.executeUpdate();
-      }
-   }
-
-   private void loadGuestServices(Guest guest, Connection conn) throws SQLException {
-      try (PreparedStatement statement = conn.prepareStatement(SELECT_GUEST_SERVICES_SQL)) {
-         statement.setInt(1, guest.getId());
-         try (ResultSet rs = statement.executeQuery()) {
+    @Override
+    public List<Guest> findAll() {
+        List<Guest> list = new ArrayList<>();
+        try (Connection conn = dbManager.getConnection();
+                Statement statement = conn.createStatement();
+                ResultSet rs = statement.executeQuery(SELECT_ALL_GUESTS_SQL)) {
             while (rs.next()) {
-               Service service = new Service();
-               service.setId(rs.getInt(COLUMN_ID));
-               service.setName(rs.getString(COLUMN_NAME));
-               service.setPrice(rs.getInt(COLUMN_PRICE));
-               guest.addService(service);
+                Guest guest = new Guest();
+                guest.setId(rs.getInt(COLUMN_ID));
+                guest.setName(rs.getString(COLUMN_NAME));
+                int roomNumber = rs.getInt(COLUMN_ROOM_NUMBER);
+                Room room = new Room();
+                room.setNumber(roomNumber);
+                guest.setRoom(room);
+                guest.setCheckInDate(rs.getDate(COLUMN_CHECK_IN_DATE).toLocalDate());
+                guest.setCheckOutDate(rs.getDate(COLUMN_CHECK_OUT_DATE).toLocalDate());
+                loadGuestServices(guest, conn);
+                list.add(guest);
             }
-         }
-      }
-   }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка выборки всех гостей из БД", e);
+        }
+        return list;
+    }
+
+    @Override
+    public Guest update(Guest guest) {
+        try (Connection conn = dbManager.getConnection();
+                PreparedStatement statement = conn.prepareStatement(UPDATE_GUEST_SQL)) {
+            statement.setString(1, guest.getName());
+            statement.setInt(2, guest.getRoom().getNumber());
+            statement.setDate(3, Date.valueOf(guest.getCheckInDate()));
+            statement.setDate(4, Date.valueOf(guest.getCheckOutDate()));
+            statement.setInt(5, guest.getId());
+            statement.executeUpdate();
+            try (PreparedStatement delStmt = conn.prepareStatement(DELETE_GUEST_SERVICES_SQL)) {
+                delStmt.setInt(1, guest.getId());
+                delStmt.executeUpdate();
+            }
+            for (Service s : guest.getServices()) {
+                addServiceToGuest(guest.getId(), s.getId(), conn);
+            }
+            return guest;
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка обновления гостя в БД", e);
+        }
+    }
+
+    @Override
+    public boolean delete(Integer id) {
+        try (Connection conn = dbManager.getConnection();
+                PreparedStatement statement = conn.prepareStatement(DELETE_GUEST_SQL)) {
+            statement.setInt(1, id);
+            int affected = statement.executeUpdate();
+            return affected > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка удаления гостя из БД", e);
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        try (Connection conn = dbManager.getConnection();
+                Statement statement = conn.createStatement()) {
+            statement.executeUpdate(DELETE_GUEST_SERVICES_ALL_SQL);
+            statement.executeUpdate(DELETE_GUEST_ALL_SQL);
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка очистки guest", e);
+        }
+    }
+
+    private void addServiceToGuest(int guestId, int serviceId, Connection conn) throws SQLException {
+        try (PreparedStatement statement = conn.prepareStatement(INSERT_GUEST_SERVICE_SQL)) {
+            statement.setInt(1, guestId);
+            statement.setInt(2, serviceId);
+            statement.executeUpdate();
+        }
+    }
+
+    private void loadGuestServices(Guest guest, Connection conn) throws SQLException {
+        try (PreparedStatement statement = conn.prepareStatement(SELECT_GUEST_SERVICES_SQL)) {
+            statement.setInt(1, guest.getId());
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Service service = new Service();
+                    service.setId(rs.getInt(COLUMN_ID));
+                    service.setName(rs.getString(COLUMN_NAME));
+                    service.setPrice(rs.getInt(COLUMN_PRICE));
+                    guest.addService(service);
+                }
+            }
+        }
+    }
 }

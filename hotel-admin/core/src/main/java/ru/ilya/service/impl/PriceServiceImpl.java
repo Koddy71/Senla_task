@@ -13,32 +13,32 @@ import java.util.Comparator;
 import java.util.List;
 
 public class PriceServiceImpl implements PriceService {
-   @Inject
-   private RoomService roomService;
+    @Inject
+    private RoomService roomService;
 
-   @Inject
-   private ServiceManager serviceManager;
+    @Inject
+    private ServiceManager serviceManager;
 
-   public PriceServiceImpl() {
-   }
+    public PriceServiceImpl() {
+    }
 
-   public List<Priceable> getRoomsAndServices(String orderBy) {
-      List<Priceable> result = new ArrayList<>();
+    public List<Priceable> getRoomsAndServices(String orderBy) {
+        List<Priceable> result = new ArrayList<>();
 
-      List<Room> roomList = new ArrayList<>(roomService.getAllRooms());
-      List<Service> serviceList = new ArrayList<>(serviceManager.getAllServices());
+        List<Room> roomList = new ArrayList<>(roomService.getAllRooms());
+        List<Service> serviceList = new ArrayList<>(serviceManager.getAllServices());
 
-      roomList.sort(Comparator.comparingInt(Room::getPrice));
-      serviceList.sort(Comparator.comparingInt(Service::getPrice));
+        roomList.sort(Comparator.comparingInt(Room::getPrice));
+        serviceList.sort(Comparator.comparingInt(Service::getPrice));
 
-      if ("service".equalsIgnoreCase(orderBy)) {
-         result.addAll(serviceList);
-         result.addAll(roomList);
-      } else {
-         result.addAll(roomList);
-         result.addAll(serviceList);
-      }
+        if ("service".equalsIgnoreCase(orderBy)) {
+            result.addAll(serviceList);
+            result.addAll(roomList);
+        } else {
+            result.addAll(roomList);
+            result.addAll(serviceList);
+        }
 
-      return result;
-   }
+        return result;
+    }
 }

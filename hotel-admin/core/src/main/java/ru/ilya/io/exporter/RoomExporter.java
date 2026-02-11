@@ -10,25 +10,25 @@ import ru.ilya.model.Room;
 import ru.ilya.service.RoomService;
 
 public class RoomExporter {
-   @Inject
-   private RoomService roomService;
+    @Inject
+    private RoomService roomService;
 
-   public RoomExporter() {
-   }
+    public RoomExporter() {
+    }
 
-   public void exportCsv(String path) throws IOException {
-      List<String> lines = new ArrayList<>();
+    public void exportCsv(String path) throws IOException {
+        List<String> lines = new ArrayList<>();
 
-      lines.add("number,price,capacity,stars");
+        lines.add("number,price,capacity,stars");
 
-      for (Room r : roomService.getAllRooms()) {
-         lines.add(
-               r.getNumber() + "," +
-                     r.getPrice() + "," +
-                     r.getCapacity() + "," +
-                     r.getStars());
-      }
+        for (Room r : roomService.getAllRooms()) {
+            lines.add(
+                    r.getNumber() + "," +
+                            r.getPrice() + "," +
+                            r.getCapacity() + "," +
+                            r.getStars());
+        }
 
-      CsvUtil.write(path, lines);
-   }
+        CsvUtil.write(path, lines);
+    }
 }

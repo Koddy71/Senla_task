@@ -10,24 +10,24 @@ import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
 
 public class ServiceExporter {
-   @Inject
-   private ServiceManager serviceManager;
+    @Inject
+    private ServiceManager serviceManager;
 
-   public ServiceExporter() {
-   }
+    public ServiceExporter() {
+    }
 
-   public void exportCsv(String path) throws IOException {
-      List<String> lines = new ArrayList<>();
+    public void exportCsv(String path) throws IOException {
+        List<String> lines = new ArrayList<>();
 
-      lines.add("id,name,price");
+        lines.add("id,name,price");
 
-      for (Service s : serviceManager.getAllServices()) {
-         lines.add(
-               s.getId() + "," +
-                     s.getName() + "," +
-                     s.getPrice());
-      }
+        for (Service s : serviceManager.getAllServices()) {
+            lines.add(
+                    s.getId() + "," +
+                            s.getName() + "," +
+                            s.getPrice());
+        }
 
-      CsvUtil.write(path, lines);
-   }
+        CsvUtil.write(path, lines);
+    }
 }

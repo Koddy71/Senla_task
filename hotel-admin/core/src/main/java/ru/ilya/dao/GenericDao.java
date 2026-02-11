@@ -3,15 +3,15 @@ package ru.ilya.dao;
 import java.util.List;
 
 public interface GenericDao<T, K> {
-   T create(T model);
+    T create(T model);
 
-   T findById(K id);
+    T findById(K id);
 
-   List<T> findAll();
+    List<T> findAll();
 
-   T update(T model);
+    T update(T model);
 
-   boolean delete(K id);
+    boolean delete(K id);
 
-   void deleteAll();
+    void deleteAll();
 }

@@ -8,21 +8,21 @@ import java.util.List;
 import java.util.Scanner;
 
 public class PriceController {
-   @Inject
-   private PriceService priceService;
+    @Inject
+    private PriceService priceService;
 
-   private Scanner sc = new Scanner(System.in);
+    private Scanner sc = new Scanner(System.in);
 
-   public PriceController() {
-   }
+    public PriceController() {
+    }
 
-   public void showRoomsAndService() {
-      System.out.print("Что вывести сначала ('room', 'service'): ");
-      String sortBy = sc.nextLine();
+    public void showRoomsAndService() {
+        System.out.print("Что вывести сначала ('room', 'service'): ");
+        String sortBy = sc.nextLine();
 
-      List<Priceable> sorted = priceService.getRoomsAndServices(sortBy);
-      for (Priceable r : sorted) {
-         System.out.println(r.getInfo());
-      }
-   }
+        List<Priceable> sorted = priceService.getRoomsAndServices(sortBy);
+        for (Priceable r : sorted) {
+            System.out.println(r.getInfo());
+        }
+    }
 }
