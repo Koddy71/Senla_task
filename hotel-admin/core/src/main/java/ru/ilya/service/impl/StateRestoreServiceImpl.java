@@ -11,7 +11,8 @@ import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
 import ru.ilya.service.StateRestoreService;
-import ru.ilya.controller.DaoController;
+import ru.ilya.controller.JdbcController;
+import ru.ilya.controller.JpaController;
 import ru.ilya.autodi.Inject;
 
 import java.util.List;
@@ -34,13 +35,16 @@ public class StateRestoreServiceImpl implements StateRestoreService {
     private CsvFileController csvFileController;
 
     @Inject
-    private DaoController daoController;
+    private JdbcController jdbcController;
 
     @Inject
     private JsonFileController jsonFileController;
 
     @Inject
     private JdbcManager jdbcManager;
+
+    @Inject
+    private JpaController jpaController;
 
     @Override
     public void restore() {
@@ -49,7 +53,9 @@ public class StateRestoreServiceImpl implements StateRestoreService {
         } else if ("csv".equalsIgnoreCase(config.getStorageType())) {
             restoreFromCsv();
         } else if ("jdbc".equalsIgnoreCase(config.getStorageType())) {
-            restoreFromDb();
+            restoreFromJdbc();
+        } else if ("jpa".equalsIgnoreCase(config.getStorageType())) {
+            restoreFromJpa();
         } else {
             throw new RuntimeException(
                     "Неизвестный тип хранилища: " + config.getStorageType());
@@ -63,7 +69,9 @@ public class StateRestoreServiceImpl implements StateRestoreService {
         } else if ("csv".equalsIgnoreCase(config.getStorageType())) {
             saveToCsv();
         } else if ("jdbc".equalsIgnoreCase(config.getStorageType())) {
-            saveToDb();
+            saveToJdbc();
+        } else if ("jpa".equalsIgnoreCase(config.getStorageType())) {
+            saveToJpa();
         } else {
             throw new RuntimeException(
                     "Неизвестный тип хранилища: " + config.getStorageType());
@@ -106,11 +114,19 @@ public class StateRestoreServiceImpl implements StateRestoreService {
         csvFileController.importGuests();
     }
 
-    private void restoreFromDb() {
+    private void restoreFromJdbc() {
         System.out.println("Загрузка данных из БД...");
-        daoController.restoreRooms(roomService);
-        daoController.restoreServices(serviceManager);
-        daoController.restoreGuests(roomService, guestService);
+        jdbcController.restoreRooms(roomService);
+        jdbcController.restoreServices(serviceManager);
+        jdbcController.restoreGuests(roomService, guestService);
+        System.out.println("Данные из БД загружены.");
+    }
+
+    private void restoreFromJpa(){
+        System.out.println("Загрузка данных из БД...");
+        jpaController.restoreRooms(roomService);
+        jpaController.restoreServices(serviceManager);
+        jpaController.restoreGuests(roomService, guestService);
         System.out.println("Данные из БД загружены.");
     }
 
@@ -133,17 +149,32 @@ public class StateRestoreServiceImpl implements StateRestoreService {
         System.out.println("Состояние сохранено в CSV.");
     }
 
-    private void saveToDb() {
+    private void saveToJdbc() {
         System.out.println("Сохранение данных в БД...");
         try {
             jdbcManager.beginTransaction();
 
-            daoController.clearDatabase();
-            daoController.saveRooms(roomService);
-            daoController.saveServices(serviceManager);
-            daoController.saveGuests(guestService);
+            jdbcController.clearDatabase();
+            jdbcController.saveRooms(roomService);
+            jdbcController.saveServices(serviceManager);
+            jdbcController.saveGuests(guestService);
 
             jdbcManager.commitTransaction();
+        } catch (Exception e) {
+            jdbcManager.rollbackTransaction();
+            throw new RuntimeException("Ошибка сохранения состояния в БД. Транзакция откатилась.", e);
+        }
+        System.out.println("Данные сохранены в БД.");
+    }
+
+    private void saveToJpa() {
+        System.out.println("Сохранение данных в БД...");
+        try {
+            jpaController.clearDatabase();
+            jpaController.saveRooms(roomService);
+            jpaController.saveServices(serviceManager);
+            jpaController.saveGuests(guestService);
+
         } catch (Exception e) {
             jdbcManager.rollbackTransaction();
             throw new RuntimeException("Ошибка сохранения состояния в БД. Транзакция откатилась.", e);

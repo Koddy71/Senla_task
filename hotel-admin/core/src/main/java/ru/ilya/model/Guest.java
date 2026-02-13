@@ -5,15 +5,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; //для неизвестного поля
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
+@Table(name = "guest")
 public class Guest {
+    @Id
     private int id;
+
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "roomNumber")
     private Room room;
+
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
+
+    @ManyToMany(fetch = FetchType.LAZY)                 //Ленивая загрузка
+    @JoinTable(name = "guest_service",
+        joinColumns =@JoinColumn(name = "guest_id"),
+        inverseJoinColumns = @JoinColumn(name = "service_id"))
     private List<Service> services = new ArrayList<>();
 
     private static int idCounter = 1;

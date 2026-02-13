@@ -2,13 +2,22 @@ package ru.ilya.model;
 
 import java.util.Objects;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true) // для неизвсетного поля
+@Entity
+@Table(name = "service")
 public class Service extends Priceable {
+    @Id
     private int id;
+
     private String name;
     private int price;
+
     private static int idCounter = 1;
 
     // для сериализации
