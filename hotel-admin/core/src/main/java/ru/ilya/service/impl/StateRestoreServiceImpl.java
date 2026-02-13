@@ -1,7 +1,7 @@
 package ru.ilya.service.impl;
 
 import ru.ilya.autoconfig.AppConfig;
-import ru.ilya.autoconfig.DatabaseManager;
+import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.controller.CsvFileController;
 import ru.ilya.controller.JsonFileController;
 import ru.ilya.model.Guest;
@@ -40,7 +40,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
     private JsonFileController jsonFileController;
 
     @Inject
-    private DatabaseManager dbManager;
+    private JdbcManager jdbcManager;
 
     @Override
     public void restore() {
@@ -48,7 +48,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
             restoreFromJson();
         } else if ("csv".equalsIgnoreCase(config.getStorageType())) {
             restoreFromCsv();
-        } else if ("db".equalsIgnoreCase(config.getStorageType())) {
+        } else if ("jdbc".equalsIgnoreCase(config.getStorageType())) {
             restoreFromDb();
         } else {
             throw new RuntimeException(
@@ -62,7 +62,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
             saveToJson();
         } else if ("csv".equalsIgnoreCase(config.getStorageType())) {
             saveToCsv();
-        } else if ("db".equalsIgnoreCase(config.getStorageType())) {
+        } else if ("jdbc".equalsIgnoreCase(config.getStorageType())) {
             saveToDb();
         } else {
             throw new RuntimeException(
@@ -136,16 +136,16 @@ public class StateRestoreServiceImpl implements StateRestoreService {
     private void saveToDb() {
         System.out.println("Сохранение данных в БД...");
         try {
-            dbManager.beginTransaction();
+            jdbcManager.beginTransaction();
 
             daoController.clearDatabase();
             daoController.saveRooms(roomService);
             daoController.saveServices(serviceManager);
             daoController.saveGuests(guestService);
 
-            dbManager.commitTransaction();
+            jdbcManager.commitTransaction();
         } catch (Exception e) {
-            dbManager.rollbackTransaction();
+            jdbcManager.rollbackTransaction();
             throw new RuntimeException("Ошибка сохранения состояния в БД. Транзакция откатилась.", e);
         }
         System.out.println("Данные сохранены в БД.");

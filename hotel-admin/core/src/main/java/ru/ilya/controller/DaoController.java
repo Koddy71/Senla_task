@@ -1,9 +1,9 @@
 package ru.ilya.controller;
 
 import ru.ilya.autodi.Inject;
-import ru.ilya.dao.GuestDao;
-import ru.ilya.dao.RoomDao;
-import ru.ilya.dao.ServiceDao;
+import ru.ilya.dao.jdbc.GuestDaoJdbc;
+import ru.ilya.dao.jdbc.RoomDaoJdbc;
+import ru.ilya.dao.jdbc.ServiceDaoJdbc;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
@@ -21,13 +21,13 @@ public class DaoController {
     private static final Logger logger = LoggerFactory.getLogger(DaoController.class);
 
     @Inject
-    private RoomDao roomDao;
+    private RoomDaoJdbc roomDao;
 
     @Inject
-    private ServiceDao serviceDao;
+    private ServiceDaoJdbc serviceDao;
 
     @Inject
-    private GuestDao guestDao;
+    private GuestDaoJdbc guestDao;
 
     public DaoController() {
     }

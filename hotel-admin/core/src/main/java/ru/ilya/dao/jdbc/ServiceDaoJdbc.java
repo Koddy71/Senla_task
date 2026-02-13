@@ -1,4 +1,4 @@
-package ru.ilya.dao;
+package ru.ilya.dao.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,11 +8,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ilya.autoconfig.DatabaseManager;
+import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.autodi.Inject;
+import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Service;
 
-public class ServiceDao implements GenericDao<Service, Integer> {
+public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
     private static final String INSERT_SQL = "INSERT INTO service(id, name, price) VALUES (?, ?, ?)";
     private static final String SELECT_BY_ID_SQL = "SELECT id, name, price FROM service WHERE id = ?";
     private static final String SELECT_ALL_SQL = "SELECT id, name, price FROM service";
@@ -25,14 +26,14 @@ public class ServiceDao implements GenericDao<Service, Integer> {
     private static final String COLUMN_PRICE = "price";
 
     @Inject
-    private DatabaseManager dbManager;
+    private JdbcManager jdbcManager;
 
-    public ServiceDao() {
+    public ServiceDaoJdbc() {
     }
 
     @Override
     public Service create(Service service) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(INSERT_SQL)) {
             statement.setInt(1, service.getId());
             statement.setString(2, service.getName());
@@ -46,7 +47,7 @@ public class ServiceDao implements GenericDao<Service, Integer> {
 
     @Override
     public Service findById(Integer id) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(SELECT_BY_ID_SQL)) {
             statement.setInt(1, id);
             try (ResultSet rs = statement.executeQuery()) {
@@ -67,7 +68,7 @@ public class ServiceDao implements GenericDao<Service, Integer> {
     @Override
     public List<Service> findAll() {
         List<Service> list = new ArrayList<>();
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 Statement statement = conn.createStatement();
                 ResultSet rs = statement.executeQuery(SELECT_ALL_SQL)) {
             while (rs.next()) {
@@ -85,7 +86,7 @@ public class ServiceDao implements GenericDao<Service, Integer> {
 
     @Override
     public Service update(Service service) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(UPDATE_SQL)) {
             statement.setString(1, service.getName());
             statement.setInt(2, service.getPrice());
@@ -99,7 +100,7 @@ public class ServiceDao implements GenericDao<Service, Integer> {
 
     @Override
     public boolean delete(Integer id) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(DELETE_SQL)) {
             statement.setInt(1, id);
             int affected = statement.executeUpdate();
@@ -111,7 +112,7 @@ public class ServiceDao implements GenericDao<Service, Integer> {
 
     @Override
     public void deleteAll() {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 Statement statement = conn.createStatement()) {
             statement.executeUpdate(DELETE_ALL_SQL);
         } catch (SQLException e) {
