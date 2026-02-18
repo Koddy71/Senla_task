@@ -1,4 +1,4 @@
-package ru.ilya.dao;
+package ru.ilya.dao.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,12 +8,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ilya.autoconfig.DatabaseManager;
+import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.autodi.Inject;
+import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 
-public class RoomDao implements GenericDao<Room, Integer> {
+public class RoomDaoJdbc implements GenericDao<Room, Integer> {
     private static final String INSERT_SQL = "INSERT INTO room(number, price, capacity, stars) VALUES (?, ?, ?, ?)";
     private static final String SELECT_BY_ID_SQL = "SELECT number, price, capacity, stars FROM room WHERE number = ?";
     private static final String SELECT_ALL_SQL = "SELECT number, price, capacity, stars FROM room";
@@ -27,14 +28,14 @@ public class RoomDao implements GenericDao<Room, Integer> {
     private static final String COLUMN_STARS = "stars";
 
     @Inject
-    private DatabaseManager dbManager;
+    private JdbcManager jdbcManager;
 
-    public RoomDao() {
+    public RoomDaoJdbc() {
     }
 
     @Override
     public Room create(Room room) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(INSERT_SQL)) {
             statement.setInt(1, room.getNumber());
             statement.setInt(2, room.getPrice());
@@ -49,7 +50,7 @@ public class RoomDao implements GenericDao<Room, Integer> {
 
     @Override
     public Room findById(Integer number) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(SELECT_BY_ID_SQL)) {
             statement.setInt(1, number);
             try (ResultSet rs = statement.executeQuery()) {
@@ -72,7 +73,7 @@ public class RoomDao implements GenericDao<Room, Integer> {
     @Override
     public List<Room> findAll() {
         List<Room> list = new ArrayList<>();
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 Statement statement = conn.createStatement();
                 ResultSet rs = statement.executeQuery(SELECT_ALL_SQL)) {
             while (rs.next()) {
@@ -92,7 +93,7 @@ public class RoomDao implements GenericDao<Room, Integer> {
 
     @Override
     public Room update(Room room) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(UPDATE_SQL)) {
             statement.setInt(1, room.getPrice());
             statement.setInt(2, room.getCapacity());
@@ -107,7 +108,7 @@ public class RoomDao implements GenericDao<Room, Integer> {
 
     @Override
     public boolean delete(Integer number) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(DELETE_SQL)) {
             statement.setInt(1, number);
             int affected = statement.executeUpdate();
@@ -119,7 +120,7 @@ public class RoomDao implements GenericDao<Room, Integer> {
 
     @Override
     public void deleteAll() {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 Statement statement = conn.createStatement()) {
             statement.executeUpdate(DELETE_ALL_SQL);
         } catch (SQLException e) {

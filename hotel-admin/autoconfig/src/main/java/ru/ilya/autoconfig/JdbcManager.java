@@ -8,14 +8,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class DatabaseManager {
+public class JdbcManager {
     private static final String CONFIG_PATH = "core/src/main/resources/config.properties";
     private final Properties props = new Properties();
 
     private final ThreadLocal<Connection> transactionalConnection = new ThreadLocal<>();
     private final ThreadLocal<Integer> transactionDepth = ThreadLocal.withInitial(() -> 0);
 
-    public DatabaseManager() {
+    public JdbcManager() {
         try (FileReader reader = new FileReader(CONFIG_PATH)) {
             props.load(reader);
             Class.forName(props.getProperty("db.driver"));

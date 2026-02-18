@@ -1,4 +1,4 @@
-package ru.ilya.dao;
+package ru.ilya.dao.jdbc;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -7,8 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import ru.ilya.autoconfig.DatabaseManager;
+import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.autodi.Inject;
+import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
@@ -16,7 +17,7 @@ import ru.ilya.model.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuestDao implements GenericDao<Guest, Integer> {
+public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
     private static final String INSERT_GUEST_SQL = """
             INSERT INTO guest(id, name, roomNumber, checkInDate, checkOutDate)
             VALUES (?, ?, ?, ?, ?)
@@ -51,14 +52,14 @@ public class GuestDao implements GenericDao<Guest, Integer> {
     private static final String COLUMN_PRICE = "price";
 
     @Inject
-    private DatabaseManager dbManager;
+    private JdbcManager jdbcManager;
 
-    public GuestDao() {
+    public GuestDaoJdbc() {
     }
 
     @Override
     public Guest create(Guest guest) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(INSERT_GUEST_SQL)) {
             statement.setInt(1, guest.getId());
             statement.setString(2, guest.getName());
@@ -77,7 +78,7 @@ public class GuestDao implements GenericDao<Guest, Integer> {
 
     @Override
     public Guest findById(Integer id) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(SELECT_GUEST_BY_ID_SQL)) {
             statement.setInt(1, id);
             try (ResultSet rs = statement.executeQuery()) {
@@ -104,7 +105,7 @@ public class GuestDao implements GenericDao<Guest, Integer> {
     @Override
     public List<Guest> findAll() {
         List<Guest> list = new ArrayList<>();
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 Statement statement = conn.createStatement();
                 ResultSet rs = statement.executeQuery(SELECT_ALL_GUESTS_SQL)) {
             while (rs.next()) {
@@ -128,7 +129,7 @@ public class GuestDao implements GenericDao<Guest, Integer> {
 
     @Override
     public Guest update(Guest guest) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(UPDATE_GUEST_SQL)) {
             statement.setString(1, guest.getName());
             statement.setInt(2, guest.getRoom().getNumber());
@@ -151,7 +152,7 @@ public class GuestDao implements GenericDao<Guest, Integer> {
 
     @Override
     public boolean delete(Integer id) {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(DELETE_GUEST_SQL)) {
             statement.setInt(1, id);
             int affected = statement.executeUpdate();
@@ -163,7 +164,7 @@ public class GuestDao implements GenericDao<Guest, Integer> {
 
     @Override
     public void deleteAll() {
-        try (Connection conn = dbManager.getConnection();
+        try (Connection conn = jdbcManager.getConnection();
                 Statement statement = conn.createStatement()) {
             statement.executeUpdate(DELETE_GUEST_SERVICES_ALL_SQL);
             statement.executeUpdate(DELETE_GUEST_ALL_SQL);

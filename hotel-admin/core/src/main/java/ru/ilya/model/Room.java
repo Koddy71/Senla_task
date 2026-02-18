@@ -5,18 +5,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore; //чтобы избежать рекурсии
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; //для неизвестного поля
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
+@Table(name = "room")
 public class Room extends Priceable {
+    @Id
     private int number;
+
+    @Transient
     private RoomStatus status;
+
     private int price;
     private int capacity;
     private int stars;
 
     @JsonIgnore
+    @Transient
     private List<Guest> stayHistory = new ArrayList<>();
 
     // для сериализации
