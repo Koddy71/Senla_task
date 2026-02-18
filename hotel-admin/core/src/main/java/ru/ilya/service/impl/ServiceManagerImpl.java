@@ -10,42 +10,43 @@ import java.util.HashMap;
 
 public class ServiceManagerImpl implements ServiceManager {
 
-   private Map<Integer, Service> services = new HashMap<>();
+    private Map<Integer, Service> services = new HashMap<>();
 
-   public ServiceManagerImpl() {}
+    public ServiceManagerImpl() {
+    }
 
-   @Override
-   public boolean addService(Service service) {
-      if (service == null || services.containsKey(service.getId())) {
-         return false;
-      }
-      services.put(service.getId(), service);
-      return true;
-   }
+    @Override
+    public boolean addService(Service service) {
+        if (service == null || services.containsKey(service.getId())) {
+            return false;
+        }
+        services.put(service.getId(), service);
+        return true;
+    }
 
-   @Override
-   public boolean removeService(int id) {
-      return services.remove(id) != null;
-   }
+    @Override
+    public boolean removeService(int id) {
+        return services.remove(id) != null;
+    }
 
-   @Override
-   public Service findService(int id) {
-      return services.get(id);
-   }
+    @Override
+    public Service findService(int id) {
+        return services.get(id);
+    }
 
-   @Override
-   public boolean changePrice(int id, int newPrice) {
-      Service service = findService(id);
-      if (service != null && newPrice > 0) {
-         service.setPrice(newPrice);
-         return true;
-      }
-      return false;
-   }
+    @Override
+    public boolean changePrice(int id, int newPrice) {
+        Service service = findService(id);
+        if (service != null && newPrice > 0) {
+            service.setPrice(newPrice);
+            return true;
+        }
+        return false;
+    }
 
-   @Override
-   public List<Service> getAllServices() {
-      return new ArrayList<>(services.values());
-   }
+    @Override
+    public List<Service> getAllServices() {
+        return new ArrayList<>(services.values());
+    }
 
 }

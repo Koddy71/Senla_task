@@ -16,4 +16,3 @@ public enum RoomStatus {
         return description;
     }
 }
-

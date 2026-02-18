@@ -1,39 +1,42 @@
 package ru.ilya.ui;
 
-
-import ru.ilya.service.*;
 import ru.ilya.autodi.Inject;
 import ru.ilya.controller.CsvFileController;
+import ru.ilya.service.GuestService;
+import ru.ilya.service.RoomService;
+import ru.ilya.service.ServiceManager;
+import ru.ilya.service.StateRestoreService;
 
 public class MenuController {
 
-   @Inject
-   private Builder builder;
+    @Inject
+    private Builder builder;
 
-   @Inject
-   private RoomService roomService;
+    @Inject
+    private RoomService roomService;
 
-   @Inject
-   private GuestService guestService;
+    @Inject
+    private GuestService guestService;
 
-   @Inject
-   private ServiceManager serviceManager;
+    @Inject
+    private ServiceManager serviceManager;
 
-   @Inject
-   private CsvFileController csvFileController;
+    @Inject
+    private CsvFileController csvFileController;
 
-   @Inject
-   private StateRestoreService stateRestoreService;
+    @Inject
+    private StateRestoreService stateRestoreService;
 
-   private Navigator navigator;
+    private Navigator navigator;
 
-   public MenuController() {}
+    public MenuController() {
+    }
 
-   public void run() {
-      builder.buildConsoleMenu(); 
-      navigator = Navigator.getInstance(builder.getRootMenu());
-      stateRestoreService.restore();
-      navigator.start();
-      stateRestoreService.save();
-   }
+    public void run() {
+        builder.buildConsoleMenu();
+        navigator = Navigator.getInstance(builder.getRootMenu());
+        stateRestoreService.restore();
+        navigator.start();
+        stateRestoreService.save();
+    }
 }

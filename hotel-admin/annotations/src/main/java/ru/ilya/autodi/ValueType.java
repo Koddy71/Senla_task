@@ -1,10 +1,10 @@
 package ru.ilya.autodi;
 
 public enum ValueType {
-   AUTO, 
-   STRING,
-   INT,
-   LONG,
-   BOOLEAN,
-   DOUBLE
+    AUTO,
+    STRING,
+    INT,
+    LONG,
+    BOOLEAN,
+    DOUBLE
 }

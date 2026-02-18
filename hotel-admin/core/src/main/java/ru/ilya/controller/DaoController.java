@@ -1,6 +1,9 @@
 package ru.ilya.controller;
 
-import ru.ilya.dao.*;
+import ru.ilya.autodi.Inject;
+import ru.ilya.dao.GuestDao;
+import ru.ilya.dao.RoomDao;
+import ru.ilya.dao.ServiceDao;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
@@ -10,126 +13,141 @@ import ru.ilya.service.ServiceManager;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DaoController {
-   private static DaoController instance;
-   private final RoomDao roomDao;
-   private final GuestDao guestDao;
-   private final ServiceDao serviceDao;
 
-   private DaoController() {
-      this.roomDao = new RoomDao();
-      this.guestDao = new GuestDao();
-      this.serviceDao = new ServiceDao();
-   }
+    private static final Logger logger = LoggerFactory.getLogger(DaoController.class);
 
-   public void restoreRooms(RoomService roomService) {
-      try {
-         List<Room> rooms = roomDao.findAll();
-         for (Room room : rooms) {
-            try {
-               roomService.addRoom(room);
-            } catch (Exception e) {
-               System.err.println("Ошибка при добавлении комнаты " + room.getNumber() + ": " + e.getMessage());
+    @Inject
+    private RoomDao roomDao;
+
+    @Inject
+    private ServiceDao serviceDao;
+
+    @Inject
+    private GuestDao guestDao;
+
+    public DaoController() {
+    }
+
+    public void restoreRooms(RoomService roomService) {
+        logger.info("Start processing command: restoreRooms");
+        try {
+            List<Room> rooms = roomDao.findAll();
+            for (Room room : rooms) {
+                try {
+                    roomService.addRoom(room);
+                } catch (Exception e) {
+                    logger.error("Error adding room {}", room.getNumber(), e);
+                }
             }
-         }
-      } catch (Exception e) {
-         System.err.println("Ошибка при загрузке комнат: " + e.getMessage());
-      }
-   }
+            logger.info("restoreRooms processed successfully: {} rooms restored", rooms.size());
+        } catch (Exception e) {
+            logger.error("Error processing restoreRooms", e);
+        }
+    }
 
-   public void restoreServices(ServiceManager serviceManager) {
-      try {
-         List<Service> services = serviceDao.findAll();
-         for (Service service : services) {
-            try {
-               serviceManager.addService(service);
-               int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
-               Service.setIdCounter(maxId + 1);
-            } catch (Exception e) {
-               System.err.println("Ошибка при добавлении услуги " + service.getName() + ": " + e.getMessage());
+    public void restoreServices(ServiceManager serviceManager) {
+        logger.info("Start processing command: restoreServices");
+        try {
+            List<Service> services = serviceDao.findAll();
+            for (Service service : services) {
+                try {
+                    serviceManager.addService(service);
+                } catch (Exception e) {
+                    logger.error("Error adding service {}", service.getName(), e);
+                }
             }
-         }
-      } catch (Exception e) {
-         System.err.println("Ошибка при загрузке услуг: " + e.getMessage());
-      }
-   }
+            int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
+            Service.setIdCounter(maxId + 1);
 
-   public void restoreGuests(RoomService roomService, GuestService guestService) {
-      try {
-         List<Guest> guests = guestDao.findAll();
-         for (Guest guest : guests) {
-            try {
-               Room room = roomService.findRoom(guest.getRoom().getNumber());
+            logger.info("restoreServices processed successfully: {} services restored", services.size());
+        } catch (Exception e) {
+            logger.error("Error processing restoreServices", e);
+        }
+    }
 
-               if (room == null) {
-                  System.err.println("Гость " + guest.getName() + " заселяется в несуществующую комнату");
-                  continue;
-               }
+    public void restoreGuests(RoomService roomService, GuestService guestService) {
+        logger.info("Start processing command: restoreGuests");
+        try {
+            List<Guest> guests = guestDao.findAll();
+            for (Guest guest : guests) {
+                try {
+                    Room room = roomService.findRoom(guest.getRoom().getNumber());
 
-               Guest g = guestService.checkIn(
-                     guest.getName(),
-                     guest.getRoom().getNumber(),
-                     guest.getCheckInDate(),
-                     guest.getCheckOutDate());
+                    if (room == null) {
+                        logger.error("Guest {} assigned to non-existing room", guest.getName());
+                        continue;
+                    }
 
-               if (g!= null){
-                  for(Service service : guest.getServices()){
-                     guestService.addServiceToGuest(g.getId(), service.getId());
-                  }
-               }     
-            } catch (Exception e) {
-               System.err.println("Ошибка при восстановлении гостя " + guest.getName() + ": " + e.getMessage());
+                    Guest g = guestService.checkIn(
+                            guest.getName(),
+                            guest.getRoom().getNumber(),
+                            guest.getCheckInDate(),
+                            guest.getCheckOutDate());
+
+                    if (g != null) {
+                        for (Service service : guest.getServices()) {
+                            guestService.addServiceToGuest(g.getId(), service.getId());
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Error restoring guest {}", guest.getName(), e);
+                }
             }
-         }
-      } catch (Exception e) {
-         System.err.println("Ошибка при загрузке гостей: " + e.getMessage());
-      }
-   }
+            logger.info("restoreGuests processed successfully: {} guests restored", guests.size());
+        } catch (Exception e) {
+            logger.error("Error processing restoreGuests", e);
+        }
+    }
 
-   public void clearDatabase() {
-      try {
-         guestDao.deleteAll();
-         serviceDao.deleteAll();
-         roomDao.deleteAll();
-      } catch (Exception e) {
-         System.err.println("Ошибка при очистке базы данных: " + e.getMessage());
-      }
-   }
+    public void clearDatabase() {
+        logger.info("Start processing command: clearDatabase");
+        try {
+            guestDao.deleteAll();
+            serviceDao.deleteAll();
+            roomDao.deleteAll();
+            logger.info("clearDatabase processed successfully");
+        } catch (Exception e) {
+            logger.error("Error processing clearDatabase", e);
+        }
+    }
 
-   public void saveRooms(RoomService roomService) {
-      for (Room room : roomService.getAllRooms()) {
-         try {
-            roomDao.create(room);
-         } catch (Exception e) {
-            System.err.println("Ошибка при сохранении комнаты " + room.getNumber() + ": " + e.getMessage());
-         }
-      }
-   }
+    public void saveRooms(RoomService roomService) {
+        logger.info("Start processing command: saveRooms");
+        for (Room room : roomService.getAllRooms()) {
+            try {
+                roomDao.create(room);
+            } catch (Exception e) {
+                logger.error("Error saving room {}", room.getNumber(), e);
+            }
+        }
+        logger.info("saveRooms processed successfully");
+    }
 
-   public void saveServices(ServiceManager serviceManager) {
-      for (Service service : serviceManager.getAllServices()) {
-         try {
-            serviceDao.create(service);
-         } catch (Exception e) {
-            System.err.println("Ошибка при сохранении услуги " + service.getName() + ": " + e.getMessage());
-         }
-      }
-   }
+    public void saveServices(ServiceManager serviceManager) {
+        logger.info("Start processing command: saveServices");
+        for (Service service : serviceManager.getAllServices()) {
+            try {
+                serviceDao.create(service);
+            } catch (Exception e) {
+                logger.error("Error saving service {}", service.getName(), e);
+            }
+        }
+        logger.info("saveServices processed successfully");
+    }
 
-   public void saveGuests(GuestService guestService) {
-      for (Guest guest : guestService.getAllGuests()) {
-         try {
-            guestDao.create(guest);
-         } catch (Exception e) {
-            System.err.println("Ошибка при сохранении гостя " + guest.getName() + ": " + e.getMessage());
-         }
-      }
-   }
-
-   public static DaoController getInstance() {
-      if (instance == null) {
-         instance = new DaoController();
-      }
-      return instance;
-   }
+    public void saveGuests(GuestService guestService) {
+        logger.info("Start processing command: saveGuests");
+        for (Guest guest : guestService.getAllGuests()) {
+            try {
+                guestDao.create(guest);
+            } catch (Exception e) {
+                logger.error("Error saving guest {}", guest.getName(), e);
+            }
+        }
+        logger.info("saveGuests processed successfully");
+    }
 }

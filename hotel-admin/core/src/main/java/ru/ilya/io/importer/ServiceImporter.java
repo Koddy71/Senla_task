@@ -9,50 +9,51 @@ import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
 
 public class ServiceImporter {
-   @Inject
-   private ServiceManager serviceManager;
+    @Inject
+    private ServiceManager serviceManager;
 
-   public ServiceImporter(){}
+    public ServiceImporter() {
+    }
 
-   public int importCsv(String path) throws IOException {
-      int count =0;
-      List<String[]> rows = CsvUtil.read(path);
+    public int importCsv(String path) throws IOException {
+        int count = 0;
+        List<String[]> rows = CsvUtil.read(path);
 
-      for (String[] r : rows) {
-         if (r.length < 3) {
-            System.out.println("Ошибка: некорректные значения в строке: " + String.join(",", r));
-            continue;
-         }
-
-         try {
-            int id = Integer.parseInt(r[0].trim());
-            String name = r[1].trim();
-            int price = Integer.parseInt(r[2].trim());
-
-            if (name.isEmpty()) {
-               System.out.println("Ошибка: название услуги пустое: " + String.join(",", r));
-               continue;
+        for (String[] r : rows) {
+            if (r.length < 3) {
+                System.out.println("Ошибка: некорректные значения в строке: " + String.join(",", r));
+                continue;
             }
 
-            if (price < 0) {
-               System.out.println("Ошибка: цена не может быть отрицательной: " + String.join(",", r));
-               continue;
-            }
+            try {
+                int id = Integer.parseInt(r[0].trim());
+                String name = r[1].trim();
+                int price = Integer.parseInt(r[2].trim());
 
-            Service service = new Service(id, name, price);
-            boolean ok = serviceManager.addService(service);
-            if (ok) {
-               count++; 
-            } else {
-               System.out.println("Услуга не добавлена (возможно, ID уже существует): " + String.join(",", r));
-            }
+                if (name.isEmpty()) {
+                    System.out.println("Ошибка: название услуги пустое: " + String.join(",", r));
+                    continue;
+                }
 
-         } catch (NumberFormatException e) {
-            System.out.println("Ошибка формата числовых данных: " + String.join(",", r));
-         } catch (Exception e) {
-            System.out.println("Ошибка при добавлении услуги: " + e.getMessage());
-         }
-      }
-      return count;
-   }
+                if (price < 0) {
+                    System.out.println("Ошибка: цена не может быть отрицательной: " + String.join(",", r));
+                    continue;
+                }
+
+                Service service = new Service(id, name, price);
+                boolean ok = serviceManager.addService(service);
+                if (ok) {
+                    count++;
+                } else {
+                    System.out.println("Услуга не добавлена (возможно, ID уже существует): " + String.join(",", r));
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка формата числовых данных: " + String.join(",", r));
+            } catch (Exception e) {
+                System.out.println("Ошибка при добавлении услуги: " + e.getMessage());
+            }
+        }
+        return count;
+    }
 }
