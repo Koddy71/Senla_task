@@ -2,68 +2,69 @@ package ru.ilya.autoconfig;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
 
 public class JpaManager {
     private static final Logger logger = LoggerFactory.getLogger(JpaManager.class);
     private static final String CONFIG_PATH = "core/src/main/resources/config.properties";
+    private static final String PERSISTENCE_UNIT = "hotelPU";
 
-    private static SessionFactory sessionFactory;
+    private static EntityManagerFactory entityManagerFactory;
 
     public static EntityManager createEntityManager() {
-        return getSessionFactory().createEntityManager();
+        return getEntityManagerFactory().createEntityManager();
     }
 
     public static void close() {
-        if (sessionFactory != null) {
-            sessionFactory.close();
-            sessionFactory = null;
+        if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
+            entityManagerFactory.close();
+            entityManagerFactory = null;
         }
     }
 
-    private static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
+    private static EntityManagerFactory getEntityManagerFactory() {
+        if (entityManagerFactory == null) {
             init();
         }
-        return sessionFactory;
+        return entityManagerFactory;
     }
 
-    private static void init(){
-        try{
+    private static void init() {
+        try {
             Properties props = new Properties();
-            try(FileReader reader = new FileReader(CONFIG_PATH)){
+            try (FileReader reader = new FileReader(CONFIG_PATH)) {
                 props.load(reader);
             }
-            Configuration cfg = new Configuration();
 
-            cfg.setProperty(Environment.DRIVER, props.getProperty("db.driver"));
-            cfg.setProperty(Environment.URL, props.getProperty("db.url"));
-            cfg.setProperty(Environment.USER, props.getProperty("db.user"));
-            cfg.setProperty(Environment.PASS, props.getProperty("db.password"));
+            Map<String, String> jpaProps = new HashMap<>();
 
-            cfg.setProperty(Environment.DIALECT, "org.hibernate.dialect.PostgreSQL95Dialect");
-            cfg.setProperty(Environment.SHOW_SQL, "false");     //на лекции сказали полезная настройка, пока отключил
-            cfg.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+            jpaProps.put("javax.persistence.jdbc.driver", props.getProperty("db.driver"));
+            jpaProps.put("javax.persistence.jdbc.url", props.getProperty("db.url"));
+            jpaProps.put("javax.persistence.jdbc.user", props.getProperty("db.user"));
+            jpaProps.put("javax.persistence.jdbc.password", props.getProperty("db.password"));
 
-            cfg.setProperty("hibernate.packagesToScan", "ru.ilya.model");
+            jpaProps.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQL95Dialect");
+            jpaProps.put("hibernate.show_sql", "false");
 
-            sessionFactory = cfg.buildSessionFactory();
-        } catch (IOException e){
+            entityManagerFactory =
+                    Persistence.createEntityManagerFactory(PERSISTENCE_UNIT, jpaProps);
+
+        } catch (IOException e) {
             logger.error("Ошибка чтения конфигурации для JPA", e);
             throw new RuntimeException(e);
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Ошибка инициализации Hibernate", e);
             throw new RuntimeException(e);
         }
-
     }
 }
