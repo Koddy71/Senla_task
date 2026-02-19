@@ -16,7 +16,7 @@ import ru.ilya.model.Guest;
 public class GuestDaoJpa implements GenericDao<Guest, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(GuestDaoJpa.class);
 
-    public GuestDaoJpa(){
+    public GuestDaoJpa() {
     }
 
     @Override
@@ -29,8 +29,9 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
             tx.commit();
             return model;
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error creating Guest {}", model.getName(), e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при создании гостя {}", model.getName(), e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -52,7 +53,7 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
         EntityManager em = JpaManager.createEntityManager();
         try {
             TypedQuery<Guest> q = em.createQuery("""
-                    SELECT DISTINCT g FROM Guest g 
+                    SELECT DISTINCT g FROM Guest g
                     LEFT JOIN FETCH g.services LEFT JOIN FETCH g.room
                     """, Guest.class);
             return q.getResultList();
@@ -71,8 +72,9 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
             tx.commit();
             return merged;
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error updating Guest {}", model.getName(), e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при обновлении гостя {}", model.getName(), e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -95,8 +97,9 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
                 return false;
             }
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error deleting Guest id={}", id, e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при удалении гостя с id={}", id, e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -112,12 +115,12 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
             em.createQuery("DELETE FROM Guest").executeUpdate();
             tx.commit();
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error deleting all Guests", e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при удалении всех гостей", e);
             throw new RuntimeException(e);
         } finally {
             em.close();
         }
     }
 }
-    

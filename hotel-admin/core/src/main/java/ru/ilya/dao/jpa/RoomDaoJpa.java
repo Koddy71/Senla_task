@@ -16,11 +16,11 @@ import ru.ilya.model.Room;
 public class RoomDaoJpa implements GenericDao<Room, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(RoomDaoJpa.class);
 
-    public RoomDaoJpa(){
+    public RoomDaoJpa() {
     }
-    
+
     @Override
-    public Room create(Room model){
+    public Room create(Room model) {
         EntityManager em = JpaManager.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -29,8 +29,9 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
             tx.commit();
             return model;
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error creating Room {}", model.getNumber(), e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при создании комнаты {}", model.getNumber(), e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -70,7 +71,7 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
-            logger.error("Error updating Room {}", model.getNumber(), e);
+            logger.error("Ошибка при обновлении комнаты {}", model.getNumber(), e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -95,7 +96,7 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
-            logger.error("Error deleting Room id={}", id, e);
+            logger.error("Ошибка при удалении комнаты с id={}", id, e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -113,7 +114,7 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
-            logger.error("Error deleting all Rooms", e);
+            logger.error("Ошибка при удалении всех комнат", e);
             throw new RuntimeException(e);
         } finally {
             em.close();

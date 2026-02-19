@@ -8,12 +8,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.autodi.Inject;
 import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Service;
 
 public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
+    private static final Logger logger = LoggerFactory.getLogger(ServiceDaoJdbc.class);
+
     private static final String INSERT_SQL = "INSERT INTO service(id, name, price) VALUES (?, ?, ?)";
     private static final String SELECT_BY_ID_SQL = "SELECT id, name, price FROM service WHERE id = ?";
     private static final String SELECT_ALL_SQL = "SELECT id, name, price FROM service";
@@ -41,6 +46,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             statement.executeUpdate();
             return service;
         } catch (SQLException e) {
+            logger.error("Ошибка вставки услуги в БД: id={}, name={}", service.getId(), service.getName(), e);
             throw new RuntimeException("Ошибка вставки услуги в БД", e);
         }
     }
@@ -60,6 +66,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
                 }
             }
         } catch (SQLException e) {
+            logger.error("Ошибка выборки услуги из БД по id={}", id, e);
             throw new RuntimeException("Ошибка выборки услуги из БД", e);
         }
         return null;
@@ -79,6 +86,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
                 list.add(service);
             }
         } catch (SQLException e) {
+            logger.error("Ошибка выборки всех услуг из БД", e);
             throw new RuntimeException("Ошибка выборки всех услуг из БД", e);
         }
         return list;
@@ -94,6 +102,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             statement.executeUpdate();
             return service;
         } catch (SQLException e) {
+            logger.error("Ошибка обновления услуги в БД: id={}, name={}", service.getId(), service.getName(), e);
             throw new RuntimeException("Ошибка обновления услуги в БД", e);
         }
     }
@@ -106,6 +115,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             int affected = statement.executeUpdate();
             return affected > 0;
         } catch (SQLException e) {
+            logger.error("Ошибка удаления услуги из БД по id={}", id, e);
             throw new RuntimeException("Ошибка удаления услуги из БД", e);
         }
     }
@@ -116,6 +126,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
                 Statement statement = conn.createStatement()) {
             statement.executeUpdate(DELETE_ALL_SQL);
         } catch (SQLException e) {
+            logger.error("Ошибка очистки таблицы service", e);
             throw new RuntimeException("Ошибка очистки таблицы service", e);
         }
     }

@@ -52,7 +52,7 @@ public class JpaController {
     }
 
     public void restoreServices(ServiceManager serviceManager) {
-        logger.info("Начало обработки команды: restoreServices");
+        logger.info("Начало обработки команды: restoreServices (JPA)");
         try {
             List<Service> services = serviceDao.findAll();
             for (Service service : services) {
@@ -65,9 +65,9 @@ public class JpaController {
             int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
             Service.setIdCounter(maxId + 1);
 
-            logger.info("restoreServices успешно выполнено: восстановлено {} услуг", services.size());
+            logger.info("restoreServices успешно выполнено (JPA): восстановлено {} услуг", services.size());
         } catch (Exception e) {
-            logger.error("Ошибка при обработке restoreServices", e);
+            logger.error("Ошибка при обработке restoreServices (JPA)", e);
         }
     }
 
@@ -99,9 +99,9 @@ public class JpaController {
                     logger.error("Ошибка при восстановлении гостя {}", guest.getName(), e);
                 }
             }
-            logger.info("restoreGuests успешно выполнено: восстановлено {} гостей", guests.size());
+            logger.info("restoreGuests успешно выполнено (JPA): восстановлено {} гостей", guests.size());
         } catch (Exception e) {
-            logger.error("Ошибка при обработке restoreGuests", e);
+            logger.error("Ошибка при обработке restoreGuests (JPA)", e);
         }
     }
 

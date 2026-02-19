@@ -60,11 +60,11 @@ public class JpaManager {
                     Persistence.createEntityManagerFactory(PERSISTENCE_UNIT, jpaProps);
 
         } catch (IOException e) {
-            logger.error("Ошибка чтения конфигурации для JPA", e);
-            throw new RuntimeException(e);
+            logger.error("Ошибка чтения конфигурации для JPA: {}", CONFIG_PATH , e);
+            throw new RuntimeException("Не удалось загрузить файл конфигурации: " + CONFIG_PATH, e);
         } catch (Exception e) {
             logger.error("Ошибка инициализации Hibernate", e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Ошибка инициализации Hibernate", e);
         }
     }
 }

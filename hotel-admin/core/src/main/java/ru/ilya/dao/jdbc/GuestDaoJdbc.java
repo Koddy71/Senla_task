@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.autodi.Inject;
 import ru.ilya.dao.GenericDao;
@@ -18,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
+    private static final Logger logger = LoggerFactory.getLogger(GuestDaoJdbc.class);
+
     private static final String INSERT_GUEST_SQL = """
             INSERT INTO guest(id, name, roomNumber, checkInDate, checkOutDate)
             VALUES (?, ?, ?, ?, ?)
@@ -72,6 +77,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             }
             return guest;
         } catch (SQLException e) {
+            logger.error("Ошибка вставки гостя в БД", e);
             throw new RuntimeException("Ошибка вставки гостя в БД", e);
         }
     }
@@ -97,6 +103,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
                 }
             }
         } catch (SQLException e) {
+            logger.error("Ошибка выборки гостя из БД по id=" + id, e);
             throw new RuntimeException("Ошибка выборки гостя из БД", e);
         }
         return null;
@@ -122,6 +129,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
                 list.add(guest);
             }
         } catch (SQLException e) {
+            logger.error("Ошибка выборки всех гостей из БД", e);
             throw new RuntimeException("Ошибка выборки всех гостей из БД", e);
         }
         return list;
@@ -146,6 +154,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             }
             return guest;
         } catch (SQLException e) {
+            logger.error("Ошибка обновления гостя в БД: id=" + guest.getId(), e);
             throw new RuntimeException("Ошибка обновления гостя в БД", e);
         }
     }
@@ -158,6 +167,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             int affected = statement.executeUpdate();
             return affected > 0;
         } catch (SQLException e) {
+            logger.error("Ошибка удаления гостя из БД: id=" + id, e);
             throw new RuntimeException("Ошибка удаления гостя из БД", e);
         }
     }
@@ -169,6 +179,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             statement.executeUpdate(DELETE_GUEST_SERVICES_ALL_SQL);
             statement.executeUpdate(DELETE_GUEST_ALL_SQL);
         } catch (SQLException e) {
+            logger.error("Ошибка очистки таблицы guest", e);
             throw new RuntimeException("Ошибка очистки guest", e);
         }
     }

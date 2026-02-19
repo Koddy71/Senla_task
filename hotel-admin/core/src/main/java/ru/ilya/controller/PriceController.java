@@ -23,7 +23,7 @@ public class PriceController {
     }
 
     public void showRoomsAndService() {
-        logger.info("Start processing command: showRoomsAndService");
+        logger.info("Начало обработки команды: showRoomsAndService");
         try {
             System.out.print("Что вывести сначала ('room', 'service'): ");
             String sortBy = sc.nextLine().trim();
@@ -32,7 +32,7 @@ public class PriceController {
 
             if (sorted == null || sorted.isEmpty()) {
                 System.out.println("Нет данных для отображения.");
-                logger.info("showRoomsAndService processed successfully: no data to display");
+                logger.info("showRoomsAndService успешно выполнен: нет данных для отображения");
                 return;
             }
 
@@ -40,10 +40,10 @@ public class PriceController {
                 System.out.println(r.getInfo());
             }
 
-            logger.info("showRoomsAndService processed successfully: displayed {} elements", sorted.size());
+            logger.info("showRoomsAndService успешно выполнен: отображено {} элементов", sorted.size());
 
         } catch (Exception e) {
-            logger.error("Error processing showRoomsAndService", e);
+            logger.error("Ошибка при выполнении showRoomsAndService", e);
             System.out.println("Произошла ошибка при выводе данных: " + e.getMessage());
         }
     }

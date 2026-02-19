@@ -16,7 +16,7 @@ import ru.ilya.model.Service;
 public class ServiceDaoJpa implements GenericDao<Service, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDaoJpa.class);
 
-    public ServiceDaoJpa(){
+    public ServiceDaoJpa() {
     }
 
     @Override
@@ -29,8 +29,9 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
             tx.commit();
             return model;
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error creating Service {}", model.getName(), e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при создании услуги {}", model.getName(), e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -68,8 +69,9 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
             tx.commit();
             return merged;
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error updating Service {}", model.getName(), e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при обновлении услуги {}", model.getName(), e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -92,8 +94,9 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
                 return false;
             }
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error deleting Service id={}", id, e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при удалении услуги с id={}", id, e);
             throw new RuntimeException(e);
         } finally {
             em.close();
@@ -109,12 +112,13 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
             em.createQuery("DELETE FROM Service").executeUpdate();
             tx.commit();
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error deleting all Services", e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при удалении всех услуг", e);
             throw new RuntimeException(e);
         } finally {
             em.close();
         }
     }
-    
+
 }

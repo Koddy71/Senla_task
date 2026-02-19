@@ -23,14 +23,14 @@ public class ServiceController {
     }
 
     public void addService() {
-        logger.info("Start processing command: addService");
+        logger.info("Начало обработки команды: addService");
         try {
             System.out.print("Введите название услуги: ");
             String name = sc.nextLine().trim();
 
             if (name.isEmpty()) {
                 System.out.println("Название услуги не может быть пустым.");
-                logger.error("addService aborted: empty service name");
+                logger.error("addService прервана: пустое название услуги");
                 return;
             }
 
@@ -40,7 +40,7 @@ public class ServiceController {
                 price = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Неверный формат цены.");
-                logger.error("addService aborted: invalid price format");
+                logger.error("addService прервана: неверный формат цены");
                 return;
             }
 
@@ -49,20 +49,20 @@ public class ServiceController {
             boolean ok = serviceManager.addService(s);
             if (ok) {
                 System.out.println("Услуга добавлена. ID: " + s.getId());
-                logger.info("addService processed successfully: service '{}' added with id {}", name, s.getId());
+                logger.info("addService успешно выполнена: услуга '{}' добавлена с id {}", name, s.getId());
             } else {
                 System.out.println("Услуга с таким ID уже существует.");
-                logger.error("addService failed: duplicate id for service '{}'", name);
+                logger.error("addService не удалась: дубликат id для услуги '{}'", name);
             }
 
         } catch (Exception e) {
-            logger.error("Error processing addService", e);
+            logger.error("Ошибка при выполнении addService", e);
             System.out.println("Произошла ошибка при добавлении услуги: " + e.getMessage());
         }
     }
 
     public void removeService() {
-        logger.info("Start processing command: removeService");
+        logger.info("Начало обработки команды: removeService");
         try {
             System.out.print("Введите ID услуги для удаления: ");
             int id;
@@ -70,27 +70,27 @@ public class ServiceController {
                 id = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Неверный формат ID.");
-                logger.error("removeService aborted: invalid id format");
+                logger.error("removeService прервана: неверный формат ID");
                 return;
             }
 
             boolean ok = serviceManager.removeService(id);
             if (ok) {
                 System.out.println("Услуга удалена.");
-                logger.info("removeService processed successfully: removed service {}", id);
+                logger.info("removeService успешно выполнена: удалена услуга {}", id);
             } else {
                 System.out.println("Услуга не найдена.");
-                logger.error("removeService failed: service {} not found", id);
+                logger.error("removeService не удалась: услуга {} не найдена", id);
             }
 
         } catch (Exception e) {
-            logger.error("Error processing removeService", e);
+            logger.error("Ошибка при выполнении removeService", e);
             System.out.println("Произошла ошибка при удалении услуги: " + e.getMessage());
         }
     }
 
     public void findService() {
-        logger.info("Start processing command: findService");
+        logger.info("Начало обработки команды: findService");
         try {
             System.out.print("Введите ID услуги для поиска: ");
             int id;
@@ -98,27 +98,27 @@ public class ServiceController {
                 id = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Неверный формат ID.");
-                logger.error("findService aborted: invalid id format");
+                logger.error("findService прервана: неверный формат ID");
                 return;
             }
 
             Service s = serviceManager.findService(id);
             if (s != null) {
                 System.out.println("Найдена услуга: " + s.getInfo());
-                logger.info("findService processed successfully: found service {}", id);
+                logger.info("findService успешно выполнена: найдена услуга {}", id);
             } else {
                 System.out.println("Услуга не найдена.");
-                logger.error("findService failed: service {} not found", id);
+                logger.error("findService не удалась: услуга {} не найдена", id);
             }
 
         } catch (Exception e) {
-            logger.error("Error processing findService", e);
+            logger.error("Ошибка при выполнении findService", e);
             System.out.println("Произошла ошибка при поиске услуги: " + e.getMessage());
         }
     }
 
     public void changePrice() {
-        logger.info("Start processing command: changePrice");
+        logger.info("Начало обработки команды: changePrice");
         try {
             System.out.print("Введите ID услуги для изменения цены: ");
             int id;
@@ -126,7 +126,7 @@ public class ServiceController {
                 id = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Неверный формат ID.");
-                logger.error("changePrice aborted: invalid id format");
+                logger.error("changePrice прервана: неверный формат ID");
                 return;
             }
 
@@ -136,33 +136,33 @@ public class ServiceController {
                 newPrice = Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Неверный формат цены.");
-                logger.error("changePrice aborted: invalid price format");
+                logger.error("changePrice прервана: неверный формат цены");
                 return;
             }
 
             boolean ok = serviceManager.changePrice(id, newPrice);
             if (ok) {
                 System.out.println("Цена изменена.");
-                logger.info("changePrice processed successfully: service {} new price {}", id, newPrice);
+                logger.info("changePrice успешно выполнена: услуга {} новая цена {}", id, newPrice);
             } else {
                 System.out.println("Услуга не найдена.");
-                logger.error("changePrice failed: service {} not found", id);
+                logger.error("changePrice не удалась: услуга {} не найдена", id);
             }
 
         } catch (Exception e) {
-            logger.error("Error processing changePrice", e);
+            logger.error("Ошибка при выполнении changePrice", e);
             System.out.println("Произошла ошибка при изменении цены: " + e.getMessage());
         }
     }
 
     public void printAllServices() {
-        logger.info("Start processing command: printAllServices");
+        logger.info("Начало обработки команды: printAllServices");
         try {
             List<Service> services = serviceManager.getAllServices();
 
             if (services == null || services.isEmpty()) {
                 System.out.println("Услуг нет.");
-                logger.info("printAllServices processed successfully: no services found");
+                logger.info("printAllServices успешно выполнена: услуги не найдены");
                 return;
             }
 
@@ -171,10 +171,10 @@ public class ServiceController {
                 System.out.println(s.getInfo());
             }
 
-            logger.info("printAllServices processed successfully: displayed {} services", services.size());
+            logger.info("printAllServices успешно выполнена: отображено {} услуг", services.size());
 
         } catch (Exception e) {
-            logger.error("Error processing printAllServices", e);
+            logger.error("Ошибка при выполнении printAllServices", e);
             System.out.println("Произошла ошибка при выводе списка услуг: " + e.getMessage());
         }
     }
