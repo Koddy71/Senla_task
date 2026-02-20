@@ -10,13 +10,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JdbcManager;
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 
+@Component
 public class RoomDaoJdbc implements GenericDao<Room, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(RoomDaoJdbc.class);
 
@@ -32,7 +34,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
     private static final String COLUMN_CAPACITY = "capacity";
     private static final String COLUMN_STARS = "stars";
 
-    @Inject
+    @Autowired
     private JdbcManager jdbcManager;
 
     public RoomDaoJdbc() {

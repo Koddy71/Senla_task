@@ -9,9 +9,10 @@ import java.sql.Statement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JdbcManager;
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
@@ -20,6 +21,7 @@ import ru.ilya.model.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(GuestDaoJdbc.class);
 
@@ -56,7 +58,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
     private static final String COLUMN_CHECK_OUT_DATE = "checkOutDate";
     private static final String COLUMN_PRICE = "price";
 
-    @Inject
+    @Autowired
     private JdbcManager jdbcManager;
 
     public GuestDaoJdbc() {

@@ -5,14 +5,16 @@ import java.io.IOException;
 import ru.ilya.io.importer.GuestImporter;
 import ru.ilya.io.importer.RoomImporter;
 import ru.ilya.io.importer.ServiceImporter;
-import ru.ilya.autodi.Inject;
 import ru.ilya.io.exporter.GuestExporter;
 import ru.ilya.io.exporter.RoomExporter;
 import ru.ilya.io.exporter.ServiceExporter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CsvFileController {
 
     private static final Logger logger = LoggerFactory.getLogger(CsvFileController.class);
@@ -21,22 +23,22 @@ public class CsvFileController {
     private static final String GUESTS_PATH = "core/src/main/resources/guests.csv";
     private static final String SERVICES_FILE = "core/src/main/resources/services.csv";
 
-    @Inject
+    @Autowired
     private GuestImporter guestImporter;
 
-    @Inject
+    @Autowired
     private RoomImporter roomImporter;
 
-    @Inject
+    @Autowired
     private ServiceImporter serviceImporter;
 
-    @Inject
+    @Autowired
     private GuestExporter guestExporter;
 
-    @Inject
+    @Autowired
     private RoomExporter roomExporter;
 
-    @Inject
+    @Autowired
     private ServiceExporter serviceExporter;
 
     public CsvFileController() {

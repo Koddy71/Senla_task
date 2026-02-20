@@ -10,7 +10,9 @@ import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ServiceManagerImpl implements ServiceManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceManagerImpl.class);

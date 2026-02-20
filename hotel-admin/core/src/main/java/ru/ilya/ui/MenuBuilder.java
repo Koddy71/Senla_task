@@ -1,11 +1,16 @@
 package ru.ilya.ui;
 
 import ru.ilya.controller.GuestController;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ru.ilya.controller.CsvFileController;
 import ru.ilya.controller.RoomController;
 import ru.ilya.controller.PriceController;
 import ru.ilya.controller.ServiceController;
 
+@Component
 public class MenuBuilder {
     private final GuestController guestController;
     private final RoomController roomController;
@@ -13,6 +18,7 @@ public class MenuBuilder {
     private final PriceController priceController;
     private final CsvFileController csvFileController;
 
+    @Autowired
     public MenuBuilder(GuestController guestController,
             RoomController roomController,
             ServiceController serviceController,

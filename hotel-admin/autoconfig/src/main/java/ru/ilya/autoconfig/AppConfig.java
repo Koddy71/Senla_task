@@ -1,15 +1,17 @@
 package ru.ilya.autoconfig;
 
-import ru.ilya.autodi.ConfigProperty;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AppConfig {
-    @ConfigProperty(propertyName = "room.status.change.enable")
+    @Value("${room.status.change.enable}")
     private boolean roomStatusChangeEnable;
 
-    @ConfigProperty(propertyName = "room.history.limit")
+    @Value("${room.history.limit}")
     private int roomHistoryLimit;
 
-    @ConfigProperty(propertyName = "storage.type")
+    @Value("${storage.type}")
     private String storageType;
 
     public boolean isRoomStatusChangeEnable() {

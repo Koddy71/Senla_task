@@ -12,8 +12,9 @@ import javax.persistence.Persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class JpaManager {
     private static final Logger logger = LoggerFactory.getLogger(JpaManager.class);
     private static final String CONFIG_PATH = "core/src/main/resources/config.properties";

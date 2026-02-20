@@ -1,7 +1,6 @@
 package ru.ilya.controller;
 
 import ru.ilya.service.PriceService;
-import ru.ilya.autodi.Inject;
 import ru.ilya.model.Priceable;
 
 import java.util.List;
@@ -10,11 +9,15 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class PriceController {
 
     private static final Logger logger = LoggerFactory.getLogger(PriceController.class);
 
-    @Inject
+    @Autowired
     private PriceService priceService;
 
     private Scanner sc = new Scanner(System.in);

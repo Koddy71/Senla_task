@@ -1,7 +1,6 @@
 package ru.ilya.service.impl;
 
 import ru.ilya.autoconfig.AppConfig;
-import ru.ilya.autodi.Inject;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
@@ -15,14 +14,17 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RoomServiceImpl implements RoomService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     private Map<Integer, Room> rooms = new HashMap<>();
 
-    @Inject
+    @Autowired
     private AppConfig appConfig;
 
     public RoomServiceImpl() {

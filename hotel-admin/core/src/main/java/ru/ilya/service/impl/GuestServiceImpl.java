@@ -9,8 +9,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
@@ -19,19 +20,20 @@ import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
 
+@Component
 public class GuestServiceImpl implements GuestService {
 
     private static final Logger logger = LoggerFactory.getLogger(GuestServiceImpl.class);
 
     private Map<Integer, Guest> guests = new HashMap<>();
 
-    @Inject
+    @Autowired
     private RoomService roomService;
 
-    @Inject
+    @Autowired
     private ServiceManager serviceManager;
 
-    @Inject
+    @Autowired
     private AppConfig appConfig;
 
     public GuestServiceImpl() {

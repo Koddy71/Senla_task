@@ -1,6 +1,5 @@
 package ru.ilya.controller;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
@@ -12,11 +11,15 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class GuestController {
 
     private static final Logger logger = LoggerFactory.getLogger(GuestController.class);
 
-    @Inject
+    @Autowired
     private GuestService guestService;
 
     private final Scanner sc = new Scanner(System.in);

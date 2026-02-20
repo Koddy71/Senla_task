@@ -1,6 +1,5 @@
 package ru.ilya.service.impl;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.model.Priceable;
 import ru.ilya.model.Room;
 import ru.ilya.service.PriceService;
@@ -14,15 +13,18 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PriceServiceImpl implements PriceService {
 
     private static final Logger logger = LoggerFactory.getLogger(PriceServiceImpl.class);
 
-    @Inject
+    @Autowired
     private RoomService roomService;
 
-    @Inject
+    @Autowired
     private ServiceManager serviceManager;
 
     public PriceServiceImpl() {

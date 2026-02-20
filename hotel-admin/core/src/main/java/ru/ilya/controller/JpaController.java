@@ -1,6 +1,5 @@
 package ru.ilya.controller;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.jpa.GuestDaoJpa;
 import ru.ilya.dao.jpa.RoomDaoJpa;
 import ru.ilya.dao.jpa.ServiceDaoJpa;
@@ -17,17 +16,21 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class JpaController {
 
     private static final Logger logger = LoggerFactory.getLogger(JpaController.class);
 
-    @Inject
+    @Autowired
     private RoomDaoJpa roomDao;
 
-    @Inject
+    @Autowired
     private ServiceDaoJpa serviceDao;
 
-    @Inject
+    @Autowired
     private GuestDaoJpa guestDao;
 
     public JpaController() {

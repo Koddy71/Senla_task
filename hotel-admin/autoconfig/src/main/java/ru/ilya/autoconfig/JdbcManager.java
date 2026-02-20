@@ -10,8 +10,9 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class JdbcManager {
     private static final Logger logger = LoggerFactory.getLogger(JdbcManager.class);
     private static final String CONFIG_PATH = "core/src/main/resources/config.properties";
@@ -61,7 +62,7 @@ public class JdbcManager {
 
     public void beginTransaction() throws SQLException {
         if (transactionDepth.get() == 0) {
-            logger.info("Начало новой транзакции");
+            
             Connection connection = DriverManager.getConnection(
                     props.getProperty("db.url"),
                     props.getProperty("db.user"),

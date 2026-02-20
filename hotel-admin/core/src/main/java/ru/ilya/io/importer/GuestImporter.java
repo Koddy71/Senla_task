@@ -7,16 +7,18 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
+@Component
 public class GuestImporter {
     private static final Logger logger = LoggerFactory.getLogger(GuestImporter.class);
 
-    @Inject
+    @Autowired
     private GuestService guestService;
 
     public GuestImporter() {

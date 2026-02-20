@@ -10,12 +10,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JdbcManager;
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Service;
 
+@Component
 public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDaoJdbc.class);
 
@@ -30,7 +32,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
     private static final String COLUMN_NAME = "name";
     private static final String COLUMN_PRICE = "price";
 
-    @Inject
+    @Autowired
     private JdbcManager jdbcManager;
 
     public ServiceDaoJdbc() {

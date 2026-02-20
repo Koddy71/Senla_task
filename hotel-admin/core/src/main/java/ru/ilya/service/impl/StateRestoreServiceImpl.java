@@ -13,42 +13,44 @@ import ru.ilya.service.ServiceManager;
 import ru.ilya.service.StateRestoreService;
 import ru.ilya.controller.JdbcController;
 import ru.ilya.controller.JpaController;
-import ru.ilya.autodi.Inject;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class StateRestoreServiceImpl implements StateRestoreService {
 
     private static final Logger logger = LoggerFactory.getLogger(StateRestoreServiceImpl.class);
 
-    @Inject
+    @Autowired
     private AppConfig config;
 
-    @Inject
+    @Autowired
     private RoomService roomService;
 
-    @Inject
+    @Autowired
     private GuestService guestService;
 
-    @Inject
+    @Autowired
     private ServiceManager serviceManager;
 
-    @Inject
+    @Autowired
     private CsvFileController csvFileController;
 
-    @Inject
+    @Autowired
     private JdbcController jdbcController;
 
-    @Inject
+    @Autowired
     private JsonFileController jsonFileController;
 
-    @Inject
+    @Autowired
     private JdbcManager jdbcManager;
 
-    @Inject
+    @Autowired
     private JpaController jpaController;
 
     public StateRestoreServiceImpl() {

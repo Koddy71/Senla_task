@@ -8,11 +8,13 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JpaManager;
 import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Service;
 
+@Component
 public class ServiceDaoJpa implements GenericDao<Service, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDaoJpa.class);
 

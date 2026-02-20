@@ -3,23 +3,27 @@ package ru.ilya.controller;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
-import ru.ilya.autodi.Inject;
 import ru.ilya.autoconfig.AppConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
+@Component
 public class RoomController {
     private static final Logger logger = LoggerFactory.getLogger(RoomController.class);
 
-    @Inject
+    @Autowired
     private RoomService roomService;
 
-    @Inject
+    @Autowired
     private AppConfig appConfig;
 
     private final Scanner sc = new Scanner(System.in);

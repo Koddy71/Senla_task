@@ -12,7 +12,6 @@
     <name>hotel-admin</name>
     <url>http://www.example.com</url>
     <modules>
-        <module>annotations</module>
         <module>core</module>
         <module>autoconfig</module>
     </modules>
@@ -47,6 +46,12 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>5.6.15.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.1.14</version>
         </dependency>
     </dependencies>
 
