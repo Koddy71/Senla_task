@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.dao.GenericDao;
+import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Service;
 
 @Component
@@ -49,7 +50,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             return service;
         } catch (SQLException e) {
             logger.error("Ошибка вставки услуги в БД: id={}, name={}", service.getId(), service.getName(), e);
-            throw new RuntimeException("Ошибка вставки услуги в БД", e);
+            throw new PersistenceException("Ошибка вставки услуги в БД", e);
         }
     }
 
@@ -69,7 +70,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             }
         } catch (SQLException e) {
             logger.error("Ошибка выборки услуги из БД по id={}", id, e);
-            throw new RuntimeException("Ошибка выборки услуги из БД", e);
+            throw new PersistenceException("Ошибка выборки услуги из БД", e);
         }
         return null;
     }
@@ -89,7 +90,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             }
         } catch (SQLException e) {
             logger.error("Ошибка выборки всех услуг из БД", e);
-            throw new RuntimeException("Ошибка выборки всех услуг из БД", e);
+            throw new PersistenceException("Ошибка выборки всех услуг из БД", e);
         }
         return list;
     }
@@ -105,7 +106,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             return service;
         } catch (SQLException e) {
             logger.error("Ошибка обновления услуги в БД: id={}, name={}", service.getId(), service.getName(), e);
-            throw new RuntimeException("Ошибка обновления услуги в БД", e);
+            throw new PersistenceException("Ошибка обновления услуги в БД", e);
         }
     }
 
@@ -118,7 +119,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             return affected > 0;
         } catch (SQLException e) {
             logger.error("Ошибка удаления услуги из БД по id={}", id, e);
-            throw new RuntimeException("Ошибка удаления услуги из БД", e);
+            throw new PersistenceException("Ошибка удаления услуги из БД", e);
         }
     }
 
@@ -129,7 +130,7 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
             statement.executeUpdate(DELETE_ALL_SQL);
         } catch (SQLException e) {
             logger.error("Ошибка очистки таблицы service", e);
-            throw new RuntimeException("Ошибка очистки таблицы service", e);
+            throw new PersistenceException("Ошибка очистки таблицы service", e);
         }
     }
 }

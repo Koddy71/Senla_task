@@ -13,6 +13,7 @@ import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Service;
 import ru.ilya.service.GuestService;
+import ru.ilya.exceptions.ExportException;
 
 @Component
 public class GuestExporter {
@@ -57,10 +58,7 @@ public class GuestExporter {
             CsvUtil.write(path, lines);
         } catch (IOException e) {
             logger.error("Ошибка при записи файла экспорта гостей: {}", path, e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Неожиданная ошибка при экспорте гостей", e);
-            throw new RuntimeException("Ошибка экспорта гостей", e);
-        }
+            throw new ExportException("Ошибка экспорта гостей", e);
+        } 
     }
 }

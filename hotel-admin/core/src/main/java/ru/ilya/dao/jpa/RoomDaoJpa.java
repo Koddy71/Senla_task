@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JpaManager;
 import ru.ilya.dao.GenericDao;
+import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Room;
 
 @Component
@@ -34,7 +35,7 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при создании комнаты {}", model.getNumber(), e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка вставки комнаты в БД", e);
         } finally {
             em.close();
         }
@@ -74,7 +75,7 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при обновлении комнаты {}", model.getNumber(), e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка обновления комнаты в БД", e);
         } finally {
             em.close();
         }
@@ -99,7 +100,7 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при удалении комнаты с id={}", id, e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка удаления комнаты из БД", e);
         } finally {
             em.close();
         }
@@ -117,7 +118,7 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при удалении всех комнат", e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка очистки таблицы room", e);
         } finally {
             em.close();
         }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JpaManager;
 import ru.ilya.dao.GenericDao;
+import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Service;
 
 @Component
@@ -34,7 +35,7 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при создании услуги {}", model.getName(), e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка вставки услуги в БД", e);
         } finally {
             em.close();
         }
@@ -74,7 +75,7 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при обновлении услуги {}", model.getName(), e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка обновления услуги в БД", e);
         } finally {
             em.close();
         }
@@ -99,7 +100,7 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при удалении услуги с id={}", id, e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка удаления услуги из БД", e);
         } finally {
             em.close();
         }
@@ -117,7 +118,7 @@ public class ServiceDaoJpa implements GenericDao<Service, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при удалении всех услуг", e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка очистки таблицы service", e);
         } finally {
             em.close();
         }

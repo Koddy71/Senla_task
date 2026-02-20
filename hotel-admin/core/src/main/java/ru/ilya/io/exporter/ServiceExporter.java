@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
+import ru.ilya.exceptions.ExportException;
 
 @Component
 public class ServiceExporter {
@@ -40,10 +41,7 @@ public class ServiceExporter {
             CsvUtil.write(path, lines);
         } catch (IOException e) {
             logger.error("Ошибка при записи файла экспорта услуг: {}", path, e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Неожиданная ошибка при экспорте услуг", e);
-            throw new RuntimeException("Ошибка экспорта услуг", e);
-        }
+            throw new ExportException("Ошибка экспорта услуг", e);
+        } 
     }
 }

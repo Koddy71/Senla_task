@@ -11,4 +11,11 @@
 
     <artifactId>autoconfig</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>ru.ilya</groupId>
+            <artifactId>exceptions</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

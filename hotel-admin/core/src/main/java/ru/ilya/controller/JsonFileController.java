@@ -8,6 +8,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
+import ru.ilya.exceptions.GuestException;
+import ru.ilya.exceptions.RoomException;
+import ru.ilya.exceptions.ServiceException;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +47,7 @@ public class JsonFileController {
             logger.info("saveGuestsToJson успешно выполнен: сохранено {} гостей", guests.size());
         } catch (IOException e) {
             logger.error("Ошибка при выполнении saveGuestsToJson", e);
-            throw new RuntimeException("Ошибка при сохранении данных гостей.", e);
+            throw new GuestException("Ошибка при сохранении данных гостей.", e);
         }
     }
 
@@ -57,7 +60,7 @@ public class JsonFileController {
             logger.info("saveRoomsToJson успешно выполнен: сохранено {} комнат", rooms.size());
         } catch (IOException e) {
             logger.error("Ошибка при выполнении saveRoomsToJson", e);
-            throw new RuntimeException("Ошибка при сохранении данных комнат.", e);
+            throw new RoomException("Ошибка при сохранении данных комнат.", e);
         }
     }
 
@@ -70,7 +73,7 @@ public class JsonFileController {
             logger.info("saveServicesToJson успешно выполнен: сохранено {} услуг", services.size());
         } catch (IOException e) {
             logger.error("Ошибка при выполнении saveServicesToJson", e);
-            throw new RuntimeException("Ошибка при сохранении данных услуг.", e);
+            throw new ServiceException("Ошибка при сохранении данных услуг.", e);
         }
     }
 
@@ -98,7 +101,7 @@ public class JsonFileController {
 
         } catch (IOException e) {
             logger.error("Ошибка при выполнении loadGuestsFromJson", e);
-            throw new RuntimeException("Ошибка при загрузке данных гостей.", e);
+            throw new GuestException("Ошибка при загрузке данных гостей.", e);
         }
     }
 
@@ -126,7 +129,7 @@ public class JsonFileController {
 
         } catch (IOException e) {
             logger.error("Ошибка при выполнении loadRoomsFromJson", e);
-            throw new RuntimeException("Ошибка при загрузке данных комнат.", e);
+            throw new RoomException("Ошибка при загрузке данных комнат.", e);
         }
     }
 
@@ -157,7 +160,7 @@ public class JsonFileController {
 
         } catch (IOException e) {
             logger.error("Ошибка при выполнении loadServicesFromJson", e);
-            throw new RuntimeException("Ошибка при загрузке данных услуг.", e);
+            throw new ServiceException("Ошибка при загрузке данных услуг.", e);
         }
     }
 

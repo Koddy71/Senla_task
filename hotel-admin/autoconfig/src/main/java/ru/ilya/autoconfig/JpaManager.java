@@ -1,5 +1,8 @@
 package ru.ilya.autoconfig;
 
+import ru.ilya.exceptions.ConfigException;
+import ru.ilya.exceptions.PersistenceException;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -62,10 +65,10 @@ public class JpaManager {
 
         } catch (IOException e) {
             logger.error("Ошибка чтения конфигурации для JPA: {}", CONFIG_PATH , e);
-            throw new RuntimeException("Не удалось загрузить файл конфигурации: " + CONFIG_PATH, e);
+            throw new ConfigException("Не удалось загрузить файл конфигурации: " + CONFIG_PATH, e);
         } catch (Exception e) {
             logger.error("Ошибка инициализации Hibernate", e);
-            throw new RuntimeException("Ошибка инициализации Hibernate", e);
+            throw new PersistenceException("Ошибка инициализации Hibernate", e);
         }
     }
 }

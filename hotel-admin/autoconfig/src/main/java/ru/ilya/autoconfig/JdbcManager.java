@@ -1,5 +1,8 @@
 package ru.ilya.autoconfig;
 
+import ru.ilya.exceptions.ConfigException;
+import ru.ilya.exceptions.PersistenceException;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
@@ -28,10 +31,10 @@ public class JdbcManager {
             logger.info("JdbcManager инициализирован, драйвер загружен: {}", props.getProperty("db.driver"));
         } catch (IOException e) {
             logger.error("Не удалось загрузить файл конфигурации: {}", CONFIG_PATH, e);
-            throw new RuntimeException("Не удалось загрузить файл конфигурации: " + CONFIG_PATH, e);
+            throw new ConfigException("Не удалось загрузить файл конфигурации: " + CONFIG_PATH, e);
         } catch (ClassNotFoundException e) {
             logger.error("Класс JDBC драйвера не найден: {}", props.getProperty("db.driver"), e);
-            throw new RuntimeException("JDBC Driver не найден", e);
+            throw new ConfigException("JDBC Driver не найден", e);
         }
     }
 
@@ -101,7 +104,7 @@ public class JdbcManager {
             }
         } catch (SQLException e) {
             logger.error("Ошибка при выполнении rollback транзакции", e);
-            throw new RuntimeException("Ошибка rollback транзакции", e);
+            throw new PersistenceException("Ошибка rollback транзакции", e);
         } finally {
             transactionalConnection.remove();
             transactionDepth.remove();

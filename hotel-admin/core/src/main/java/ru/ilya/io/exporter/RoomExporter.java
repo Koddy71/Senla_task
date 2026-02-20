@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Room;
 import ru.ilya.service.RoomService;
+import ru.ilya.exceptions.ExportException;
 
 @Component
 public class RoomExporter {
@@ -40,11 +41,8 @@ public class RoomExporter {
 
             CsvUtil.write(path, lines);
         } catch(IOException e){
-            logger.error("Ошибка при записи файла экспорта гостей: {}", path, e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Неожиданная ошибка при экспорте гостей", e);
-            throw new RuntimeException("Ошибка экспорта гостей", e);
-        }
+            logger.error("Ошибка при записи файла экспорта комнат: {}", path, e);
+            throw new ExportException("Ошибка экспорта комнат", e);
+        } 
     }
 }

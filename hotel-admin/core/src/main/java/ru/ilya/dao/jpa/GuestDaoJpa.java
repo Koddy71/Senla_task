@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JpaManager;
 import ru.ilya.dao.GenericDao;
+import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Guest;
 
 @Component
@@ -34,7 +35,7 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при создании гостя {}", model.getName(), e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка вставки гостя в БД", e);
         } finally {
             em.close();
         }
@@ -77,7 +78,7 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при обновлении гостя {}", model.getName(), e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка обновления гостя в БД", e);
         } finally {
             em.close();
         }
@@ -102,7 +103,7 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при удалении гостя с id={}", id, e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка удаления гостя из БД", e);
         } finally {
             em.close();
         }
@@ -120,7 +121,7 @@ public class GuestDaoJpa implements GenericDao<Guest, Integer> {
             if (tx.isActive())
                 tx.rollback();
             logger.error("Ошибка при удалении всех гостей", e);
-            throw new RuntimeException(e);
+            throw new PersistenceException("Ошибка очистки таблицы guest", e);
         } finally {
             em.close();
         }

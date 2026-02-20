@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.dao.GenericDao;
+import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 
@@ -52,7 +53,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             return room;
         } catch (SQLException e) {
             logger.error("Ошибка вставки комнаты в БД: номер={}", room.getNumber(), e);
-            throw new RuntimeException("Ошибка вставки комнаты в БД", e);
+            throw new PersistenceException("Ошибка вставки комнаты в БД", e);
         }
     }
 
@@ -74,7 +75,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             }
         } catch (SQLException e) {
             logger.error("Ошибка выборки комнаты из БД по номеру={}", number, e);
-            throw new RuntimeException("Ошибка выборки комнаты из БД", e);
+            throw new PersistenceException("Ошибка выборки комнаты из БД", e);
         }
         return null;
     }
@@ -96,7 +97,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             }
         } catch (SQLException e) {
             logger.error("Ошибка выборки всех комнат из БД", e);
-            throw new RuntimeException("Ошибка выборки всех комнат из БД", e);
+            throw new PersistenceException("Ошибка выборки всех комнат из БД", e);
         }
         return list;
     }
@@ -113,7 +114,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             return room;
         } catch (SQLException e) {
             logger.error("Ошибка обновления комнаты в БД: номер={}", room.getNumber(), e);
-            throw new RuntimeException("Ошибка обновления комнаты в БД", e);
+            throw new PersistenceException("Ошибка обновления комнаты в БД", e);
         }
     }
 
@@ -126,7 +127,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             return affected > 0;
         } catch (SQLException e) {
             logger.error("Ошибка удаления комнаты из БД по номеру={}", number, e);
-            throw new RuntimeException("Ошибка удаления комнаты из БД", e);
+            throw new PersistenceException("Ошибка удаления комнаты из БД", e);
         }
     }
 
@@ -137,7 +138,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             statement.executeUpdate(DELETE_ALL_SQL);
         } catch (SQLException e) {
             logger.error("Ошибка очистки таблицы room", e);
-            throw new RuntimeException("Ошибка очистки таблицы room", e);
+            throw new PersistenceException("Ошибка очистки таблицы room", e);
         }
     }
 }

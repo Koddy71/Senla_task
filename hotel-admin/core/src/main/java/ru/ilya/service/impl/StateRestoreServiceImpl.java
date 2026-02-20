@@ -13,6 +13,8 @@ import ru.ilya.service.ServiceManager;
 import ru.ilya.service.StateRestoreService;
 import ru.ilya.controller.JdbcController;
 import ru.ilya.controller.JpaController;
+import ru.ilya.exceptions.ApplicationException;
+import ru.ilya.exceptions.PersistenceException;
 
 import java.util.List;
 
@@ -54,7 +56,6 @@ public class StateRestoreServiceImpl implements StateRestoreService {
     private JpaController jpaController;
 
     public StateRestoreServiceImpl() {
-        logger.info("StateRestoreServiceImpl инициализирован");
     }
 
     @Override
@@ -72,7 +73,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
             restoreFromJpa();
         } else {
             logger.error("Неизвестный тип хранилища: {}", storageType);
-            throw new RuntimeException("Неизвестный тип хранилища: " + storageType);
+            throw new ApplicationException("Неизвестный тип хранилища: " + storageType);
         }
 
         logger.info("Восстановление состояния завершено");
@@ -93,7 +94,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
             saveToJpa();
         } else {
             logger.error("Неизвестный тип хранилища: {}", storageType);
-            throw new RuntimeException("Неизвестный тип хранилища: " + storageType);
+            throw new ApplicationException("Неизвестный тип хранилища: " + storageType);
         }
 
         logger.info("Сохранение состояния завершено");
@@ -203,7 +204,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
         } catch (Exception e) {
             jdbcManager.rollbackTransaction();
             logger.error("Ошибка сохранения состояния в БД, транзакция откачена", e);
-            throw new RuntimeException("Ошибка сохранения состояния в БД. Транзакция откатилась.", e);
+            throw new PersistenceException("Ошибка сохранения состояния в БД. Транзакция откатилась.", e);
         }
         System.out.println("Данные сохранены в БД.");
         logger.info("Сохранение в JDBC завершено");
@@ -220,7 +221,7 @@ public class StateRestoreServiceImpl implements StateRestoreService {
 
         } catch (Exception e) {
             logger.error("Ошибка сохранения состояния в БД (JPA)", e);
-            throw new RuntimeException("Ошибка сохранения состояния в БД.", e);
+            throw new PersistenceException("Ошибка сохранения состояния в БД.", e);
         }
         System.out.println("Данные сохранены в БД.");
         logger.info("Сохранение в JPA завершено");
