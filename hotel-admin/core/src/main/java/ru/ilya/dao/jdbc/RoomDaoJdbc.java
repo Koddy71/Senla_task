@@ -8,13 +8,21 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ru.ilya.autoconfig.JdbcManager;
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.GenericDao;
+import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 
+@Component
 public class RoomDaoJdbc implements GenericDao<Room, Integer> {
+    private static final Logger logger = LoggerFactory.getLogger(RoomDaoJdbc.class);
+
     private static final String INSERT_SQL = "INSERT INTO room(number, price, capacity, stars) VALUES (?, ?, ?, ?)";
     private static final String SELECT_BY_ID_SQL = "SELECT number, price, capacity, stars FROM room WHERE number = ?";
     private static final String SELECT_ALL_SQL = "SELECT number, price, capacity, stars FROM room";
@@ -27,7 +35,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
     private static final String COLUMN_CAPACITY = "capacity";
     private static final String COLUMN_STARS = "stars";
 
-    @Inject
+    @Autowired
     private JdbcManager jdbcManager;
 
     public RoomDaoJdbc() {
@@ -44,7 +52,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             statement.executeUpdate();
             return room;
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка вставки комнаты в БД", e);
+            logger.error("Ошибка вставки комнаты в БД: номер={}", room.getNumber(), e);
+            throw new PersistenceException("Ошибка вставки комнаты в БД", e);
         }
     }
 
@@ -65,7 +74,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка выборки команды из БД", e);
+            logger.error("Ошибка выборки комнаты из БД по номеру={}", number, e);
+            throw new PersistenceException("Ошибка выборки комнаты из БД", e);
         }
         return null;
     }
@@ -86,7 +96,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
                 list.add(room);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка выборки всех комнат из БД", e);
+            logger.error("Ошибка выборки всех комнат из БД", e);
+            throw new PersistenceException("Ошибка выборки всех комнат из БД", e);
         }
         return list;
     }
@@ -102,7 +113,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             statement.executeUpdate();
             return room;
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка обновления комнаты в БД", e);
+            logger.error("Ошибка обновления комнаты в БД: номер={}", room.getNumber(), e);
+            throw new PersistenceException("Ошибка обновления комнаты в БД", e);
         }
     }
 
@@ -114,7 +126,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             int affected = statement.executeUpdate();
             return affected > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка удаления комнаты из БД", e);
+            logger.error("Ошибка удаления комнаты из БД по номеру={}", number, e);
+            throw new PersistenceException("Ошибка удаления комнаты из БД", e);
         }
     }
 
@@ -124,7 +137,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
                 Statement statement = conn.createStatement()) {
             statement.executeUpdate(DELETE_ALL_SQL);
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка очистки таблицы room", e);
+            logger.error("Ошибка очистки таблицы room", e);
+            throw new PersistenceException("Ошибка очистки таблицы room", e);
         }
     }
 }

@@ -32,10 +32,8 @@ public class Guest {
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
 
-    @ManyToMany(fetch = FetchType.LAZY)                 //Ленивая загрузка
-    @JoinTable(name = "guest_service",
-        joinColumns =@JoinColumn(name = "guest_id"),
-        inverseJoinColumns = @JoinColumn(name = "service_id"))
+    @ManyToMany(fetch = FetchType.LAZY) // Ленивая загрузка
+    @JoinTable(name = "guest_service", joinColumns = @JoinColumn(name = "guest_id"), inverseJoinColumns = @JoinColumn(name = "service_id"))
     private List<Service> services = new ArrayList<>();
 
     private static int idCounter = 1;
@@ -146,9 +144,8 @@ public class Guest {
     }
 
     public String getInfo() {
-        return "ID: " + id + " | " + name + " (Номер: " + room.getNumber() + ", с " + checkInDate + " по "
-                + checkOutDate
-                + "), (Услуги: " + serviceInfo() + "). Итог: " + getTotalCost() + " рублей.";
+        return String.format("ID: %d | %s (Номер: %d, с %s по %s), (Услуги: %s). Итог: %.0f рублей.",
+                id, name, room.getNumber(), checkInDate, checkOutDate, serviceInfo(), getTotalCost());
     }
 
     public String getStayInfo() {

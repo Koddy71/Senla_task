@@ -1,35 +1,23 @@
 package ru.ilya.ui;
 
-import ru.ilya.autodi.Inject;
-import ru.ilya.controller.CsvFileController;
-import ru.ilya.service.GuestService;
-import ru.ilya.service.RoomService;
-import ru.ilya.service.ServiceManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ru.ilya.service.StateRestoreService;
 
+@Component
 public class MenuController {
-
-    @Inject
+    @Autowired
     private Builder builder;
 
-    @Inject
-    private RoomService roomService;
-
-    @Inject
-    private GuestService guestService;
-
-    @Inject
-    private ServiceManager serviceManager;
-
-    @Inject
-    private CsvFileController csvFileController;
-
-    @Inject
+    @Autowired
     private StateRestoreService stateRestoreService;
 
     private Navigator navigator;
 
-    public MenuController() {
+    public MenuController(Builder builder, StateRestoreService stateRestoreService) {
+        this.builder = builder;
+        this.stateRestoreService = stateRestoreService;
     }
 
     public void run() {

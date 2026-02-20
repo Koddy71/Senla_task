@@ -79,7 +79,8 @@ public class Service extends Priceable {
     }
 
     public String getInfo() {
-        return "ID: " + id + ", услуга " + name + " - " + price + " руб.";
+        return String.format("ID: %d, Услуга %s - %d руб.",
+                id, name, price);
     }
 
     @Override

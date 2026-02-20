@@ -8,6 +8,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
+import ru.ilya.exceptions.GuestException;
+import ru.ilya.exceptions.RoomException;
+import ru.ilya.exceptions.ServiceException;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +19,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JsonFileController {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonFileController.class);
@@ -34,114 +39,114 @@ public class JsonFileController {
     }
 
     public void saveGuests(List<Guest> guests) {
-        logger.info("Start processing command: saveGuestsToJson");
+        logger.info("Начало обработки команды: saveGuestsToJson");
         try {
             File file = new File(GUESTS_FILE_PATH);
             createFileIfNeeded(file);
             mapper.writeValue(file, guests);
-            logger.info("saveGuestsToJson processed successfully: {} guests saved", guests.size());
+            logger.info("saveGuestsToJson успешно выполнен: сохранено {} гостей", guests.size());
         } catch (IOException e) {
-            logger.error("Error processing saveGuestsToJson", e);
-            throw new RuntimeException("Ошибка при сохранении данных гостей.", e);
+            logger.error("Ошибка при выполнении saveGuestsToJson", e);
+            throw new GuestException("Ошибка при сохранении данных гостей.", e);
         }
     }
 
     public void saveRooms(List<Room> rooms) {
-        logger.info("Start processing command: saveRoomsToJson");
+        logger.info("Начало обработки команды: saveRoomsToJson");
         try {
             File file = new File(ROOMS_FILE_PATH);
             createFileIfNeeded(file);
             mapper.writeValue(file, rooms);
-            logger.info("saveRoomsToJson processed successfully: {} rooms saved", rooms.size());
+            logger.info("saveRoomsToJson успешно выполнен: сохранено {} комнат", rooms.size());
         } catch (IOException e) {
-            logger.error("Error processing saveRoomsToJson", e);
-            throw new RuntimeException("Ошибка при сохранении данных комнат.", e);
+            logger.error("Ошибка при выполнении saveRoomsToJson", e);
+            throw new RoomException("Ошибка при сохранении данных комнат.", e);
         }
     }
 
     public void saveServices(List<Service> services) {
-        logger.info("Start processing command: saveServicesToJson");
+        logger.info("Начало обработки команды: saveServicesToJson");
         try {
             File file = new File(SERVICES_FILE_PATH);
             createFileIfNeeded(file);
             mapper.writeValue(file, services);
-            logger.info("saveServicesToJson processed successfully: {} services saved", services.size());
+            logger.info("saveServicesToJson успешно выполнен: сохранено {} услуг", services.size());
         } catch (IOException e) {
-            logger.error("Error processing saveServicesToJson", e);
-            throw new RuntimeException("Ошибка при сохранении данных услуг.", e);
+            logger.error("Ошибка при выполнении saveServicesToJson", e);
+            throw new ServiceException("Ошибка при сохранении данных услуг.", e);
         }
     }
 
     public List<Guest> loadGuests() {
-        logger.info("Start processing command: loadGuestsFromJson");
+        logger.info("Начало обработки команды: loadGuestsFromJson");
         try {
             File file = new File(GUESTS_FILE_PATH);
             boolean wasCreated = !file.exists();
             createFileIfNeeded(file);
 
             if (wasCreated) {
-                logger.info("Guests file did not exist. Created new empty file.");
+                logger.info("Файл с гостями не существовал. Создан новый пустой файл.");
                 return new ArrayList<>();
             }
 
             if (file.length() == 0) {
-                logger.info("Guests file exists but is empty.");
+                logger.info("Файл с гостями существует, но пуст.");
                 return new ArrayList<>();
             }
 
             List<Guest> guests = mapper.readValue(file, new TypeReference<List<Guest>>() {
             });
-            logger.info("loadGuestsFromJson processed successfully: {} guests loaded", guests.size());
+            logger.info("loadGuestsFromJson успешно выполнен: загружено {} гостей", guests.size());
             return guests;
 
         } catch (IOException e) {
-            logger.error("Error processing loadGuestsFromJson", e);
-            throw new RuntimeException("Ошибка при загрузке данных гостей.", e);
+            logger.error("Ошибка при выполнении loadGuestsFromJson", e);
+            throw new GuestException("Ошибка при загрузке данных гостей.", e);
         }
     }
 
     public List<Room> loadRooms() {
-        logger.info("Start processing command: loadRoomsFromJson");
+        logger.info("Начало обработки команды: loadRoomsFromJson");
         try {
             File file = new File(ROOMS_FILE_PATH);
             boolean wasCreated = !file.exists();
             createFileIfNeeded(file);
 
             if (wasCreated) {
-                logger.info("Rooms file did not exist. Created new empty file.");
+                logger.info("Файл с комнатами не существовал. Создан новый пустой файл.");
                 return new ArrayList<>();
             }
 
             if (file.length() == 0) {
-                logger.info("Rooms file exists but is empty.");
+                logger.info("Файл с комнатами существует, но пуст.");
                 return new ArrayList<>();
             }
 
             List<Room> rooms = mapper.readValue(file, new TypeReference<List<Room>>() {
             });
-            logger.info("loadRoomsFromJson processed successfully: {} rooms loaded", rooms.size());
+            logger.info("loadRoomsFromJson успешно выполнен: загружено {} комнат", rooms.size());
             return rooms;
 
         } catch (IOException e) {
-            logger.error("Error processing loadRoomsFromJson", e);
-            throw new RuntimeException("Ошибка при загрузке данных комнат.", e);
+            logger.error("Ошибка при выполнении loadRoomsFromJson", e);
+            throw new RoomException("Ошибка при загрузке данных комнат.", e);
         }
     }
 
     public List<Service> loadServices() {
-        logger.info("Start processing command: loadServicesFromJson");
+        logger.info("Начало обработки команды: loadServicesFromJson");
         try {
             File file = new File(SERVICES_FILE_PATH);
             boolean wasCreated = !file.exists();
             createFileIfNeeded(file);
 
             if (wasCreated) {
-                logger.info("Services file did not exist. Created new empty file.");
+                logger.info("Файл с услугами не существовал. Создан новый пустой файл.");
                 return new ArrayList<>();
             }
 
             if (file.length() == 0) {
-                logger.info("Services file exists but is empty.");
+                logger.info("Файл с услугами существует, но пуст.");
                 return new ArrayList<>();
             }
 
@@ -150,12 +155,12 @@ public class JsonFileController {
             int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
             Service.setIdCounter(maxId + 1);
 
-            logger.info("loadServicesFromJson processed successfully: {} services loaded", services.size());
+            logger.info("loadServicesFromJson успешно выполнен: загружено {} услуг", services.size());
             return services;
 
         } catch (IOException e) {
-            logger.error("Error processing loadServicesFromJson", e);
-            throw new RuntimeException("Ошибка при загрузке данных услуг.", e);
+            logger.error("Ошибка при выполнении loadServicesFromJson", e);
+            throw new ServiceException("Ошибка при загрузке данных услуг.", e);
         }
     }
 
@@ -163,13 +168,13 @@ public class JsonFileController {
         File parent = file.getParentFile();
         if (parent != null && !parent.exists()) {
             if (!parent.mkdirs()) {
-                logger.error("Failed to create directory: {}", parent.getPath());
+                logger.error("Не удалось создать директорию: {}", parent.getPath());
                 throw new IOException("Не удалось создать директорию: " + parent.getPath());
             }
         }
         if (!file.exists()) {
             if (!file.createNewFile()) {
-                logger.error("Failed to create file: {}", file.getPath());
+                logger.error("Не удалось создать файл: {}", file.getPath());
                 throw new IOException("Не удалось создать файл: " + file.getPath());
             }
         }

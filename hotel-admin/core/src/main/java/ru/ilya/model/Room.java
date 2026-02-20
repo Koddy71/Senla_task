@@ -110,11 +110,8 @@ public class Room extends Priceable {
     }
 
     public String getInfo() {
-        return "Номер: " + number +
-                ", Цена: " + price +
-                ", Вместимость: " + capacity +
-                ", Звёзды: " + stars +
-                ", Статус: " + status.getDescription();
+        return String.format("Номер: %d, Цена: %d, Вместимость: %d, Звёзды: %d, Статус: %s",
+                number, price, capacity, stars, status.getDescription());
     }
 
     @Override

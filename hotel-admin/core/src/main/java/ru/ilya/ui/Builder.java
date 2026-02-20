@@ -1,5 +1,8 @@
 package ru.ilya.ui;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Builder {
     private final MenuBuilder factory;
     private Menu rootMenu;
