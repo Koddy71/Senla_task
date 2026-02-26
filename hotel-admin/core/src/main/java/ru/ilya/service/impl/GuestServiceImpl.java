@@ -27,17 +27,17 @@ public class GuestServiceImpl implements GuestService {
 
     private Map<Integer, Guest> guests = new HashMap<>();
 
-    @Autowired
-    private RoomService roomService;
+    private final RoomService roomService;
+    private final ServiceManager serviceManager;
+    private final AppConfig appConfig;
 
     @Autowired
-    private ServiceManager serviceManager;
-
-    @Autowired
-    private AppConfig appConfig;
-
-    public GuestServiceImpl() {
-        logger.info("GuestServiceImpl инициализирован");
+    public GuestServiceImpl(RoomService roomService,
+            ServiceManager serviceManager,
+            AppConfig appConfig) {
+        this.roomService = roomService;
+        this.serviceManager = serviceManager;
+        this.appConfig = appConfig;
     }
 
     @Override

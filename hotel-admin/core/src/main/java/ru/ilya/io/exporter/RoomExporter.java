@@ -18,10 +18,11 @@ import ru.ilya.exceptions.ExportException;
 public class RoomExporter {
     private static final Logger logger = LoggerFactory.getLogger(GuestExporter.class);
 
-    @Autowired
-    private RoomService roomService;
+    private final RoomService roomService;
 
-    public RoomExporter() {
+    @Autowired
+    public RoomExporter(RoomService roomService) {
+        this.roomService=roomService;
     }
 
     public void exportCsv(String path) throws IOException {

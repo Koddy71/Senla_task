@@ -24,11 +24,11 @@ public class RoomServiceImpl implements RoomService {
 
     private Map<Integer, Room> rooms = new HashMap<>();
 
+    private final AppConfig appConfig;
+    
     @Autowired
-    private AppConfig appConfig;
-
-    public RoomServiceImpl() {
-        logger.info("RoomServiceImpl инициализирован");
+    public RoomServiceImpl(AppConfig appConfig) {
+        this.appConfig = appConfig;
     }
 
     @Override

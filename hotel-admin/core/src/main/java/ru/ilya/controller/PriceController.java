@@ -17,12 +17,13 @@ public class PriceController {
 
     private static final Logger logger = LoggerFactory.getLogger(PriceController.class);
 
-    @Autowired
-    private PriceService priceService;
+    private final PriceService priceService;
 
     private Scanner sc = new Scanner(System.in);
 
-    public PriceController() {
+    @Autowired
+    public PriceController(PriceService priceService) {
+        this.priceService = priceService;
     }
 
     public void showRoomsAndService() {

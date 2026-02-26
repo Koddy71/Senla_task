@@ -23,25 +23,23 @@ public class CsvFileController {
     private static final String GUESTS_PATH = "core/src/main/resources/guests.csv";
     private static final String SERVICES_FILE = "core/src/main/resources/services.csv";
 
-    @Autowired
-    private GuestImporter guestImporter;
+    private final GuestImporter guestImporter;
+    private final RoomImporter roomImporter;
+    private final ServiceImporter serviceImporter;
+    private final GuestExporter guestExporter;
+    private final RoomExporter roomExporter;
+    private final ServiceExporter serviceExporter;
 
     @Autowired
-    private RoomImporter roomImporter;
-
-    @Autowired
-    private ServiceImporter serviceImporter;
-
-    @Autowired
-    private GuestExporter guestExporter;
-
-    @Autowired
-    private RoomExporter roomExporter;
-
-    @Autowired
-    private ServiceExporter serviceExporter;
-
-    public CsvFileController() {
+    public CsvFileController(GuestImporter guestImporter, RoomImporter roomImporter,
+            ServiceImporter serviceImporter, GuestExporter guestExporter,
+            RoomExporter roomExporter, ServiceExporter serviceExporter) {
+        this.guestImporter = guestImporter;
+        this.roomImporter = roomImporter;
+        this.serviceImporter = serviceImporter;
+        this.guestExporter = guestExporter;
+        this.roomExporter = roomExporter;
+        this.serviceExporter = serviceExporter;
     }
 
     public void importGuests() {

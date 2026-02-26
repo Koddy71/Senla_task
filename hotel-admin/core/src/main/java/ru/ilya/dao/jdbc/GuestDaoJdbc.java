@@ -106,7 +106,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Ошибка выборки гостя из БД по id=" + id, e);
+            logger.error("Ошибка выборки гостя из БД по id {}", id, e);
             throw new PersistenceException("Ошибка выборки гостя из БД", e);
         }
         return null;
@@ -157,7 +157,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             }
             return guest;
         } catch (SQLException e) {
-            logger.error("Ошибка обновления гостя в БД: id=" + guest.getId(), e);
+            logger.error("Ошибка обновления гостя в БД по id {}" , guest.getId(), e);
             throw new PersistenceException("Ошибка обновления гостя в БД", e);
         }
     }
@@ -170,7 +170,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             int affected = statement.executeUpdate();
             return affected > 0;
         } catch (SQLException e) {
-            logger.error("Ошибка удаления гостя из БД: id=" + id, e);
+            logger.error("Ошибка удаления гостя из БД по id {}" + id, e);
             throw new PersistenceException("Ошибка удаления гостя из БД", e);
         }
     }

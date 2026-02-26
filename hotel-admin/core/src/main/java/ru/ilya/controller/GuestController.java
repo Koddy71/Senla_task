@@ -19,12 +19,13 @@ public class GuestController {
 
     private static final Logger logger = LoggerFactory.getLogger(GuestController.class);
 
-    @Autowired
-    private GuestService guestService;
+    private final GuestService guestService;
 
     private final Scanner sc = new Scanner(System.in);
 
-    public GuestController() {
+    @Autowired
+    public GuestController(GuestService guestService) {
+        this.guestService = guestService;
     }
 
     private Integer safeInt() {

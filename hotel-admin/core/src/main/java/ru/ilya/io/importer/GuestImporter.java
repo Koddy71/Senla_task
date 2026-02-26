@@ -18,10 +18,11 @@ import ru.ilya.service.GuestService;
 public class GuestImporter {
     private static final Logger logger = LoggerFactory.getLogger(GuestImporter.class);
 
-    @Autowired
-    private GuestService guestService;
+    private final GuestService guestService;
 
-    public GuestImporter() {
+    @Autowired
+    public GuestImporter(GuestService guestService) {
+        this.guestService=guestService;
     }
 
     public int importCsv(String path) throws IOException {

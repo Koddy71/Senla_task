@@ -20,15 +20,15 @@ import java.util.Scanner;
 public class RoomController {
     private static final Logger logger = LoggerFactory.getLogger(RoomController.class);
 
-    @Autowired
-    private RoomService roomService;
-
-    @Autowired
-    private AppConfig appConfig;
+    private final RoomService roomService;
+    private final AppConfig appConfig;
 
     private final Scanner sc = new Scanner(System.in);
 
-    public RoomController() {
+    @Autowired
+    public RoomController(RoomService roomService, AppConfig appConfig) {
+        this.roomService = roomService;
+        this.appConfig = appConfig;
     }
 
     private Integer safeInt() {

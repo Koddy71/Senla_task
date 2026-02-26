@@ -24,16 +24,15 @@ public class JpaController {
 
     private static final Logger logger = LoggerFactory.getLogger(JpaController.class);
 
-    @Autowired
-    private RoomDaoJpa roomDao;
+    private final RoomDaoJpa roomDao;
+    private final ServiceDaoJpa serviceDao;
+    private final GuestDaoJpa guestDao;
 
     @Autowired
-    private ServiceDaoJpa serviceDao;
-
-    @Autowired
-    private GuestDaoJpa guestDao;
-
-    public JpaController() {
+    public JpaController(RoomDaoJpa roomDao, ServiceDaoJpa serviceDao, GuestDaoJpa guestDao) {
+        this.roomDao = roomDao;
+        this.serviceDao = serviceDao;
+        this.guestDao = guestDao;
     }
 
     public void restoreRooms(RoomService roomService) {

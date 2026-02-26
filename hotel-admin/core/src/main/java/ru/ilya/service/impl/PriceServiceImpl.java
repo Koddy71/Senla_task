@@ -21,14 +21,13 @@ public class PriceServiceImpl implements PriceService {
 
     private static final Logger logger = LoggerFactory.getLogger(PriceServiceImpl.class);
 
-    @Autowired
-    private RoomService roomService;
+    private final RoomService roomService;
+    private final ServiceManager serviceManager;
 
     @Autowired
-    private ServiceManager serviceManager;
-
-    public PriceServiceImpl() {
-        logger.info("PriceServiceImpl инициализирован");
+    public PriceServiceImpl(RoomService roomService, ServiceManager serviceManager) {
+        this.roomService = roomService;
+        this.serviceManager = serviceManager;
     }
 
     public List<Priceable> getRoomsAndServices(String orderBy) {

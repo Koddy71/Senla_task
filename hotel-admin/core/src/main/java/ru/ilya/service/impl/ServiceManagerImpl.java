@@ -20,7 +20,6 @@ public class ServiceManagerImpl implements ServiceManager {
     private Map<Integer, Service> services = new HashMap<>();
 
     public ServiceManagerImpl() {
-        logger.info("ServiceManagerImpl инициализирован");
     }
 
     @Override

@@ -16,10 +16,11 @@ import ru.ilya.service.RoomService;
 public class RoomImporter {
     private static final Logger logger = LoggerFactory.getLogger(RoomImporter.class);
 
+    private final RoomService roomService;
+    
     @Autowired
-    private RoomService roomService;
-
-    public RoomImporter() {
+    public RoomImporter(RoomService roomService) {
+        this.roomService=roomService;
     }
 
     public int importCsv(String path) throws IOException {
@@ -44,8 +45,7 @@ public class RoomImporter {
                 }
 
                 Room room = new Room(number, price, capacity, stars);
-                boolean ok = roomService.addRoom(room);
-                if (ok) {
+                if (roomService.addRoom(room)) {
                     count++;
                 } else {
                     System.out.println(

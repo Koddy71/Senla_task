@@ -28,34 +28,35 @@ public class StateRestoreServiceImpl implements StateRestoreService {
 
     private static final Logger logger = LoggerFactory.getLogger(StateRestoreServiceImpl.class);
 
-    @Autowired
-    private AppConfig config;
+    private final AppConfig config;
+    private final RoomService roomService;
+    private final GuestService guestService;
+    private final ServiceManager serviceManager;
+    private final CsvFileController csvFileController;
+    private final JdbcController jdbcController;
+    private final JsonFileController jsonFileController;
+    private final JdbcManager jdbcManager;
+    private final JpaController jpaController;
 
     @Autowired
-    private RoomService roomService;
-
-    @Autowired
-    private GuestService guestService;
-
-    @Autowired
-    private ServiceManager serviceManager;
-
-    @Autowired
-    private CsvFileController csvFileController;
-
-    @Autowired
-    private JdbcController jdbcController;
-
-    @Autowired
-    private JsonFileController jsonFileController;
-
-    @Autowired
-    private JdbcManager jdbcManager;
-
-    @Autowired
-    private JpaController jpaController;
-
-    public StateRestoreServiceImpl() {
+    public StateRestoreServiceImpl(AppConfig config,
+            RoomService roomService,
+            GuestService guestService,
+            ServiceManager serviceManager,
+            CsvFileController csvFileController,
+            JdbcController jdbcController,
+            JsonFileController jsonFileController,
+            JdbcManager jdbcManager,
+            JpaController jpaController) {
+        this.config = config;
+        this.roomService = roomService;
+        this.guestService = guestService;
+        this.serviceManager = serviceManager;
+        this.csvFileController = csvFileController;
+        this.jdbcController = jdbcController;
+        this.jsonFileController = jsonFileController;
+        this.jdbcManager = jdbcManager;
+        this.jpaController = jpaController;
     }
 
     @Override

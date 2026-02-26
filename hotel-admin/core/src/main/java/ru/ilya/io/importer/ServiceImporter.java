@@ -16,10 +16,11 @@ import ru.ilya.service.ServiceManager;
 public class ServiceImporter {
     private static final Logger logger = LoggerFactory.getLogger(ServiceImporter.class);
 
-    @Autowired
-    private ServiceManager serviceManager;
+    private final ServiceManager serviceManager;
 
-    public ServiceImporter() {
+    @Autowired
+    public ServiceImporter(ServiceManager serviceManager) {
+        this.serviceManager=serviceManager;
     }
 
     public int importCsv(String path) throws IOException {

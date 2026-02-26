@@ -17,12 +17,14 @@ public class ServiceController {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceController.class);
 
-    @Autowired
-    private ServiceManager serviceManager;
+    
+    private final ServiceManager serviceManager;
 
     private final Scanner sc = new Scanner(System.in);
-
-    public ServiceController() {
+    
+    @Autowired
+    public ServiceController(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
     public void addService() {

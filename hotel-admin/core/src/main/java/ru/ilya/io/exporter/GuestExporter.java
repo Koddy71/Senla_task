@@ -18,11 +18,12 @@ import ru.ilya.exceptions.ExportException;
 @Component
 public class GuestExporter {
     private static final Logger logger = LoggerFactory.getLogger(GuestExporter.class);
+    
+    private final GuestService guestService;
 
     @Autowired
-    private GuestService guestService;
-
-    public GuestExporter() {
+    public GuestExporter(GuestService guestService) {
+        this.guestService = guestService;
     }
 
     public void exportCsv(String path) throws IOException {

@@ -23,16 +23,15 @@ public class JdbcController {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcController.class);
 
-    @Autowired
-    private RoomDaoJdbc roomDao;
+    private final RoomDaoJdbc roomDao;
+    private final ServiceDaoJdbc serviceDao;
+    private final GuestDaoJdbc guestDao;
 
     @Autowired
-    private ServiceDaoJdbc serviceDao;
-
-    @Autowired
-    private GuestDaoJdbc guestDao;
-
-    public JdbcController() {
+    public JdbcController(RoomDaoJdbc roomDao, ServiceDaoJdbc serviceDao, GuestDaoJdbc guestDao) {
+        this.roomDao = roomDao;
+        this.serviceDao = serviceDao;
+        this.guestDao = guestDao;
     }
 
     public void restoreRooms(RoomService roomService) {

@@ -18,10 +18,11 @@ import ru.ilya.exceptions.ExportException;
 public class ServiceExporter {
     private static final Logger logger = LoggerFactory.getLogger(ServiceExporter.class);
 
-    @Autowired
-    private ServiceManager serviceManager;
+    private final ServiceManager serviceManager;
 
-    public ServiceExporter() {
+    @Autowired
+    public ServiceExporter(ServiceManager serviceManager) {
+        this.serviceManager=serviceManager;
     }
 
     public void exportCsv(String path) throws IOException {
