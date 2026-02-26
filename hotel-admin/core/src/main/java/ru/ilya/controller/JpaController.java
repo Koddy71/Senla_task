@@ -1,6 +1,5 @@
 package ru.ilya.controller;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.jpa.GuestDaoJpa;
 import ru.ilya.dao.jpa.RoomDaoJpa;
 import ru.ilya.dao.jpa.ServiceDaoJpa;
@@ -17,20 +16,23 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class JpaController {
 
     private static final Logger logger = LoggerFactory.getLogger(JpaController.class);
 
-    @Inject
-    private RoomDaoJpa roomDao;
+    private final RoomDaoJpa roomDao;
+    private final ServiceDaoJpa serviceDao;
+    private final GuestDaoJpa guestDao;
 
-    @Inject
-    private ServiceDaoJpa serviceDao;
-
-    @Inject
-    private GuestDaoJpa guestDao;
-
-    public JpaController() {
+    @Autowired
+    public JpaController(RoomDaoJpa roomDao, ServiceDaoJpa serviceDao, GuestDaoJpa guestDao) {
+        this.roomDao = roomDao;
+        this.serviceDao = serviceDao;
+        this.guestDao = guestDao;
     }
 
     public void restoreRooms(RoomService roomService) {
@@ -52,7 +54,7 @@ public class JpaController {
     }
 
     public void restoreServices(ServiceManager serviceManager) {
-        logger.info("Начало обработки команды: restoreServices");
+        logger.info("Начало обработки команды: restoreServices (JPA)");
         try {
             List<Service> services = serviceDao.findAll();
             for (Service service : services) {
@@ -65,9 +67,9 @@ public class JpaController {
             int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
             Service.setIdCounter(maxId + 1);
 
-            logger.info("restoreServices успешно выполнено: восстановлено {} услуг", services.size());
+            logger.info("restoreServices успешно выполнено (JPA): восстановлено {} услуг", services.size());
         } catch (Exception e) {
-            logger.error("Ошибка при обработке restoreServices", e);
+            logger.error("Ошибка при обработке restoreServices (JPA)", e);
         }
     }
 
@@ -99,9 +101,9 @@ public class JpaController {
                     logger.error("Ошибка при восстановлении гостя {}", guest.getName(), e);
                 }
             }
-            logger.info("restoreGuests успешно выполнено: восстановлено {} гостей", guests.size());
+            logger.info("restoreGuests успешно выполнено (JPA): восстановлено {} гостей", guests.size());
         } catch (Exception e) {
-            logger.error("Ошибка при обработке restoreGuests", e);
+            logger.error("Ошибка при обработке restoreGuests (JPA)", e);
         }
     }
 

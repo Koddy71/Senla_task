@@ -1,6 +1,5 @@
 package ru.ilya.controller;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
@@ -12,16 +11,21 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class GuestController {
 
     private static final Logger logger = LoggerFactory.getLogger(GuestController.class);
 
-    @Inject
-    private GuestService guestService;
+    private final GuestService guestService;
 
     private final Scanner sc = new Scanner(System.in);
 
-    public GuestController() {
+    @Autowired
+    public GuestController(GuestService guestService) {
+        this.guestService = guestService;
     }
 
     private Integer safeInt() {
@@ -29,7 +33,7 @@ public class GuestController {
             return Integer.parseInt(sc.nextLine());
         } catch (NumberFormatException e) {
             System.out.println("Введите корректное число.");
-            logger.error("Integer parsing error", e);
+            logger.error("Ошибка парсинга числа", e);
             return null;
         }
     }
@@ -40,19 +44,19 @@ public class GuestController {
             return LocalDate.parse(input);
         } catch (DateTimeParseException e) {
             System.out.println("Неверная дата. Формат: гггг-мм-дд");
-            logger.error("Date parsing error: {}", input);
+            logger.error("Ошибка парсинга даты: {}", input);
             return null;
         }
     }
 
     public void checkInGuest() {
-        logger.info("Start processing command: checkInGuest");
+        logger.info("Начало обработки команды: checkInGuest");
         try {
             System.out.print("Введите имя гостя: ");
             String name = sc.nextLine().trim();
 
             if (name.isEmpty()) {
-                logger.error("checkInGuest aborted: empty name");
+                logger.error("checkInGuest прерван: пустое имя");
                 return;
             }
 
@@ -74,17 +78,17 @@ public class GuestController {
             Guest guest = guestService.checkIn(name, roomId, from, to);
             if (guest != null) {
                 System.out.println("Гость заселён! ID: " + guest.getId());
-                logger.info("checkInGuest processed successfully: guest {}", guest.getId());
+                logger.info("checkInGuest успешно выполнен: гость {}", guest.getId());
             } else {
-                logger.error("checkInGuest failed for name {}", name);
+                logger.error("checkInGuest не удался для имени {}", name);
             }
         } catch (Exception e) {
-            logger.error("Error processing checkInGuest", e);
+            logger.error("Ошибка при выполнении checkInGuest", e);
         }
     }
 
     public void checkOutGuest() {
-        logger.info("Start processing command: checkOutGuest");
+        logger.info("Начало обработки команды: checkOutGuest");
         try {
             System.out.print("Введите ID гостя: ");
             Integer id = safeInt();
@@ -93,34 +97,34 @@ public class GuestController {
 
             boolean ok = guestService.checkOut(id);
             if (ok) {
-                logger.info("checkOutGuest processed successfully: guest {}", id);
+                logger.info("checkOutGuest успешно выполнен: гость {}", id);
             } else {
-                logger.error("checkOutGuest failed: guest {} not found", id);
+                logger.error("checkOutGuest не удался: гость {} не найден", id);
             }
         } catch (Exception e) {
-            logger.error("Error processing checkOutGuest", e);
+            logger.error("Ошибка при выполнении checkOutGuest", e);
         }
     }
 
     public void showAllGuests() {
-        logger.info("Start processing command: showAllGuests");
+        logger.info("Начало обработки команды: showAllGuests");
         try {
             List<Guest> guests = guestService.getAllGuests();
             if (guests.isEmpty()) {
-                logger.info("showAllGuests: no guests found");
+                logger.info("showAllGuests: гости не найдены");
                 return;
             }
             for (Guest g : guests) {
                 System.out.println(g.getInfo());
             }
-            logger.info("showAllGuests processed successfully: {} guests", guests.size());
+            logger.info("showAllGuests успешно выполнен: {} гостей", guests.size());
         } catch (Exception e) {
-            logger.error("Error processing showAllGuests", e);
+            logger.error("Ошибка при выполнении showAllGuests", e);
         }
     }
 
     public void findGuestById() {
-        logger.info("Start processing command: findGuestById");
+        logger.info("Начало обработки команды: findGuestById");
         try {
             System.out.print("Введите ID гостя: ");
             Integer id = safeInt();
@@ -129,28 +133,28 @@ public class GuestController {
 
             Guest g = guestService.findGuestById(id);
             if (g != null) {
-                logger.info("findGuestById processed successfully: guest {}", id);
+                logger.info("findGuestById успешно выполнен: гость {}", id);
             } else {
-                logger.error("findGuestById failed: guest {} not found", id);
+                logger.error("findGuestById не удался: гость {} не найден", id);
             }
         } catch (Exception e) {
-            logger.error("Error processing findGuestById", e);
+            logger.error("Ошибка при выполнении findGuestById", e);
         }
     }
 
     public void showGuestCount() {
-        logger.info("Start processing command: showGuestCount");
+        logger.info("Начало обработки команды: showGuestCount");
         try {
             int count = guestService.getGuestCount();
             System.out.println("Количество гостей: " + count);
-            logger.info("showGuestCount processed successfully: {} guests", count);
+            logger.info("showGuestCount успешно выполнен: {} гостей", count);
         } catch (Exception e) {
-            logger.error("Error processing showGuestCount", e);
+            logger.error("Ошибка при выполнении showGuestCount", e);
         }
     }
 
     public void sortGuests() {
-        logger.info("Start processing command: sortGuests");
+        logger.info("Начало обработки команды: sortGuests");
         try {
             System.out.print("Сортировать по ('name' или 'checkoutDate'): ");
             String sortBy = sc.nextLine();
@@ -159,14 +163,14 @@ public class GuestController {
             for (Guest g : sorted) {
                 System.out.println(g.getInfo());
             }
-            logger.info("sortGuests processed successfully: {} guests sorted by {}", sorted.size(), sortBy);
+            logger.info("sortGuests успешно выполнен: {} гостей отсортировано по {}", sorted.size(), sortBy);
         } catch (Exception e) {
-            logger.error("Error processing sortGuests", e);
+            logger.error("Ошибка при выполнении sortGuests", e);
         }
     }
 
     public void addService() {
-        logger.info("Start processing command: addServiceToGuest");
+        logger.info("Начало обработки команды: addServiceToGuest");
         try {
             System.out.print("Введите ID гостя: ");
             Integer guestId = safeInt();
@@ -180,17 +184,17 @@ public class GuestController {
 
             boolean success = guestService.addServiceToGuest(guestId, serviceId);
             if (success) {
-                logger.info("addServiceToGuest processed successfully: guest {}, service {}", guestId, serviceId);
+                logger.info("addServiceToGuest успешно выполнен: гость {}, услуга {}", guestId, serviceId);
             } else {
-                logger.error("addServiceToGuest failed: guest {} or service {} not found", guestId, serviceId);
+                logger.error("addServiceToGuest не удался: гость {} или услуга {} не найдены", guestId, serviceId);
             }
         } catch (Exception e) {
-            logger.error("Error processing addServiceToGuest", e);
+            logger.error("Ошибка при выполнении addServiceToGuest", e);
         }
     }
 
     public void removeService() {
-        logger.info("Start processing command: removeServiceFromGuest");
+        logger.info("Начало обработки команды: removeServiceFromGuest");
         try {
             System.out.print("Введите ID гостя: ");
             Integer guestId = safeInt();
@@ -204,12 +208,12 @@ public class GuestController {
 
             boolean success = guestService.removeServiceFromGuest(guestId, serviceId);
             if (success) {
-                logger.info("removeServiceFromGuest processed successfully: guest {}, service {}", guestId, serviceId);
+                logger.info("removeServiceFromGuest успешно выполнен: гость {}, услуга {}", guestId, serviceId);
             } else {
-                logger.error("removeServiceFromGuest failed: guest {} or service {} not found", guestId, serviceId);
+                logger.error("removeServiceFromGuest не удался: гость {} или услуга {} не найдены", guestId, serviceId);
             }
         } catch (Exception e) {
-            logger.error("Error processing removeServiceFromGuest", e);
+            logger.error("Ошибка при выполнении removeServiceFromGuest", e);
         }
     }
 }

@@ -1,7 +1,6 @@
 package ru.ilya.controller;
 
 import ru.ilya.service.PriceService;
-import ru.ilya.autodi.Inject;
 import ru.ilya.model.Priceable;
 
 import java.util.List;
@@ -10,20 +9,25 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class PriceController {
 
     private static final Logger logger = LoggerFactory.getLogger(PriceController.class);
 
-    @Inject
-    private PriceService priceService;
+    private final PriceService priceService;
 
     private Scanner sc = new Scanner(System.in);
 
-    public PriceController() {
+    @Autowired
+    public PriceController(PriceService priceService) {
+        this.priceService = priceService;
     }
 
     public void showRoomsAndService() {
-        logger.info("Start processing command: showRoomsAndService");
+        logger.info("Начало обработки команды: showRoomsAndService");
         try {
             System.out.print("Что вывести сначала ('room', 'service'): ");
             String sortBy = sc.nextLine().trim();
@@ -32,7 +36,7 @@ public class PriceController {
 
             if (sorted == null || sorted.isEmpty()) {
                 System.out.println("Нет данных для отображения.");
-                logger.info("showRoomsAndService processed successfully: no data to display");
+                logger.info("showRoomsAndService успешно выполнен: нет данных для отображения");
                 return;
             }
 
@@ -40,10 +44,10 @@ public class PriceController {
                 System.out.println(r.getInfo());
             }
 
-            logger.info("showRoomsAndService processed successfully: displayed {} elements", sorted.size());
+            logger.info("showRoomsAndService успешно выполнен: отображено {} элементов", sorted.size());
 
         } catch (Exception e) {
-            logger.error("Error processing showRoomsAndService", e);
+            logger.error("Ошибка при выполнении showRoomsAndService", e);
             System.out.println("Произошла ошибка при выводе данных: " + e.getMessage());
         }
     }

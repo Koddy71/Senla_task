@@ -5,16 +5,24 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-import ru.ilya.autodi.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
+@Component
 public class GuestImporter {
-    @Inject
-    private GuestService guestService;
+    private static final Logger logger = LoggerFactory.getLogger(GuestImporter.class);
 
-    public GuestImporter() {
+    private final GuestService guestService;
+
+    @Autowired
+    public GuestImporter(GuestService guestService) {
+        this.guestService=guestService;
     }
 
     public int importCsv(String path) throws IOException {
@@ -23,6 +31,7 @@ public class GuestImporter {
         for (String[] r : rows) {
             if (r.length < 5) {
                 System.out.println("Ошибка: недостаточно данных в строке: " + String.join(",", r));
+                logger.error("Недостаточно данных в строке: {}", String.join(",", r));
                 continue;
             }
 
@@ -47,22 +56,26 @@ public class GuestImporter {
                                     guestService.addServiceToGuest(g.getId(), serviceId);
                                 } catch (NumberFormatException e) {
                                     System.out.println("Ошибка формата ID услуги: " + serviceIdStr);
+                                    logger.error("Ошибка формата ID услуги: {}", serviceIdStr, e);
                                 }
                             }
                         }
 
                     } else {
                         System.out.println("Не удалось заселить гостя: " + String.join(",", r));
+                        logger.error("Не удалось заселить гостя: {}", String.join(",", r));
                     }
-
                 }
 
             } catch (NumberFormatException e) {
                 System.out.println("Ошибка формата числовых данных: " + String.join(",", r));
+                logger.error("Ошибка формата числовых данных в строке: {}", String.join(",", r), e);
             } catch (DateTimeParseException e) {
                 System.out.println("Ошибка формата даты: " + String.join(",", r));
+                logger.error("Ошибка формата даты в строке: {}", String.join(",", r), e);
             } catch (Exception e) {
                 System.out.println("Ошибка при регистрации гостя: " + e.getMessage());
+                logger.error("Исключение при регистрации гостя из строки: {}", String.join(",", r), e);
             }
         }
         return count;

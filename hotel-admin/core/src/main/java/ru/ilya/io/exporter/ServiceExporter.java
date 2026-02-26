@@ -4,30 +4,45 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.ilya.autodi.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
+import ru.ilya.exceptions.ExportException;
 
+@Component
 public class ServiceExporter {
-    @Inject
-    private ServiceManager serviceManager;
+    private static final Logger logger = LoggerFactory.getLogger(ServiceExporter.class);
 
-    public ServiceExporter() {
+    private final ServiceManager serviceManager;
+
+    @Autowired
+    public ServiceExporter(ServiceManager serviceManager) {
+        this.serviceManager=serviceManager;
     }
 
     public void exportCsv(String path) throws IOException {
-        List<String> lines = new ArrayList<>();
+        try {
+            List<String> lines = new ArrayList<>();
 
-        lines.add("id,name,price");
+            lines.add("id,name,price");
 
-        for (Service s : serviceManager.getAllServices()) {
-            lines.add(
-                    s.getId() + "," +
-                            s.getName() + "," +
-                            s.getPrice());
-        }
+            for (Service s : serviceManager.getAllServices()) {
+                String line = String.format("%d,%s,%d",
+                        s.getId(),
+                        s.getName(),
+                        s.getPrice());
+                lines.add(line);
+            }
 
-        CsvUtil.write(path, lines);
+            CsvUtil.write(path, lines);
+        } catch (IOException e) {
+            logger.error("Ошибка при записи файла экспорта услуг: {}", path, e);
+            throw new ExportException("Ошибка экспорта услуг", e);
+        } 
     }
 }

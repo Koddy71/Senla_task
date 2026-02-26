@@ -8,19 +8,22 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import ru.ilya.autoconfig.JpaManager;
 import ru.ilya.dao.GenericDao;
+import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Room;
 
+@Component
 public class RoomDaoJpa implements GenericDao<Room, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(RoomDaoJpa.class);
 
-    public RoomDaoJpa(){
+    public RoomDaoJpa() {
     }
-    
+
     @Override
-    public Room create(Room model){
+    public Room create(Room model) {
         EntityManager em = JpaManager.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -29,9 +32,10 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
             tx.commit();
             return model;
         } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            logger.error("Error creating Room {}", model.getNumber(), e);
-            throw new RuntimeException(e);
+            if (tx.isActive())
+                tx.rollback();
+            logger.error("Ошибка при создании комнаты {}", model.getNumber(), e);
+            throw new PersistenceException("Ошибка вставки комнаты в БД", e);
         } finally {
             em.close();
         }
@@ -70,8 +74,8 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
-            logger.error("Error updating Room {}", model.getNumber(), e);
-            throw new RuntimeException(e);
+            logger.error("Ошибка при обновлении комнаты {}", model.getNumber(), e);
+            throw new PersistenceException("Ошибка обновления комнаты в БД", e);
         } finally {
             em.close();
         }
@@ -95,8 +99,8 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
-            logger.error("Error deleting Room id={}", id, e);
-            throw new RuntimeException(e);
+            logger.error("Ошибка при удалении комнаты с id={}", id, e);
+            throw new PersistenceException("Ошибка удаления комнаты из БД", e);
         } finally {
             em.close();
         }
@@ -113,8 +117,8 @@ public class RoomDaoJpa implements GenericDao<Room, Integer> {
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
-            logger.error("Error deleting all Rooms", e);
-            throw new RuntimeException(e);
+            logger.error("Ошибка при удалении всех комнат", e);
+            throw new PersistenceException("Ошибка очистки таблицы room", e);
         } finally {
             em.close();
         }

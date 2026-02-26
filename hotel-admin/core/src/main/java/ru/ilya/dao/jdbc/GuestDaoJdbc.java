@@ -7,17 +7,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import ru.ilya.autoconfig.JdbcManager;
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.GenericDao;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
+import ru.ilya.exceptions.PersistenceException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
+    private static final Logger logger = LoggerFactory.getLogger(GuestDaoJdbc.class);
+
     private static final String INSERT_GUEST_SQL = """
             INSERT INTO guest(id, name, roomNumber, checkInDate, checkOutDate)
             VALUES (?, ?, ?, ?, ?)
@@ -51,7 +59,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
     private static final String COLUMN_CHECK_OUT_DATE = "checkOutDate";
     private static final String COLUMN_PRICE = "price";
 
-    @Inject
+    @Autowired
     private JdbcManager jdbcManager;
 
     public GuestDaoJdbc() {
@@ -72,7 +80,8 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             }
             return guest;
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка вставки гостя в БД", e);
+            logger.error("Ошибка при создании гостя {}", guest.getName(), e);
+            throw new PersistenceException("Ошибка вставки гостя в БД", e);
         }
     }
 
@@ -97,7 +106,8 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка выборки гостя из БД", e);
+            logger.error("Ошибка выборки гостя из БД по id {}", id, e);
+            throw new PersistenceException("Ошибка выборки гостя из БД", e);
         }
         return null;
     }
@@ -122,7 +132,8 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
                 list.add(guest);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка выборки всех гостей из БД", e);
+            logger.error("Ошибка выборки всех гостей из БД", e);
+            throw new PersistenceException("Ошибка выборки всех гостей из БД", e);
         }
         return list;
     }
@@ -146,7 +157,8 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             }
             return guest;
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка обновления гостя в БД", e);
+            logger.error("Ошибка обновления гостя в БД по id {}" , guest.getId(), e);
+            throw new PersistenceException("Ошибка обновления гостя в БД", e);
         }
     }
 
@@ -158,7 +170,8 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             int affected = statement.executeUpdate();
             return affected > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка удаления гостя из БД", e);
+            logger.error("Ошибка удаления гостя из БД по id {}" + id, e);
+            throw new PersistenceException("Ошибка удаления гостя из БД", e);
         }
     }
 
@@ -169,7 +182,8 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
             statement.executeUpdate(DELETE_GUEST_SERVICES_ALL_SQL);
             statement.executeUpdate(DELETE_GUEST_ALL_SQL);
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка очистки guest", e);
+            logger.error("Ошибка очистки таблицы guest", e);
+            throw new PersistenceException("Ошибка очистки таблицы guest", e);
         }
     }
 

@@ -1,6 +1,5 @@
 package ru.ilya.controller;
 
-import ru.ilya.autodi.Inject;
 import ru.ilya.dao.jdbc.GuestDaoJdbc;
 import ru.ilya.dao.jdbc.RoomDaoJdbc;
 import ru.ilya.dao.jdbc.ServiceDaoJdbc;
@@ -16,61 +15,64 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class JdbcController {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcController.class);
 
-    @Inject
-    private RoomDaoJdbc roomDao;
+    private final RoomDaoJdbc roomDao;
+    private final ServiceDaoJdbc serviceDao;
+    private final GuestDaoJdbc guestDao;
 
-    @Inject
-    private ServiceDaoJdbc serviceDao;
-
-    @Inject
-    private GuestDaoJdbc guestDao;
-
-    public JdbcController() {
+    @Autowired
+    public JdbcController(RoomDaoJdbc roomDao, ServiceDaoJdbc serviceDao, GuestDaoJdbc guestDao) {
+        this.roomDao = roomDao;
+        this.serviceDao = serviceDao;
+        this.guestDao = guestDao;
     }
 
     public void restoreRooms(RoomService roomService) {
-        logger.info("Start processing command: restoreRooms");
+        logger.info("Начало обработки команды: restoreRooms");
         try {
             List<Room> rooms = roomDao.findAll();
             for (Room room : rooms) {
                 try {
                     roomService.addRoom(room);
                 } catch (Exception e) {
-                    logger.error("Error adding room {}", room.getNumber(), e);
+                    logger.error("Ошибка добавления комнаты {}", room.getNumber(), e);
                 }
             }
-            logger.info("restoreRooms processed successfully: {} rooms restored", rooms.size());
+            logger.info("restoreRooms успешно выполнен: восстановлено {} комнат", rooms.size());
         } catch (Exception e) {
-            logger.error("Error processing restoreRooms", e);
+            logger.error("Ошибка при выполнении restoreRooms", e);
         }
     }
 
     public void restoreServices(ServiceManager serviceManager) {
-        logger.info("Start processing command: restoreServices");
+        logger.info("Начало обработки команды: restoreServices");
         try {
             List<Service> services = serviceDao.findAll();
             for (Service service : services) {
                 try {
                     serviceManager.addService(service);
                 } catch (Exception e) {
-                    logger.error("Error adding service {}", service.getName(), e);
+                    logger.error("Ошибка добавления услуги {}", service.getName(), e);
                 }
             }
             int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
             Service.setIdCounter(maxId + 1);
 
-            logger.info("restoreServices processed successfully: {} services restored", services.size());
+            logger.info("restoreServices успешно выполнен: восстановлено {} услуг", services.size());
         } catch (Exception e) {
-            logger.error("Error processing restoreServices", e);
+            logger.error("Ошибка при выполнении restoreServices", e);
         }
     }
 
     public void restoreGuests(RoomService roomService, GuestService guestService) {
-        logger.info("Start processing command: restoreGuests");
+        logger.info("Начало обработки команды: restoreGuests");
         try {
             List<Guest> guests = guestDao.findAll();
             for (Guest guest : guests) {
@@ -78,7 +80,7 @@ public class JdbcController {
                     Room room = roomService.findRoom(guest.getRoom().getNumber());
 
                     if (room == null) {
-                        logger.error("Guest {} assigned to non-existing room", guest.getName());
+                        logger.error("Гость {} привязан к несуществующей комнате", guest.getName());
                         continue;
                     }
 
@@ -94,60 +96,60 @@ public class JdbcController {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Error restoring guest {}", guest.getName(), e);
+                    logger.error("Ошибка восстановления гостя {}", guest.getName(), e);
                 }
             }
-            logger.info("restoreGuests processed successfully: {} guests restored", guests.size());
+            logger.info("restoreGuests успешно выполнен: восстановлено {} гостей", guests.size());
         } catch (Exception e) {
-            logger.error("Error processing restoreGuests", e);
+            logger.error("Ошибка при выполнении restoreGuests", e);
         }
     }
 
     public void clearDatabase() {
-        logger.info("Start processing command: clearDatabase");
+        logger.info("Начало обработки команды: clearDatabase");
         try {
             guestDao.deleteAll();
             serviceDao.deleteAll();
             roomDao.deleteAll();
-            logger.info("clearDatabase processed successfully");
+            logger.info("clearDatabase успешно выполнен");
         } catch (Exception e) {
-            logger.error("Error processing clearDatabase", e);
+            logger.error("Ошибка при выполнении clearDatabase", e);
         }
     }
 
     public void saveRooms(RoomService roomService) {
-        logger.info("Start processing command: saveRooms");
+        logger.info("Начало обработки команды: saveRooms");
         for (Room room : roomService.getAllRooms()) {
             try {
                 roomDao.create(room);
             } catch (Exception e) {
-                logger.error("Error saving room {}", room.getNumber(), e);
+                logger.error("Ошибка сохранения комнаты {}", room.getNumber(), e);
             }
         }
-        logger.info("saveRooms processed successfully");
+        logger.info("saveRooms успешно выполнен");
     }
 
     public void saveServices(ServiceManager serviceManager) {
-        logger.info("Start processing command: saveServices");
+        logger.info("Начало обработки команды: saveServices");
         for (Service service : serviceManager.getAllServices()) {
             try {
                 serviceDao.create(service);
             } catch (Exception e) {
-                logger.error("Error saving service {}", service.getName(), e);
+                logger.error("Ошибка сохранения услуги {}", service.getName(), e);
             }
         }
-        logger.info("saveServices processed successfully");
+        logger.info("saveServices успешно выполнен");
     }
 
     public void saveGuests(GuestService guestService) {
-        logger.info("Start processing command: saveGuests");
+        logger.info("Начало обработки команды: saveGuests");
         for (Guest guest : guestService.getAllGuests()) {
             try {
                 guestDao.create(guest);
             } catch (Exception e) {
-                logger.error("Error saving guest {}", guest.getName(), e);
+                logger.error("Ошибка сохранения гостя {}", guest.getName(), e);
             }
         }
-        logger.info("saveGuests processed successfully");
+        logger.info("saveGuests успешно выполнен");
     }
 }
