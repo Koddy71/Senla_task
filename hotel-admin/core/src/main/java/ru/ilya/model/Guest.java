@@ -33,7 +33,8 @@ public class Guest {
     private LocalDate checkOutDate;
 
     @ManyToMany(fetch = FetchType.LAZY) // Ленивая загрузка
-    @JoinTable(name = "guest_service", joinColumns = @JoinColumn(name = "guest_id"), inverseJoinColumns = @JoinColumn(name = "service_id"))
+    @JoinTable(name = "guest_service", joinColumns = @JoinColumn(name = "guest_id"), 
+        inverseJoinColumns = @JoinColumn(name = "service_id"))
     private List<Service> services = new ArrayList<>();
 
     private static int idCounter = 1;

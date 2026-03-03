@@ -16,5 +16,3 @@ INSERT INTO guest_service VALUES
 (1, 1),
 (1, 2),
 (2, 3);
-
-SELECT * FROM guest_service
