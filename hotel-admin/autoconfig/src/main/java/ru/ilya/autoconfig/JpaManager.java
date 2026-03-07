@@ -3,8 +3,8 @@ package ru.ilya.autoconfig;
 import ru.ilya.exceptions.ConfigException;
 import ru.ilya.exceptions.PersistenceException;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JpaManager {
     private static final Logger logger = LoggerFactory.getLogger(JpaManager.class);
-    private static final String CONFIG_PATH = "core/src/main/resources/config.properties";
     private static final String PERSISTENCE_UNIT = "hotelPU";
 
     private static EntityManagerFactory entityManagerFactory;
@@ -46,26 +45,25 @@ public class JpaManager {
     private static void init() {
         try {
             Properties props = new Properties();
-            try (FileReader reader = new FileReader(CONFIG_PATH)) {
-                props.load(reader);
+            try (InputStream is = JpaManager.class.getClassLoader().getResourceAsStream("config.properties")) {
+                if (is == null) {
+                    throw new ConfigException("Файл config.properties не найден в classpath");
+                }
+                props.load(is);
             }
 
             Map<String, String> jpaProps = new HashMap<>();
-
             jpaProps.put("javax.persistence.jdbc.driver", props.getProperty("db.driver"));
             jpaProps.put("javax.persistence.jdbc.url", props.getProperty("db.url"));
             jpaProps.put("javax.persistence.jdbc.user", props.getProperty("db.user"));
             jpaProps.put("javax.persistence.jdbc.password", props.getProperty("db.password"));
-
             jpaProps.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQL95Dialect");
-            jpaProps.put("hibernate.show_sql", "false");
+            jpaProps.put("hibernate.show_sql", props.getProperty("hibernate.show_sql", "false"));
 
-            entityManagerFactory =
-                    Persistence.createEntityManagerFactory(PERSISTENCE_UNIT, jpaProps);
-
+            entityManagerFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT, jpaProps);
         } catch (IOException e) {
-            logger.error("Ошибка чтения конфигурации для JPA: {}", CONFIG_PATH , e);
-            throw new ConfigException("Не удалось загрузить файл конфигурации: " + CONFIG_PATH, e);
+            logger.error("Ошибка чтения конфигурации для JPA", e);
+            throw new ConfigException("Не удалось загрузить файл конфигурации config.properties", e);
         } catch (Exception e) {
             logger.error("Ошибка инициализации Hibernate", e);
             throw new PersistenceException("Ошибка инициализации Hibernate", e);

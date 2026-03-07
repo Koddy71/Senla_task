@@ -6,6 +6,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "ru.ilya.web.controller", "ru.ilya.web.exception" })
+@ComponentScan(basePackages = { "ru.ilya.controller", "ru.ilya.exception" })
 public class WebConfig {
 }
