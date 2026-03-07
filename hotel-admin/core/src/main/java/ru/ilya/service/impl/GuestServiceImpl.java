@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Guest;
@@ -20,6 +21,7 @@ import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
 
+@Transactional
 @Component
 public class GuestServiceImpl implements GuestService {
 
