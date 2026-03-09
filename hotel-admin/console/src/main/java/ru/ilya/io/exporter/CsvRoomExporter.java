@@ -15,13 +15,13 @@ import ru.ilya.service.RoomService;
 import ru.ilya.exceptions.ExportException;
 
 @Component
-public class RoomExporter {
-    private static final Logger logger = LoggerFactory.getLogger(GuestExporter.class);
+public class CsvRoomExporter {
+    private static final Logger logger = LoggerFactory.getLogger(CsvRoomExporter.class);
 
     private final RoomService roomService;
 
     @Autowired
-    public RoomExporter(RoomService roomService) {
+    public CsvRoomExporter(RoomService roomService) {
         this.roomService=roomService;
     }
 

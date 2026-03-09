@@ -13,13 +13,13 @@ import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
 
 @Component
-public class ServiceImporter {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceImporter.class);
+public class CsvServiceImporter {
+    private static final Logger logger = LoggerFactory.getLogger(CsvServiceImporter.class);
 
     private final ServiceManager serviceManager;
 
     @Autowired
-    public ServiceImporter(ServiceManager serviceManager) {
+    public CsvServiceImporter(ServiceManager serviceManager) {
         this.serviceManager=serviceManager;
     }
 

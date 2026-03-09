@@ -1,182 +1,165 @@
 package ru.ilya.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.core.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import ru.ilya.io.importer.JsonGuestImporter;
+import ru.ilya.io.importer.JsonRoomImporter;
+import ru.ilya.io.importer.JsonServiceImporter;
+import ru.ilya.io.exporter.JsonGuestExporter;
+import ru.ilya.io.exporter.JsonRoomExporter;
+import ru.ilya.io.exporter.JsonServiceExporter;
+import ru.ilya.service.GuestService;
+import ru.ilya.service.RoomService;
+import ru.ilya.service.ServiceManager;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
 import ru.ilya.model.Service;
-import ru.ilya.exceptions.GuestException;
-import ru.ilya.exceptions.RoomException;
-import ru.ilya.exceptions.ServiceException;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 @Component
 public class JsonFileController {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonFileController.class);
 
-    private static final String GUESTS_FILE_PATH = "core/src/main/resources/guests.json";
-    private static final String ROOMS_FILE_PATH = "core/src/main/resources/rooms.json";
-    private static final String SERVICES_FILE_PATH = "core/src/main/resources/services.json";
+    private final JsonGuestImporter guestImporter;
+    private final JsonRoomImporter roomImporter;
+    private final JsonServiceImporter serviceImporter;
+    private final JsonGuestExporter guestExporter;
+    private final JsonRoomExporter roomExporter;
+    private final JsonServiceExporter serviceExporter;
+    private final RoomService roomService;
+    private final GuestService guestService;
+    private final ServiceManager serviceManager;
 
-    private final ObjectMapper mapper;
-
-    public JsonFileController() {
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    @Autowired
+    public JsonFileController(JsonGuestImporter guestImporter,
+            JsonRoomImporter roomImporter,
+            JsonServiceImporter serviceImporter,
+            JsonGuestExporter guestExporter,
+            JsonRoomExporter roomExporter,
+            JsonServiceExporter serviceExporter,
+            RoomService roomService,
+            GuestService guestService,
+            ServiceManager serviceManager) {
+        this.guestImporter = guestImporter;
+        this.roomImporter = roomImporter;
+        this.serviceImporter = serviceImporter;
+        this.guestExporter = guestExporter;
+        this.roomExporter = roomExporter;
+        this.serviceExporter = serviceExporter;
+        this.roomService = roomService;
+        this.guestService = guestService;
+        this.serviceManager = serviceManager;
     }
 
-    public void saveGuests(List<Guest> guests) {
-        logger.info("Начало обработки команды: saveGuestsToJson");
+    public void importGuests() {
+        logger.info("Начало импорта гостей из JSON");
         try {
-            File file = new File(GUESTS_FILE_PATH);
-            createFileIfNeeded(file);
-            mapper.writeValue(file, guests);
-            logger.info("saveGuestsToJson успешно выполнен: сохранено {} гостей", guests.size());
-        } catch (IOException e) {
-            logger.error("Ошибка при выполнении saveGuestsToJson", e);
-            throw new GuestException("Ошибка при сохранении данных гостей.", e);
+            List<Guest> guests = guestImporter.importJson();
+            if (guests.isEmpty()) {
+                System.out.println("Файл с гостями пуст. Ничего не импортировано.");
+                logger.info("Импорт гостей завершён: 0 гостей");
+                return;
+            }
+
+            for (Guest guest : guests) {
+                guestService.checkIn(
+                        guest.getName(),
+                        guest.getRoom().getNumber(),
+                        guest.getCheckInDate(),
+                        guest.getCheckOutDate());
+            }
+            System.out.println("Гости успешно импортированы. Добавлено: " + guests.size());
+            logger.info("Импорт гостей завершён: добавлено {} гостей", guests.size());
+        } catch (Exception e) {
+            logger.error("Ошибка при импорте гостей", e);
+            System.out.println("Ошибка при импорте гостей: " + e.getMessage());
         }
     }
 
-    public void saveRooms(List<Room> rooms) {
-        logger.info("Начало обработки команды: saveRoomsToJson");
+    public void importRooms() {
+        logger.info("Начало импорта комнат из JSON");
         try {
-            File file = new File(ROOMS_FILE_PATH);
-            createFileIfNeeded(file);
-            mapper.writeValue(file, rooms);
-            logger.info("saveRoomsToJson успешно выполнен: сохранено {} комнат", rooms.size());
-        } catch (IOException e) {
-            logger.error("Ошибка при выполнении saveRoomsToJson", e);
-            throw new RoomException("Ошибка при сохранении данных комнат.", e);
+            List<Room> rooms = roomImporter.importJson();
+            if (rooms.isEmpty()) {
+                System.out.println("Файл с комнатами пуст. Ничего не импортировано.");
+                logger.info("Импорт комнат завершён: 0 комнат");
+                return;
+            }
+
+            for (Room room : rooms) {
+                roomService.addRoom(room);
+            }
+            System.out.println("Комнаты успешно импортированы. Добавлено: " + rooms.size());
+            logger.info("Импорт комнат завершён: добавлено {} комнат", rooms.size());
+        } catch (Exception e) {
+            logger.error("Ошибка при импорте комнат", e);
+            System.out.println("Ошибка при импорте комнат: " + e.getMessage());
         }
     }
 
-    public void saveServices(List<Service> services) {
-        logger.info("Начало обработки команды: saveServicesToJson");
+    public void importServices() {
+        logger.info("Начало импорта услуг из JSON");
         try {
-            File file = new File(SERVICES_FILE_PATH);
-            createFileIfNeeded(file);
-            mapper.writeValue(file, services);
-            logger.info("saveServicesToJson успешно выполнен: сохранено {} услуг", services.size());
-        } catch (IOException e) {
-            logger.error("Ошибка при выполнении saveServicesToJson", e);
-            throw new ServiceException("Ошибка при сохранении данных услуг.", e);
+            List<Service> services = serviceImporter.importJson();
+            if (services.isEmpty()) {
+                System.out.println("Файл с услугами пуст. Ничего не импортировано.");
+                logger.info("Импорт услуг завершён: 0 услуг");
+                return;
+            }
+
+            for (Service service : services) {
+                serviceManager.addService(service);
+            }
+            System.out.println("Услуги успешно импортированы. Добавлено: " + services.size());
+            logger.info("Импорт услуг завершён: добавлено {} услуг", services.size());
+        } catch (Exception e) {
+            logger.error("Ошибка при импорте услуг", e);
+            System.out.println("Ошибка при импорте услуг: " + e.getMessage());
         }
     }
 
-    public List<Guest> loadGuests() {
-        logger.info("Начало обработки команды: loadGuestsFromJson");
+    public void exportGuests() {
+        logger.info("Начало экспорта гостей в JSON");
         try {
-            File file = new File(GUESTS_FILE_PATH);
-            boolean wasCreated = !file.exists();
-            createFileIfNeeded(file);
-
-            if (wasCreated) {
-                logger.info("Файл с гостями не существовал. Создан новый пустой файл.");
-                return new ArrayList<>();
-            }
-
-            if (file.length() == 0) {
-                logger.info("Файл с гостями существует, но пуст.");
-                return new ArrayList<>();
-            }
-
-            List<Guest> guests = mapper.readValue(file, new TypeReference<List<Guest>>() {
-            });
-            logger.info("loadGuestsFromJson успешно выполнен: загружено {} гостей", guests.size());
-            return guests;
-
-        } catch (IOException e) {
-            logger.error("Ошибка при выполнении loadGuestsFromJson", e);
-            throw new GuestException("Ошибка при загрузке данных гостей.", e);
+            List<Guest> guests = guestService.getAllGuests();
+            guestExporter.exportJson(guests);
+            System.out.println("Гости успешно экспортированы.");
+            logger.info("Экспорт гостей завершён: сохранено {} гостей", guests.size());
+        } catch (Exception e) {
+            logger.error("Ошибка при экспорте гостей", e);
+            System.out.println("Ошибка при экспорте гостей: " + e.getMessage());
         }
     }
 
-    public List<Room> loadRooms() {
-        logger.info("Начало обработки команды: loadRoomsFromJson");
+    public void exportRooms() {
+        logger.info("Начало экспорта комнат в JSON");
         try {
-            File file = new File(ROOMS_FILE_PATH);
-            boolean wasCreated = !file.exists();
-            createFileIfNeeded(file);
-
-            if (wasCreated) {
-                logger.info("Файл с комнатами не существовал. Создан новый пустой файл.");
-                return new ArrayList<>();
-            }
-
-            if (file.length() == 0) {
-                logger.info("Файл с комнатами существует, но пуст.");
-                return new ArrayList<>();
-            }
-
-            List<Room> rooms = mapper.readValue(file, new TypeReference<List<Room>>() {
-            });
-            logger.info("loadRoomsFromJson успешно выполнен: загружено {} комнат", rooms.size());
-            return rooms;
-
-        } catch (IOException e) {
-            logger.error("Ошибка при выполнении loadRoomsFromJson", e);
-            throw new RoomException("Ошибка при загрузке данных комнат.", e);
+            List<Room> rooms = roomService.getAllRooms();
+            roomExporter.exportJson(rooms);
+            System.out.println("Комнаты успешно экспортированы.");
+            logger.info("Экспорт комнат завершён: сохранено {} комнат", rooms.size());
+        } catch (Exception e) {
+            logger.error("Ошибка при экспорте комнат", e);
+            System.out.println("Ошибка при экспорте комнат: " + e.getMessage());
         }
     }
 
-    public List<Service> loadServices() {
-        logger.info("Начало обработки команды: loadServicesFromJson");
+    public void exportServices() {
+        logger.info("Начало экспорта услуг в JSON");
         try {
-            File file = new File(SERVICES_FILE_PATH);
-            boolean wasCreated = !file.exists();
-            createFileIfNeeded(file);
-
-            if (wasCreated) {
-                logger.info("Файл с услугами не существовал. Создан новый пустой файл.");
-                return new ArrayList<>();
-            }
-
-            if (file.length() == 0) {
-                logger.info("Файл с услугами существует, но пуст.");
-                return new ArrayList<>();
-            }
-
-            List<Service> services = mapper.readValue(file, new TypeReference<List<Service>>() {
-            });
-            int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
-            Service.setIdCounter(maxId + 1);
-
-            logger.info("loadServicesFromJson успешно выполнен: загружено {} услуг", services.size());
-            return services;
-
-        } catch (IOException e) {
-            logger.error("Ошибка при выполнении loadServicesFromJson", e);
-            throw new ServiceException("Ошибка при загрузке данных услуг.", e);
+            List<Service> services = serviceManager.getAllServices();
+            serviceExporter.exportJson(services);
+            System.out.println("Услуги успешно экспортированы.");
+            logger.info("Экспорт услуг завершён: сохранено {} услуг", services.size());
+        } catch (Exception e) {
+            logger.error("Ошибка при экспорте услуг", e);
+            System.out.println("Ошибка при экспорте услуг: " + e.getMessage());
         }
     }
 
-    private void createFileIfNeeded(File file) throws IOException {
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) {
-            if (!parent.mkdirs()) {
-                logger.error("Не удалось создать директорию: {}", parent.getPath());
-                throw new IOException("Не удалось создать директорию: " + parent.getPath());
-            }
-        }
-        if (!file.exists()) {
-            if (!file.createNewFile()) {
-                logger.error("Не удалось создать файл: {}", file.getPath());
-                throw new IOException("Не удалось создать файл: " + file.getPath());
-            }
-        }
-    }
 }

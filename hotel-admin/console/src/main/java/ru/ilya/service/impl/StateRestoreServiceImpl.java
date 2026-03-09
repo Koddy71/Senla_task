@@ -4,9 +4,7 @@ import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.autoconfig.JdbcManager;
 import ru.ilya.controller.CsvFileController;
 import ru.ilya.controller.JsonFileController;
-import ru.ilya.model.Guest;
-import ru.ilya.model.Room;
-import ru.ilya.model.Service;
+
 import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
@@ -15,8 +13,6 @@ import ru.ilya.controller.JdbcController;
 import ru.ilya.controller.JpaController;
 import ru.ilya.exceptions.ApplicationException;
 import ru.ilya.exceptions.PersistenceException;
-
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,35 +99,9 @@ public class StateRestoreServiceImpl implements StateRestoreService {
 
     private void restoreFromJson() {
         logger.info("Восстановление из JSON");
-        List<Room> rooms = jsonFileController.loadRooms();
-        List<Guest> guests = jsonFileController.loadGuests();
-        List<Service> services = jsonFileController.loadServices();
-
-        if (rooms.isEmpty() && guests.isEmpty() && services.isEmpty()) {
-            System.out.println("JSON пуст. Нечего восстанавливать.");
-            logger.info("JSON пуст, восстановление не требуется");
-            return;
-        }
-
-        logger.info("Загружено из JSON: комнат {}, гостей {}, услуг {}", rooms.size(), guests.size(), services.size());
-
-        for (Room room : rooms) {
-            roomService.addRoom(room);
-        }
-
-        for (Guest guest : guests) {
-            guestService.checkIn(
-                    guest.getName(),
-                    guest.getRoom().getNumber(),
-                    guest.getCheckInDate(),
-                    guest.getCheckOutDate());
-        }
-
-        for (Service s : services) {
-            serviceManager.addService(s);
-        }
-
-        System.out.println("Состояние восстановлено из JSON.");
+        jsonFileController.importRooms();
+        jsonFileController.importServices();
+        jsonFileController.importGuests();
         logger.info("Восстановление из JSON завершено");
     }
 
@@ -166,15 +136,10 @@ public class StateRestoreServiceImpl implements StateRestoreService {
 
     private void saveToJson() {
         logger.info("Сохранение в JSON");
-        jsonFileController.saveGuests(guestService.getAllGuests());
-        System.out.println("Гости сохранены.");
-
-        jsonFileController.saveRooms(roomService.getAllRooms());
-        System.out.println("Комнаты сохранены.");
-
-        jsonFileController.saveServices(serviceManager.getAllServices());
-        System.out.println("Услуги сохранены.");
-
+        jsonFileController.exportRooms();
+        jsonFileController.exportServices();
+        jsonFileController.exportGuests();
+        System.out.println("Состояние сохранено в JSON.");
         logger.info("Сохранение в JSON завершено");
     }
 

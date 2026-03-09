@@ -15,13 +15,13 @@ import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
 
 @Component
-public class GuestImporter {
-    private static final Logger logger = LoggerFactory.getLogger(GuestImporter.class);
+public class CsvGuestImporter {
+    private static final Logger logger = LoggerFactory.getLogger(CsvGuestImporter.class);
 
     private final GuestService guestService;
 
     @Autowired
-    public GuestImporter(GuestService guestService) {
+    public CsvGuestImporter(GuestService guestService) {
         this.guestService=guestService;
     }
 

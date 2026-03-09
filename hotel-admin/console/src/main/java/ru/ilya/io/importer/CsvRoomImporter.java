@@ -13,13 +13,13 @@ import ru.ilya.model.Room;
 import ru.ilya.service.RoomService;
 
 @Component
-public class RoomImporter {
-    private static final Logger logger = LoggerFactory.getLogger(RoomImporter.class);
+public class CsvRoomImporter {
+    private static final Logger logger = LoggerFactory.getLogger(CsvRoomImporter.class);
 
     private final RoomService roomService;
     
     @Autowired
-    public RoomImporter(RoomService roomService) {
+    public CsvRoomImporter(RoomService roomService) {
         this.roomService=roomService;
     }
 

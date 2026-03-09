@@ -16,13 +16,13 @@ import ru.ilya.service.GuestService;
 import ru.ilya.exceptions.ExportException;
 
 @Component
-public class GuestExporter {
-    private static final Logger logger = LoggerFactory.getLogger(GuestExporter.class);
+public class CsvGuestExporter {
+    private static final Logger logger = LoggerFactory.getLogger(CsvGuestExporter.class);
     
     private final GuestService guestService;
 
     @Autowired
-    public GuestExporter(GuestService guestService) {
+    public CsvGuestExporter(GuestService guestService) {
         this.guestService = guestService;
     }
 

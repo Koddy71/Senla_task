@@ -1,6 +1,7 @@
 package ru.ilya.ui;
 
 import ru.ilya.controller.GuestController;
+import ru.ilya.controller.JsonFileController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,19 +18,22 @@ public class MenuBuilder {
     private final ServiceController serviceController;
     private final PriceController priceController;
     private final CsvFileController csvFileController;
+    private final JsonFileController jsonFileController;
 
     @Autowired
     public MenuBuilder(GuestController guestController,
             RoomController roomController,
             ServiceController serviceController,
             PriceController priceController,
-            CsvFileController csvFileController) {
+            CsvFileController csvFileController,
+            JsonFileController jsonFileController) {
 
         this.guestController = guestController;
         this.roomController = roomController;
         this.serviceController = serviceController;
         this.priceController = priceController;
         this.csvFileController = csvFileController;
+        this.jsonFileController = jsonFileController;
     }
 
     private Menu buildMainMenu() {
@@ -38,7 +42,8 @@ public class MenuBuilder {
         root.addItem(new MenuItem("Комнаты", build(RoomController.class)));
         root.addItem(new MenuItem("Сервисы", build(ServiceController.class)));
         root.addItem(new MenuItem("Просмотр комнат и услуг", () -> priceController.showRoomsAndService()));
-        root.addItem(new MenuItem("Импорт / Экспорт данных", build(CsvFileController.class)));
+        root.addItem(new MenuItem("Импорт / Экспорт данных CSV", build(CsvFileController.class)));
+        root.addItem(new MenuItem("Импорт / Экспорт данных JSON", build(JsonFileController.class)));
         return root;
     }
 
@@ -77,16 +82,30 @@ public class MenuBuilder {
         return m;
     }
 
-    private Menu buildImportExportMenu() {
-        Menu menu = new Menu("Импорт / Экспорт данных");
+    private Menu buildImportExportMenuCsv() {
+        Menu menu = new Menu("Импорт / Экспорт данных CSV");
 
-        menu.addItem(new MenuItem("Импорт гостей", () -> csvFileController.importGuests()));
+        menu.addItem(new MenuItem("Импорт гостей ", () -> csvFileController.importGuests()));
         menu.addItem(new MenuItem("Импорт комнат", () -> csvFileController.importRooms()));
         menu.addItem(new MenuItem("Импорт услуг", () -> csvFileController.importServices()));
 
         menu.addItem(new MenuItem("Экспорт гостей", () -> csvFileController.exportGuests()));
         menu.addItem(new MenuItem("Экспорт комнат", () -> csvFileController.exportRooms()));
         menu.addItem(new MenuItem("Экспорт услуг", () -> csvFileController.exportServices()));
+
+        return menu;
+    }
+
+    private Menu buildImportExportMenuJson() {
+        Menu menu = new Menu("Импорт / Экспорт данных CSV");
+
+        menu.addItem(new MenuItem("Импорт гостей ", () ->jsonFileController.importGuests()));
+        menu.addItem(new MenuItem("Импорт комнат", () -> jsonFileController.importRooms()));
+        menu.addItem(new MenuItem("Импорт услуг", () -> jsonFileController.importServices()));
+
+        menu.addItem(new MenuItem("Экспорт гостей", () -> jsonFileController.exportGuests()));
+        menu.addItem(new MenuItem("Экспорт комнат", () -> jsonFileController.exportRooms()));
+        menu.addItem(new MenuItem("Экспорт услуг", () -> jsonFileController.exportServices()));
 
         return menu;
     }
@@ -105,7 +124,11 @@ public class MenuBuilder {
         }
 
         if (type == CsvFileController.class) {
-            return buildImportExportMenu();
+            return buildImportExportMenuCsv();
+        }
+
+        if (type == JsonFileController.class){
+            return buildImportExportMenuJson();
         }
 
         return buildMainMenu();

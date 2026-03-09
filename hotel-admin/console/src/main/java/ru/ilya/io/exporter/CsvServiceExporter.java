@@ -15,13 +15,13 @@ import ru.ilya.service.ServiceManager;
 import ru.ilya.exceptions.ExportException;
 
 @Component
-public class ServiceExporter {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceExporter.class);
+public class CsvServiceExporter {
+    private static final Logger logger = LoggerFactory.getLogger(CsvServiceExporter.class);
 
     private final ServiceManager serviceManager;
 
     @Autowired
-    public ServiceExporter(ServiceManager serviceManager) {
+    public CsvServiceExporter(ServiceManager serviceManager) {
         this.serviceManager=serviceManager;
     }
 

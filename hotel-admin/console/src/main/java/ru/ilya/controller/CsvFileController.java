@@ -2,12 +2,12 @@ package ru.ilya.controller;
 
 import java.io.IOException;
 
-import ru.ilya.io.importer.GuestImporter;
-import ru.ilya.io.importer.RoomImporter;
-import ru.ilya.io.importer.ServiceImporter;
-import ru.ilya.io.exporter.GuestExporter;
-import ru.ilya.io.exporter.RoomExporter;
-import ru.ilya.io.exporter.ServiceExporter;
+import ru.ilya.io.importer.CsvGuestImporter;
+import ru.ilya.io.importer.CsvRoomImporter;
+import ru.ilya.io.importer.CsvServiceImporter;
+import ru.ilya.io.exporter.CsvGuestExporter;
+import ru.ilya.io.exporter.CsvRoomExporter;
+import ru.ilya.io.exporter.CsvServiceExporter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +23,18 @@ public class CsvFileController {
     private static final String GUESTS_PATH = "core/src/main/resources/guests.csv";
     private static final String SERVICES_FILE = "core/src/main/resources/services.csv";
 
-    private final GuestImporter guestImporter;
-    private final RoomImporter roomImporter;
-    private final ServiceImporter serviceImporter;
-    private final GuestExporter guestExporter;
-    private final RoomExporter roomExporter;
-    private final ServiceExporter serviceExporter;
+    private final CsvGuestImporter guestImporter;
+    private final CsvRoomImporter roomImporter;
+    private final CsvServiceImporter serviceImporter;
+    private final CsvGuestExporter guestExporter;
+    private final CsvRoomExporter roomExporter;
+    private final CsvServiceExporter serviceExporter;
 
     @Autowired
-    public CsvFileController(GuestImporter guestImporter, RoomImporter roomImporter,
-            ServiceImporter serviceImporter, GuestExporter guestExporter,
-            RoomExporter roomExporter, ServiceExporter serviceExporter) {
+    public CsvFileController(CsvGuestImporter guestImporter, CsvRoomImporter roomImporter,
+            CsvServiceImporter serviceImporter, 
+            CsvGuestExporter guestExporter,
+            CsvRoomExporter roomExporter, CsvServiceExporter serviceExporter) {
         this.guestImporter = guestImporter;
         this.roomImporter = roomImporter;
         this.serviceImporter = serviceImporter;
