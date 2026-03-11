@@ -65,10 +65,27 @@
     <build>
         <finalName>hotelAdmin</finalName>
         <plugins>
+            <!-- Плагин для сборки WAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
+            </plugin>
+            
+            <!-- Плагин для деплоя на Tomcat -->
+            <!-- Для деплоя "mvn tomcat7:deploy" из папки web -->
+            <!-- Или "mvn -pl web tomcat7:deploy! из корня -->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8080/manager/text</url>
+                    <server>TomcatServer</server>
+                    <path>/hotelAdmin</path>
+                    <username>admin</username>
+                    <password>admin</password>
+                </configuration>
             </plugin>
         </plugins>
     </build>
