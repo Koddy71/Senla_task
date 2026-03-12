@@ -84,8 +84,8 @@ public class Room extends Priceable {
     }
 
     public boolean isFreeOn(LocalDate date) {
-        for (Guest s : stayHistory) {
-            if ((!date.isBefore(s.getCheckInDate())) && (!date.isAfter(s.getCheckOutDate()))) {
+        for (Guest g : stayHistory) {
+            if ((!date.isBefore(g.getCheckInDate())) && (!date.isAfter(g.getCheckOutDate()))) {
                 return false;
             }
         }

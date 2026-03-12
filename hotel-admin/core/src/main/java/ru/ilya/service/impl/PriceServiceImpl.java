@@ -32,6 +32,7 @@ public class PriceServiceImpl implements PriceService {
         this.serviceManager = serviceManager;
     }
 
+    @Override
     public List<Priceable> getRoomsAndServices(String orderBy) {
         logger.info("Начало получения списка комнат и услуг с сортировкой по '{}'", orderBy);
 

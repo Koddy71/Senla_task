@@ -14,10 +14,6 @@ public interface RoomService {
 
     Room findRoom(int number);
 
-    boolean checkIn(int number);
-
-    boolean checkOut(int number);
-
     boolean changeStatus(int number, RoomStatus status);
 
     boolean changePrice(int number, int newPrice);
