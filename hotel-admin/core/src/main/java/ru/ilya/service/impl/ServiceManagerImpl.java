@@ -28,12 +28,20 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public boolean addService(Service service) {
         logger.info("Начало добавления услуги");
-        if (service == null || serviceDao.findById(service.getId()) != null) {
-            logger.info("Добавление услуги не выполнено");
+        if (service == null) {
+            logger.info("Добавление услуги не выполнено: service == null");
             return false;
         }
+        Integer id = service.getId();
+
+        if (id != null) {
+            if (serviceDao.findById(id) != null) {
+                logger.info("Добавление услуги не выполнено: услуга с таким id уже существует (id={})", id);
+                return false;
+            }
+        }
         serviceDao.create(service);
-        logger.info("Добавление услуги завершено успешно");
+        logger.info("Добавление услуги завершено успешно (id={})", service.getId());
         return true;
     }
 

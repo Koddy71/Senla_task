@@ -5,7 +5,6 @@ import ru.ilya.dao.jpa.RoomDaoJpa;
 import ru.ilya.dao.jpa.ServiceDaoJpa;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
-import ru.ilya.model.RoomStatus;
 import ru.ilya.model.Service;
 import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
@@ -42,7 +41,6 @@ public class JpaController {
             for (Room room : rooms) {
                 try {
                     roomService.addRoom(room);
-                    room.setStatus(RoomStatus.AVAILABLE);
                 } catch (Exception e) {
                     logger.error("Ошибка при добавлении комнаты {}", room.getNumber(), e);
                 }
@@ -64,8 +62,6 @@ public class JpaController {
                     logger.error("Ошибка при добавлении услуги {}", service.getName(), e);
                 }
             }
-            int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
-            Service.setIdCounter(maxId + 1);
 
             logger.info("restoreServices успешно выполнено (JPA): восстановлено {} услуг", services.size());
         } catch (Exception e) {

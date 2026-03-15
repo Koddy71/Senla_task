@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import ru.ilya.io.CsvUtil;
 import ru.ilya.model.Room;
+import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
 
 @Component
@@ -27,7 +28,7 @@ public class CsvRoomImporter {
         int count = 0;
         List<String[]> rows = CsvUtil.read(path);
         for (String[] r : rows) {
-            if (r.length < 4) {
+            if (r.length < 5) {
                 System.out.println("Недостаточно данных в строке: " + String.join(",", r));
                 logger.error("Недостаточно данных в строке: {}", String.join(",", r));
                 continue;
@@ -44,7 +45,18 @@ public class CsvRoomImporter {
                     continue;
                 }
 
-                Room room = new Room(number, price, capacity, stars);
+                String statusStr = r[4].trim();
+                RoomStatus status;
+                try {
+                    status = RoomStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    System.out
+                            .println("Ошибка: неизвестный статус '" + statusStr + "' в строке: " + String.join(",", r));
+                    logger.error("Неизвестный статус '{}' в строке: {}", statusStr, String.join(",", r));
+                    continue;
+                }
+
+                Room room = new Room(number, price, capacity, stars, status);
                 if (roomService.addRoom(room)) {
                     count++;
                 } else {

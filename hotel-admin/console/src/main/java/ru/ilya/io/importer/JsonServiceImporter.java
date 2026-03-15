@@ -41,9 +41,6 @@ public class JsonServiceImporter {
 
             List<Service> services = mapper.readValue(file, new TypeReference<List<Service>>() {
             });
-            // Устанавливаем счётчик ID для новых услуг
-            int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
-            Service.setIdCounter(maxId + 1);
             logger.info("Импортировано {} услуг", services.size());
             return services;
         } catch (IOException e) {

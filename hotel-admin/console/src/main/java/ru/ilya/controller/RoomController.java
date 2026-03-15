@@ -72,7 +72,7 @@ public class RoomController {
                 return;
             }
 
-            Room room = new Room(number, price, capacity, stars);
+            Room room = new Room(number, price, capacity, stars, RoomStatus.ACTIVE);
             boolean ok = roomService.addRoom(room);
             if (ok) {
                 System.out.println("Комната добавлена!");

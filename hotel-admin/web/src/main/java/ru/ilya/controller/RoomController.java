@@ -74,11 +74,19 @@ public class RoomController {
 
     @PostMapping
     public ResponseEntity<Void> addRoom(@RequestBody RoomRequest request){
-        Room room = new Room(request.getNumber(), request.getPrice(), request.getCapacity(), request.getStars());
-        if (request.getStatus()!=null){
-            room.setStatus(RoomStatus.valueOf(request.getStatus()));
+        if (request.getStatus() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        RoomStatus status;
+        try {
+            status = RoomStatus.valueOf(request.getStatus());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
         
+        Room room = new Room(request.getNumber(), request.getPrice(), request.getCapacity(), request.getStars(), status);
+
         if (roomService.addRoom(room)){
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else{

@@ -12,4 +12,8 @@
         <sqlFile path="db/migration/002__dml.sql" relativeToChangelogFile="false" splitStatements="true" stripComments="false"/>
     </changeSet>
 
+    <changeSet id="003-alter-room-and-ids" author="Koddy17">
+        <sqlFile path="db/migration/003__alter_room_and_ids.sql" relativeToChangelogFile="false" splitStatements="true" stripComments="false"/>
+    </changeSet>
+
 </databaseChangeLog>

@@ -23,10 +23,10 @@ import ru.ilya.model.RoomStatus;
 public class RoomDaoJdbc implements GenericDao<Room, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(RoomDaoJdbc.class);
 
-    private static final String INSERT_SQL = "INSERT INTO room(number, price, capacity, stars) VALUES (?, ?, ?, ?)";
-    private static final String SELECT_BY_ID_SQL = "SELECT number, price, capacity, stars FROM room WHERE number = ?";
-    private static final String SELECT_ALL_SQL = "SELECT number, price, capacity, stars FROM room";
-    private static final String UPDATE_SQL = "UPDATE room SET price = ?, capacity = ?, stars = ? WHERE number = ?";
+    private static final String INSERT_SQL = "INSERT INTO room(number, price, capacity, stars, status) VALUES (?, ?, ?, ?, ?)";
+    private static final String SELECT_BY_ID_SQL = "SELECT number, price, capacity, stars, status FROM room WHERE number = ?";
+    private static final String SELECT_ALL_SQL = "SELECT number, price, capacity, stars, status FROM room";
+    private static final String UPDATE_SQL = "UPDATE room SET price = ?, capacity = ?, stars = ?, status = ? WHERE number = ?";
     private static final String DELETE_SQL = "DELETE FROM room WHERE number = ?";
     private static final String DELETE_ALL_SQL = "DELETE FROM room";
 
@@ -34,6 +34,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
     private static final String COLUMN_PRICE = "price";
     private static final String COLUMN_CAPACITY = "capacity";
     private static final String COLUMN_STARS = "stars";
+    private static final String COLUMN_STATUS = "status";
 
     @Autowired
     private JdbcManager jdbcManager;
@@ -49,6 +50,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             statement.setInt(2, room.getPrice());
             statement.setInt(3, room.getCapacity());
             statement.setInt(4, room.getStars());
+            statement.setString(5, room.getStatus().name());
             statement.executeUpdate();
             return room;
         } catch (SQLException e) {
@@ -69,7 +71,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
                     room.setPrice(rs.getInt(COLUMN_PRICE));
                     room.setCapacity(rs.getInt(COLUMN_CAPACITY));
                     room.setStars(rs.getInt(COLUMN_STARS));
-                    room.setStatus(RoomStatus.AVAILABLE);
+                    String statusStr = rs.getString(COLUMN_STATUS);
+                    room.setStatus(RoomStatus.valueOf(statusStr));
                     return room;
                 }
             }
@@ -92,7 +95,8 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
                 room.setPrice(rs.getInt(COLUMN_PRICE));
                 room.setCapacity(rs.getInt(COLUMN_CAPACITY));
                 room.setStars(rs.getInt(COLUMN_STARS));
-                room.setStatus(RoomStatus.AVAILABLE);
+                String statusStr = rs.getString(COLUMN_STATUS);
+                room.setStatus(RoomStatus.valueOf(statusStr));
                 list.add(room);
             }
         } catch (SQLException e) {
@@ -110,6 +114,7 @@ public class RoomDaoJdbc implements GenericDao<Room, Integer> {
             statement.setInt(2, room.getCapacity());
             statement.setInt(3, room.getStars());
             statement.setInt(4, room.getNumber());
+            statement.setString(5, room.getStatus().name());
             statement.executeUpdate();
             return room;
         } catch (SQLException e) {

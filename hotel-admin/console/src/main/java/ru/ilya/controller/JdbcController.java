@@ -62,9 +62,6 @@ public class JdbcController {
                     logger.error("Ошибка добавления услуги {}", service.getName(), e);
                 }
             }
-            int maxId = services.stream().mapToInt(Service::getId).max().orElse(0);
-            Service.setIdCounter(maxId + 1);
-
             logger.info("restoreServices успешно выполнен: восстановлено {} услуг", services.size());
         } catch (Exception e) {
             logger.error("Ошибка при выполнении restoreServices", e);

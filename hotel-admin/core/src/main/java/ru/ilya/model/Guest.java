@@ -7,11 +7,14 @@ import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; //для неизвестного поля
@@ -21,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties; //для неиз�
 @Table(name = "guest")
 public class Guest {
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "guest_seq")
+    @SequenceGenerator(name = "guest_seq", sequenceName = "guest_id_seq", allocationSize = 1)
+    private Integer id;
 
     private String name;
 
@@ -37,37 +42,30 @@ public class Guest {
         inverseJoinColumns = @JoinColumn(name = "service_id"))
     private List<Service> services = new ArrayList<>();
 
-    private static int idCounter = 1;
-
     // для сериализации
     public Guest() {
     }
 
     public Guest(String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
-        this.id = idCounter++;
         this.name = name;
         this.room = room;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
     }
 
-    public Guest(int id, String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
+    public Guest(Integer id, String name, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
         this.id = id;
         this.name = name;
         this.room = room;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
-
-        if (id > idCounter) {
-            idCounter = id + 1;
-        }
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

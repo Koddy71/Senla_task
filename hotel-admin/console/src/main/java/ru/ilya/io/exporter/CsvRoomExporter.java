@@ -29,14 +29,15 @@ public class CsvRoomExporter {
         try{
             List<String> lines = new ArrayList<>();
 
-            lines.add("number,price,capacity,stars");
+            lines.add("number,price,capacity,stars,status");
 
             for (Room r : roomService.getAllRooms()) {
-                String line = String.format("d,d,d,d",
+                String line = String.format("d,d,d,d,s",
                     r.getNumber(),
                     r.getPrice(),
                     r.getCapacity(),
-                    r.getStars());
+                    r.getStars(),
+                    r.getStatus().name());
                 lines.add(line);
             }
 
