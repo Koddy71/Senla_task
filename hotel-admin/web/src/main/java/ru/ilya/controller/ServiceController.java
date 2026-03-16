@@ -1,83 +1,91 @@
 package ru.ilya.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
-import ru.ilya.dto.ServiceDTO;
-import ru.ilya.dto.ServiceRequest;
+import ru.ilya.exceptions.NotFoundException;
+import ru.ilya.exceptions.ServiceException;
+import ru.ilya.exceptions.ValidationException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/services")
 public class ServiceController {
 
-    private ServiceManager serviceManager;
+    private final ServiceManager serviceManager;
 
     @Autowired
     public ServiceController(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;
     }
 
-    private ServiceDTO convertToDto(Service service) {
-        if (service == null)
-            return null;
-        ServiceDTO dto = new ServiceDTO();
-        dto.setId(service.getId());
-        dto.setName(service.getName());
-        dto.setPrice(service.getPrice());
-        return dto;
-    }
-
     @GetMapping
-    public List<ServiceDTO> getAllServices() {
-        List<Service> services = serviceManager.getAllServices();
-        return services.stream().map(this::convertToDto).collect(Collectors.toList());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ServiceDTO> getServiceById(@PathVariable int id) {
-        Service service = serviceManager.findService(id);
-        if (service == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        return ResponseEntity.ok(convertToDto(service));
+    public ResponseEntity<List<Service>> getAll() {
+        return ResponseEntity.ok(serviceManager.getAllServices());
     }
 
     @PostMapping
-    public ResponseEntity<Void> addService(@RequestBody ServiceRequest request) {
-        Service service = new Service(request.getName(), request.getPrice());
-        if (serviceManager.addService(service)) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Service> create(@RequestBody Service service) {
+        boolean ok;
+        try {
+            ok = serviceManager.addService(service); 
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new ServiceException("Нарушение контрактов сервисов: method signature mismatch");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        if (!ok) {
+            throw new ServiceException("Не удалось создать услугу (serviceManager.addService вернул false)");
+        }
+
+        return ResponseEntity.ok(service);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removeService(@PathVariable int id) {
-        if (serviceManager.removeService(id)) {
-            return ResponseEntity.noContent().build();
+        boolean deleted;
+        try {
+            deleted = serviceManager.removeService(id);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new ServiceException("Нарушение контрактов сервисов: method signature mismatch");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        if (!deleted) {
+            throw new NotFoundException("Услуга с id=" + id + " не найдена");
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/price")
     public ResponseEntity<Void> changePrice(@PathVariable int id, @RequestParam int price) {
-        if (serviceManager.changePrice(id, price)) {
-            return ResponseEntity.ok().build();
+        if (price <= 0) {
+            throw new ValidationException("Price must be positive");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        boolean changed;
+        try {
+            changed = serviceManager.changePrice(id, price);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new ServiceException("Нарушение контрактов сервисов: method signature mismatch");
+        }
+
+        if (!changed) {
+            throw new NotFoundException("Услуга с id=" + id + " не найдена для изменения цены");
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Service> get(@PathVariable int id) {
+        Service s = serviceManager.findService(id);
+        if (s == null) {
+            throw new NotFoundException("Услуга с id=" + id + " не найдена");
+        }
+        return ResponseEntity.ok(s);
     }
 }

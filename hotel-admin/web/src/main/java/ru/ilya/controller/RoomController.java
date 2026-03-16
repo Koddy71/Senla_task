@@ -2,30 +2,23 @@ package ru.ilya.controller;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import ru.ilya.dto.RoomDTO;
-import ru.ilya.dto.RoomRequest;
 import ru.ilya.model.Room;
 import ru.ilya.model.RoomStatus;
 import ru.ilya.service.RoomService;
 
+import ru.ilya.exceptions.NotFoundException;
+import ru.ilya.exceptions.RoomException;
+import ru.ilya.exceptions.ValidationException;
+
 @RestController
 @RequestMapping("/api/rooms")
 public class RoomController {
+
     private final RoomService roomService;
 
     @Autowired
@@ -33,95 +26,85 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-    private RoomDTO convertToDto(Room room) {
-        if (room == null)
-            return null;
-        RoomDTO dto = new RoomDTO();
-        dto.setNumber(room.getNumber());
-        if (room.getStatus() != null) {
-            dto.setStatus(room.getStatus().name());
-        } else {
-            dto.setStatus(null);
-        }
-        dto.setPrice(room.getPrice());
-        dto.setCapacity(room.getCapacity());
-        dto.setStars(room.getStars());
-        return dto;
-    }
-
     @GetMapping
-    public List<RoomDTO> getAllRooms(@RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) LocalDate freeOn) {
-        List<Room> rooms;
-        if (freeOn != null) {
-            rooms = roomService.getRoomsFreeByDate(freeOn);
-        } else if (sortBy != null) {
-            rooms = roomService.getRoomsSorted(sortBy);
-        } else {
-            rooms = roomService.getAllRooms();
-        }
-        return rooms.stream().map(this::convertToDto).collect(Collectors.toList());
-    }
-
-    @GetMapping("/{number}")
-    public ResponseEntity<RoomDTO> getRoomByNumber(@PathVariable int number){
-        Room room = roomService.findRoom(number);
-        if (room== null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        return ResponseEntity.ok(convertToDto(room));
+    public ResponseEntity<List<Room>> getAll(@RequestParam(required = false) String sortBy) {
+        return ResponseEntity.ok(roomService.getRoomsSorted(sortBy));
     }
 
     @PostMapping
-    public ResponseEntity<Void> addRoom(@RequestBody RoomRequest request){
-        if (request.getStatus() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        RoomStatus status;
+    public ResponseEntity<Room> addRoom(@RequestBody Room room) {
+        boolean ok;
         try {
-            status = RoomStatus.valueOf(request.getStatus());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            ok = roomService.addRoom(room);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new RoomException("Нарушение контрактов сервисов: method signature mismatch");
         }
-        
-        Room room = new Room(request.getNumber(), request.getPrice(), request.getCapacity(), request.getStars(), status);
 
-        if (roomService.addRoom(room)){
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (!ok) {
+            throw new RoomException("Не удалось добавить комнату");
         }
+        return ResponseEntity.ok(room);
     }
 
     @DeleteMapping("/{number}")
     public ResponseEntity<Void> removeRoom(@PathVariable int number) {
-        if (roomService.removeRoom(number)){
-            return ResponseEntity.noContent().build();
+        boolean deleted;
+        try {
+            deleted = roomService.removeRoom(number);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new RoomException("Нарушение контрактов сервисов: method signature mismatch");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        if (!deleted) {
+            throw new NotFoundException("Комната с номером " + number + " не найдена");
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{number}/status")
-    public ResponseEntity<Void> changeRoomStatus(@PathVariable int number, @RequestParam String status) {
-        RoomStatus newStatus;
+    public ResponseEntity<Void> changeRoomStatus(@PathVariable int number, @RequestParam RoomStatus newStatus) {
+        boolean changed;
         try {
-            newStatus = RoomStatus.valueOf(status);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            changed = roomService.changeStatus(number, newStatus);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new RoomException("Нарушение контрактов сервисов: method signature mismatch");
         }
 
-        if(roomService.changeStatus(number, newStatus)){
-            return ResponseEntity.ok().build();
-        } 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (!changed) {
+            throw new NotFoundException("Комната с номером " + number + " не найдена для изменения статуса");
+        }
+
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{number}/price")
     public ResponseEntity<Void> changeRoomPrice(@PathVariable int number, @RequestParam int price) {
-        if (roomService.changePrice(number, price)){
-            return ResponseEntity.ok().build();
+        if (price <= 0) {
+            throw new ValidationException("Price must be positive");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        boolean changed;
+        try {
+            changed = roomService.changePrice(number, price);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new RoomException("Нарушение контрактов сервисов: method signature mismatch");
+        }
+
+        if (!changed) {
+            throw new NotFoundException("Комната с номером " + number + " не найдена для изменения цены");
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/free")
+    public ResponseEntity<List<Room>> getFreeRooms() {
+        return ResponseEntity.ok(roomService.getFreeRooms());
+    }
+
+    @GetMapping("/freeByDate")
+    public ResponseEntity<List<Room>> getRoomsFreeByDate(@RequestParam("date") LocalDate date) {
+        return ResponseEntity.ok(roomService.getRoomsFreeByDate(date));
     }
 }

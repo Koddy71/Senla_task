@@ -1,105 +1,94 @@
 package ru.ilya.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import ru.ilya.model.Guest;
 import ru.ilya.service.GuestService;
-import ru.ilya.dto.GuestDTO;
-import ru.ilya.dto.GuestRequest;
+
+import ru.ilya.exceptions.NotFoundException;
+import ru.ilya.exceptions.GuestException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/guests")
 public class GuestController {
 
-    private GuestService guestService;
+    private final GuestService guestService;
 
     @Autowired
-    public GuestController(GuestService guestService){
+    public GuestController(GuestService guestService) {
         this.guestService = guestService;
     }
 
-    private GuestDTO convertToDto(Guest guest) {
-        if (guest == null)
-            return null;
-        GuestDTO dto = new GuestDTO();
-        dto.setId(guest.getId());
-        dto.setName(guest.getName());
-        if (guest.getRoom() != null)
-            dto.setRoomNumber(guest.getRoom().getNumber());
-        dto.setCheckInDate(guest.getCheckInDate());
-        dto.setCheckOutDate(guest.getCheckOutDate());
-        if (guest.getServices() != null) {
-            dto.setServiceIds(guest.getServices().stream().map(s -> s.getId()).collect(Collectors.toList()));
-        }
-        return dto;
-    }
-
     @GetMapping
-    public List<GuestDTO> getAllGuests(@RequestParam(required = false) String sortBy) {
-        List<Guest> guests;
-        if (sortBy != null) {
-            guests = guestService.getGuestsSorted(sortBy);
-        } else {
-            guests = guestService.getAllGuests();
-        }
-        return guests.stream().map(this::convertToDto).collect(Collectors.toList());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<GuestDTO> getGuestById(@PathVariable int id) {
-        Guest guest = guestService.findGuestById(id);
-        if (guest == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        return ResponseEntity.ok(convertToDto(guest));
+    public ResponseEntity<List<Guest>> getAll() {
+        return ResponseEntity.ok(guestService.getAllGuests());
     }
 
     @PostMapping
-    public ResponseEntity<GuestDTO> checkInGuest(@RequestBody GuestRequest request) {
-        Guest guest = guestService.checkIn(request.getName(), request.getRoomNumber(),
-                request.getCheckInDate(), request.getCheckOutDate());
-        if (guest == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(guest));
+    public ResponseEntity<Guest> checkInGuest(@RequestBody Guest guest) {
+        Guest g;
+        try {
+            g = guestService.checkIn(guest.getName(), guest.getRoom().getNumber(), guest.getCheckInDate(), guest.getCheckOutDate());
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new GuestException("Нарушение контрактов сервисов: method signature mismatch");
+        }
+
+        if (g==null) {
+            throw new GuestException("Не удалось зарегистрировать заезд");
+        }
+
+        return ResponseEntity.ok(guest);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> checkOutGuest(@PathVariable int id) {
-        if (guestService.checkOut(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<Void> checkOut(@PathVariable int id) {
+        boolean ok;
+        try {
+            ok = guestService.checkOut(id);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new GuestException("Нарушение контрактов сервисов: method signature mismatch");
         }
+
+        if (!ok) {
+            throw new NotFoundException("Гость с id=" + id + " не найден");
+        }
+
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{id}/services")
-    public ResponseEntity<Void> addServiceToGuest(@PathVariable int id, @RequestParam int serviceId){
-        if (guestService.addServiceToGuest(id, serviceId)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    @PostMapping("/{id}/services/{serviceId}")
+    public ResponseEntity<Void> addServiceToGuest(@PathVariable int id, @PathVariable int serviceId) {
+        boolean ok;
+        try {
+            ok = guestService.addServiceToGuest(id, serviceId);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new GuestException("Нарушение контрактов сервисов: method signature mismatch");
         }
+
+        if (!ok) {
+            throw new NotFoundException("Гость или услуга не найдены / не удалось добавить услугу");
+        }
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}/services/{serviceId}")
     public ResponseEntity<Void> removeServiceFromGuest(@PathVariable int id, @PathVariable int serviceId) {
-        if (guestService.removeServiceFromGuest(id, serviceId)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        boolean ok;
+        try {
+            ok = guestService.removeServiceFromGuest(id, serviceId);
+        } catch (NoSuchMethodError | AbstractMethodError e) {
+            throw new GuestException("Нарушение контрактов сервисов: method signature mismatch");
         }
+
+        if (!ok) {
+            throw new NotFoundException("Гость или услуга не найдены / не удалось удалить услугу");
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }

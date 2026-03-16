@@ -32,14 +32,7 @@ public class ServiceManagerImpl implements ServiceManager {
             logger.info("Добавление услуги не выполнено: service == null");
             return false;
         }
-        // Integer id = service.getId();
 
-        // if (id != null) {
-        //     if (serviceDao.findById(id) != null) {
-        //         logger.info("Добавление услуги не выполнено: услуга с таким id уже существует (id={})", id);
-        //         return false;
-        //     }
-        // }
         serviceDao.create(service);
         logger.info("Добавление услуги завершено успешно (id={})", service.getId());
         return true;
