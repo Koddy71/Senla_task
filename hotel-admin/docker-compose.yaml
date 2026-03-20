@@ -1,12 +1,9 @@
-version: '2.4' 
+version: "2.4"
 
 services:
   db:
     image: postgres:15
-    environment:
-      POSTGRES_DB: hotelAdmin
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ghghfrty
+    env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -18,20 +15,13 @@ services:
       retries: 12
 
   app:
-    build:
-      context: .
-      args:
-        DB_HOST: db
-        DB_PORT: 5432
-        DB_NAME: hotelAdmin
-        DB_USER: postgres
-        DB_PASSWORD: ghghfrty
+    build: .
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8080:8080"
-    restart: unless-stopped
 
 volumes:
   postgres_data:
