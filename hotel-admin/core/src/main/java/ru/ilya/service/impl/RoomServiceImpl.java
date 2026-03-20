@@ -1,44 +1,45 @@
 package ru.ilya.service.impl;
 
-import ru.ilya.autoconfig.AppConfig;
-import ru.ilya.model.Room;
-import ru.ilya.model.RoomStatus;
-import ru.ilya.service.RoomService;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import ru.ilya.autoconfig.AppConfig;
+import ru.ilya.model.Room;
+import ru.ilya.model.RoomStatus;
+import ru.ilya.service.RoomService;
+import ru.ilya.dao.jpa.RoomDaoJpa;
+
+@Transactional
 @Component
 public class RoomServiceImpl implements RoomService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomServiceImpl.class);
 
-    private Map<Integer, Room> rooms = new HashMap<>();
-
     private final AppConfig appConfig;
-    
+    private final RoomDaoJpa roomDao;
+
     @Autowired
-    public RoomServiceImpl(AppConfig appConfig) {
+    public RoomServiceImpl(AppConfig appConfig, RoomDaoJpa roomDao) {
         this.appConfig = appConfig;
+        this.roomDao = roomDao;
     }
 
     @Override
     public boolean addRoom(Room room) {
         logger.info("Начало добавления комнаты");
-        if (room == null || rooms.containsKey(room.getNumber())) {
+        if (room == null || roomDao.findById(room.getNumber()) != null) {
             logger.info("Добавление комнаты не выполнено");
             return false;
         }
-        rooms.put(room.getNumber(), room);
+        roomDao.create(room);
         logger.info("Добавление комнаты завершено успешно. Номер: {}", room.getNumber());
         return true;
     }
@@ -46,7 +47,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public boolean removeRoom(int number) {
         logger.info("Начало удаления комнаты с номером {}", number);
-        boolean result = rooms.remove(number) != null;
+        boolean result = roomDao.delete(number);
         logger.info("Удаление комнаты завершено. Результат: {}", result);
         return result;
     }
@@ -54,27 +55,9 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room findRoom(int number) {
         logger.info("Поиск комнаты с номером {}", number);
-        Room room = rooms.get(number);
+        Room room = roomDao.findById(number);
         logger.info("Поиск комнаты завершён");
         return room;
-    }
-
-    @Override
-    public boolean checkIn(int number) {
-        logger.info("Начало заселения в комнату {}", number);
-        Room room = findRoom(number);
-        boolean result = room != null && room.isFreeOn(LocalDate.now());
-        logger.info("Заселение завершено. Результат: {}", result);
-        return result;
-    }
-
-    @Override
-    public boolean checkOut(int number) {
-        logger.info("Начало выселения из комнаты {}", number);
-        Room room = findRoom(number);
-        boolean result = room != null;
-        logger.info("Выселение завершено. Результат: {}", result);
-        return result;
     }
 
     @Override
@@ -89,6 +72,7 @@ public class RoomServiceImpl implements RoomService {
         Room room = findRoom(number);
         if (room != null) {
             room.setStatus(status);
+            roomDao.update(room);
             logger.info("Изменение статуса завершено успешно");
             return true;
         }
@@ -96,11 +80,13 @@ public class RoomServiceImpl implements RoomService {
         return false;
     }
 
+    @Override
     public boolean changePrice(int number, int newPrice) {
         logger.info("Начало изменения цены комнаты {} на {}", number, newPrice);
         Room room = findRoom(number);
         if (room != null && newPrice > 0) {
             room.setPrice(newPrice);
+            roomDao.update(room);
             logger.info("Изменение цены завершено успешно");
             return true;
         }
@@ -111,7 +97,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<Room> getAllRooms() {
         logger.info("Получение списка всех комнат");
-        List<Room> result = new ArrayList<>(rooms.values());
+        List<Room> result = roomDao.findAll();
         logger.info("Получение списка завершено. Найдено комнат: {}", result.size());
         return result;
     }
@@ -121,7 +107,7 @@ public class RoomServiceImpl implements RoomService {
         logger.info("Получение списка свободных комнат на сегодня");
         List<Room> freeRooms = new ArrayList<>();
         LocalDate today = LocalDate.now();
-        for (Room r : rooms.values()) {
+        for (Room r : roomDao.findAll()) {
             if (r.isFreeOn(today)) {
                 freeRooms.add(r);
             }
@@ -135,7 +121,7 @@ public class RoomServiceImpl implements RoomService {
         logger.info("Подсчёт количества свободных комнат на сегодня");
         int count = 0;
         LocalDate today = LocalDate.now();
-        for (Room r : rooms.values()) {
+        for (Room r : roomDao.findAll()) {
             if (r.isFreeOn(today)) {
                 count++;
             }
@@ -148,7 +134,7 @@ public class RoomServiceImpl implements RoomService {
     public List<Room> getRoomsFreeByDate(LocalDate date) {
         logger.info("Получение списка комнат, свободных на дату {}", date);
         List<Room> freeByDate = new ArrayList<>();
-        for (Room r : rooms.values()) {
+        for (Room r : roomDao.findAll()) {
             if (r.isFreeOn(date)) {
                 freeByDate.add(r);
             }
@@ -160,7 +146,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<Room> getRoomsSorted(String sortBy) {
         logger.info("Начало сортировки комнат по полю '{}'", sortBy);
-        List<Room> sorted = new ArrayList<>(rooms.values());
+        List<Room> sorted = new ArrayList<>(roomDao.findAll());
 
         if ("price".equalsIgnoreCase(sortBy)) {
             sorted.sort(Comparator.comparingDouble(Room::getPrice).reversed());

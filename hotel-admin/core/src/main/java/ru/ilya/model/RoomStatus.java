@@ -1,10 +1,8 @@
 package ru.ilya.model;
 
 public enum RoomStatus {
-    AVAILABLE("Свободен"),
-    OCCUPIED("Занят"),
-    MAINTENANCE("На ремонте"),
-    RESERVED("Забронирован");
+    ACTIVE("Свободен"),
+    MAINTENANCE("На ремонте");
 
     private final String description;
 

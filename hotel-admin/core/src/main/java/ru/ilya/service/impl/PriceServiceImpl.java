@@ -15,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Component
 public class PriceServiceImpl implements PriceService {
 
@@ -30,6 +32,7 @@ public class PriceServiceImpl implements PriceService {
         this.serviceManager = serviceManager;
     }
 
+    @Override
     public List<Priceable> getRoomsAndServices(String orderBy) {
         logger.info("Начало получения списка комнат и услуг с сортировкой по '{}'", orderBy);
 

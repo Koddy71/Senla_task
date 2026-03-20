@@ -1,16 +1,14 @@
 package ru.ilya.service.impl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.ilya.autoconfig.AppConfig;
 import ru.ilya.model.Guest;
@@ -19,25 +17,28 @@ import ru.ilya.model.Service;
 import ru.ilya.service.GuestService;
 import ru.ilya.service.RoomService;
 import ru.ilya.service.ServiceManager;
+import ru.ilya.dao.jpa.GuestDaoJpa;
 
+@Transactional
 @Component
 public class GuestServiceImpl implements GuestService {
 
     private static final Logger logger = LoggerFactory.getLogger(GuestServiceImpl.class);
 
-    private Map<Integer, Guest> guests = new HashMap<>();
-
     private final RoomService roomService;
     private final ServiceManager serviceManager;
     private final AppConfig appConfig;
+    private final GuestDaoJpa guestDao;
 
     @Autowired
     public GuestServiceImpl(RoomService roomService,
             ServiceManager serviceManager,
-            AppConfig appConfig) {
+            AppConfig appConfig,
+            GuestDaoJpa guestDao) {
         this.roomService = roomService;
         this.serviceManager = serviceManager;
         this.appConfig = appConfig;
+        this.guestDao = guestDao;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class GuestServiceImpl implements GuestService {
         }
 
         Guest guest = new Guest(guestName, room, from, to);
-        guests.put(guest.getId(), guest);
+        guest = guestDao.create(guest);
         room.addStay(guest);
 
         int limit = appConfig.getRoomHistoryLimit();
@@ -76,11 +77,12 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public boolean checkOut(int guestId) {
         logger.info("Начало выселения гостя ID={}", guestId);
-        Guest g = guests.remove(guestId);
+        Guest g = guestDao.findById(guestId);
         if (g == null) {
             logger.info("Выселение не выполнено: гость ID={} не найден", guestId);
             return false;
         }
+        guestDao.delete(guestId);
         logger.info("Выселение завершено успешно: гость ID={}", guestId);
         return true;
     }
@@ -88,7 +90,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public List<Guest> getAllGuests() {
         logger.info("Получение списка всех гостей");
-        List<Guest> result = new ArrayList<>(guests.values());
+        List<Guest> result = guestDao.findAll();
         logger.info("Получение списка завершено. Найдено гостей: {}", result.size());
         return result;
     }
@@ -96,7 +98,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public List<Guest> getGuestsSorted(String sortBy) {
         logger.info("Начало сортировки гостей по полю '{}'", sortBy);
-        List<Guest> sorted = new ArrayList<>(guests.values());
+        List<Guest> sorted = guestDao.findAll();
         if ("name".equalsIgnoreCase(sortBy)) {
             sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));
         } else if ("checkoutDate".equalsIgnoreCase(sortBy)) {
@@ -111,7 +113,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public int getGuestCount() {
         logger.info("Подсчёт количества гостей");
-        int count = guests.size();
+        int count = guestDao.findAll().size();
         logger.info("Подсчёт завершён. Гостей: {}", count);
         return count;
     }
@@ -119,7 +121,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public Guest findGuestById(int id) {
         logger.info("Поиск гостя по ID {}", id);
-        Guest guest = guests.get(id);
+        Guest guest = guestDao.findById(id);
         logger.info("Поиск гостя завершён");
         return guest;
     }
@@ -127,7 +129,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public boolean addServiceToGuest(int guestId, int serviceId) {
         logger.info("Начало добавления услуги ID={} гостю ID={}", serviceId, guestId);
-        Guest guest = guests.get(guestId);
+        Guest guest = guestDao.findById(guestId);
         Service service = serviceManager.findService(serviceId);
         if (service == null || guest == null) {
             logger.info("Добавление услуги не выполнено: гость или услуга не найдены");
@@ -136,6 +138,7 @@ public class GuestServiceImpl implements GuestService {
 
         if (!guest.getServices().contains(service)) {
             guest.addService(service);
+            guestDao.update(guest);
             logger.info("Добавление услуги завершено успешно");
             return true;
         }
@@ -147,7 +150,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public boolean removeServiceFromGuest(int guestId, int serviceId) {
         logger.info("Начало удаления услуги ID={} у гостя ID={}", serviceId, guestId);
-        Guest guest = guests.get(guestId);
+        Guest guest = guestDao.findById(guestId);
         Service service = serviceManager.findService(serviceId);
         if (service == null || guest == null) {
             logger.info("Удаление услуги не выполнено: гость или услуга не найдены");
@@ -156,6 +159,7 @@ public class GuestServiceImpl implements GuestService {
 
         if (guest.getServices().contains(service)) {
             guest.removeService(service);
+            guestDao.update(guest);
             logger.info("Удаление услуги завершено успешно");
             return true;
         }

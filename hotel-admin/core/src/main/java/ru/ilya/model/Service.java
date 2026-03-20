@@ -3,7 +3,10 @@ package ru.ilya.model;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -13,48 +16,33 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Table(name = "service")
 public class Service extends Priceable {
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "service_seq")
+    @SequenceGenerator(name = "service_seq", sequenceName = "service_id_seq", allocationSize = 1)  
+    private Integer id;
 
     private String name;
     private int price;
-
-    private static int idCounter = 1;
 
     // для сериализации
     public Service() {
     }
 
     public Service(String name, int price) {
-        this.id = idCounter++;
         this.name = name;
         this.price = price;
     }
 
-    public Service(int id, String name, int price) {
+    public Service(Integer id, String name, int price) {
         this.id = id;
         this.name = name;
         this.price = price;
-
-        if (id >= idCounter) {
-            idCounter = id + 1;
-        }
     }
 
-    public static void setIdCounter(int next) {
-        if (next > idCounter) {
-            idCounter = next;
-        }
-    }
-
-    public static int getIdCounter() {
-        return idCounter;
-    }
-
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

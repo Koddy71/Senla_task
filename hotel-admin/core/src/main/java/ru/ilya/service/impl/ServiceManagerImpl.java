@@ -2,46 +2,46 @@ package ru.ilya.service.impl;
 
 import ru.ilya.model.Service;
 import ru.ilya.service.ServiceManager;
+import ru.ilya.dao.jpa.ServiceDaoJpa;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Component
 public class ServiceManagerImpl implements ServiceManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceManagerImpl.class);
 
-    private Map<Integer, Service> services = new HashMap<>();
+    private final ServiceDaoJpa serviceDao;
 
-    public ServiceManagerImpl() {
+    @Autowired
+    public ServiceManagerImpl(ServiceDaoJpa serviceDao) {
+        this.serviceDao = serviceDao;
     }
 
     @Override
     public boolean addService(Service service) {
         logger.info("Начало добавления услуги");
-
-        if (service == null || services.containsKey(service.getId())) {
-            logger.info("Добавление услуги не выполнено");
+        if (service == null) {
+            logger.info("Добавление услуги не выполнено: service == null");
             return false;
         }
 
-        services.put(service.getId(), service);
-        logger.info("Добавление услуги завершено успешно");
+        serviceDao.create(service);
+        logger.info("Добавление услуги завершено успешно (id={})", service.getId());
         return true;
     }
 
     @Override
     public boolean removeService(int id) {
         logger.info("Начало удаления услуги с ID {}", id);
-
-        boolean result = services.remove(id) != null;
-
+        boolean result = serviceDao.delete(id);
         logger.info("Удаление услуги завершено. Результат: {}", result);
         return result;
     }
@@ -49,9 +49,7 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public Service findService(int id) {
         logger.info("Поиск услуги с ID {}", id);
-
-        Service service = services.get(id);
-
+        Service service = serviceDao.findById(id);
         logger.info("Поиск услуги завершен");
         return service;
     }
@@ -59,14 +57,13 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public boolean changePrice(int id, int newPrice) {
         logger.info("Начало изменения цены услуги с ID {}", id);
-
-        Service service = services.get(id);
+        Service service = serviceDao.findById(id);
         if (service != null && newPrice > 0) {
             service.setPrice(newPrice);
+            serviceDao.update(service);
             logger.info("Изменение цены завершено успешно");
             return true;
         }
-
         logger.info("Изменение цены не выполнено");
         return false;
     }
@@ -74,6 +71,6 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public List<Service> getAllServices() {
         logger.info("Получение списка всех услуг");
-        return new ArrayList<>(services.values());
+        return serviceDao.findAll();
     }
 }

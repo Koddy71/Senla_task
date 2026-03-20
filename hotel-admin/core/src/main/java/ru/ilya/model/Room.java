@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -20,8 +22,8 @@ public class Room extends Priceable {
     @Id
     private int number;
 
-    @Transient
-    private RoomStatus status;
+    @Enumerated(EnumType.STRING)
+    private RoomStatus status=RoomStatus.ACTIVE;
 
     private int price;
     private int capacity;
@@ -35,12 +37,12 @@ public class Room extends Priceable {
     public Room() {
     }
 
-    public Room(int number, int price, int capacity, int stars) {
+    public Room(int number, int price, int capacity, int stars, RoomStatus status) {
         this.number = number;
         this.price = price;
         this.capacity = capacity;
         this.stars = stars;
-        this.status = RoomStatus.AVAILABLE;
+        this.status = status;
     }
 
     public void setStatus(RoomStatus status) {
@@ -84,8 +86,8 @@ public class Room extends Priceable {
     }
 
     public boolean isFreeOn(LocalDate date) {
-        for (Guest s : stayHistory) {
-            if ((!date.isBefore(s.getCheckInDate())) && (!date.isAfter(s.getCheckOutDate()))) {
+        for (Guest g : stayHistory) {
+            if ((!date.isBefore(g.getCheckInDate())) && (!date.isAfter(g.getCheckOutDate()))) {
                 return false;
             }
         }

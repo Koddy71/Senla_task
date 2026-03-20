@@ -28,7 +28,7 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
 
     private static final String INSERT_GUEST_SQL = """
             INSERT INTO guest(id, name, roomNumber, checkInDate, checkOutDate)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?) RETURNING id
             """;
     private static final String INSERT_GUEST_SERVICE_SQL = """
             INSERT INTO guest_service(guest_id, service_id) VALUES (?, ?)
@@ -69,14 +69,21 @@ public class GuestDaoJdbc implements GenericDao<Guest, Integer> {
     public Guest create(Guest guest) {
         try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(INSERT_GUEST_SQL)) {
-            statement.setInt(1, guest.getId());
-            statement.setString(2, guest.getName());
-            statement.setInt(3, guest.getRoom().getNumber());
-            statement.setDate(4, Date.valueOf(guest.getCheckInDate()));
-            statement.setDate(5, Date.valueOf(guest.getCheckOutDate()));
-            statement.executeUpdate();
+            statement.setString(1, guest.getName());
+            statement.setInt(2, guest.getRoom().getNumber());
+            statement.setDate(3, Date.valueOf(guest.getCheckInDate()));
+            statement.setDate(4, Date.valueOf(guest.getCheckOutDate()));
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    guest.setId(rs.getInt(1));
+                }
+            }
             for (Service s : guest.getServices()) {
-                addServiceToGuest(guest.getId(), s.getId(), conn);
+                try (PreparedStatement ps = conn.prepareStatement(INSERT_GUEST_SERVICE_SQL)) {
+                    ps.setInt(1, guest.getId());
+                    ps.setInt(2, s.getId());
+                    ps.executeUpdate();
+                }
             }
             return guest;
         } catch (SQLException e) {

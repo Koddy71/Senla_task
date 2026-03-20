@@ -22,7 +22,7 @@ import ru.ilya.model.Service;
 public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(ServiceDaoJdbc.class);
 
-    private static final String INSERT_SQL = "INSERT INTO service(id, name, price) VALUES (?, ?, ?)";
+    private static final String INSERT_SQL = "INSERT INTO service(id, name, price) VALUES (?, ?, ?) RETURNING id";
     private static final String SELECT_BY_ID_SQL = "SELECT id, name, price FROM service WHERE id = ?";
     private static final String SELECT_ALL_SQL = "SELECT id, name, price FROM service";
     private static final String UPDATE_SQL = "UPDATE service SET name = ?, price = ? WHERE id = ?";
@@ -43,10 +43,13 @@ public class ServiceDaoJdbc implements GenericDao<Service, Integer> {
     public Service create(Service service) {
         try (Connection conn = jdbcManager.getConnection();
                 PreparedStatement statement = conn.prepareStatement(INSERT_SQL)) {
-            statement.setInt(1, service.getId());
-            statement.setString(2, service.getName());
-            statement.setInt(3, service.getPrice());
-            statement.executeUpdate();
+            statement.setString(1, service.getName());
+            statement.setInt(2, service.getPrice());
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    service.setId(rs.getInt(1));
+                }
+            }
             return service;
         } catch (SQLException e) {
             logger.error("Ошибка вставки услуги в БД: id={}, name={}", service.getId(), service.getName(), e);
