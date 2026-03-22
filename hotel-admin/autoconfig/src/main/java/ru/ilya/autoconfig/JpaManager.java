@@ -67,10 +67,10 @@ public class JpaManager {
             props.load(is);
 
             Map<String, String> jpaProps = new HashMap<>();
-            jpaProps.put("javax.persistence.jdbc.url", props.getProperty("db.url"));
-            jpaProps.put("javax.persistence.jdbc.driver", props.getProperty("db.driver"));
-            jpaProps.put("javax.persistence.jdbc.user", props.getProperty("db.user"));
-            jpaProps.put("javax.persistence.jdbc.password", props.getProperty("db.password"));
+            jpaProps.put("javax.persistence.jdbc.url", resolve(props, "db.url", "DB_URL"));
+            jpaProps.put("javax.persistence.jdbc.driver", resolve(props, "db.driver", "DB_DRIVER"));
+            jpaProps.put("javax.persistence.jdbc.user", resolve(props, "db.user", "DB_USER"));
+            jpaProps.put("javax.persistence.jdbc.password", resolve(props, "db.password", "DB_PASSWORD"));
             jpaProps.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQL95Dialect");
             jpaProps.put("hibernate.show_sql", props.getProperty("hibernate.show_sql", "false"));
 
@@ -84,6 +84,17 @@ public class JpaManager {
             logger.error("Ошибка инициализации Hibernate", e);
             throw new RuntimeException(new PersistenceException("Ошибка инициализации Hibernate", e));
         }
+    }
+
+    private String resolve(Properties props, String propertyKey, String envKey) {
+        String value = props.getProperty(propertyKey);
+        if (value == null || value.isBlank() || value.matches("\\$\\{[^}]+\\}")) {
+            value = System.getenv(envKey);
+        }
+        if (value == null || value.isBlank()) {
+            throw new ConfigException("Не задано значение для " + propertyKey + " / " + envKey);
+        }
+        return value;
     }
 
 }

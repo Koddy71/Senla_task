@@ -29,13 +29,15 @@ public class JdbcManager {
                 throw new ConfigException("Файл config.properties не найден в classpath");
             }
             props.load(is);
-            Class.forName(props.getProperty("db.driver"));
-            logger.info("JdbcManager инициализирован, драйвер загружен: {}", props.getProperty("db.driver"));
+
+            String driver = resolve("db.driver", "DB_DRIVER");
+            Class.forName(driver);
+            logger.info("JdbcManager инициализирован, драйвер загружен: {}", driver);
         } catch (IOException e) {
             logger.error("Не удалось загрузить файл конфигурации config.properties", e);
             throw new ConfigException("Не удалось загрузить файл конфигурации config.properties", e);
         } catch (ClassNotFoundException e) {
-            logger.error("Класс JDBC драйвера не найден: {}", props.getProperty("db.driver"), e);
+            logger.error("Класс JDBC драйвера не найден", e);
             throw new ConfigException("JDBC Driver не найден", e);
         }
     }
@@ -56,9 +58,9 @@ public class JdbcManager {
 
         try {
             return DriverManager.getConnection(
-                    props.getProperty("db.url"),
-                    props.getProperty("db.user"),
-                    props.getProperty("db.password"));
+                    resolve("db.url", "DB_URL"),
+                    resolve("db.user", "DB_USER"),
+                    resolve("db.password", "DB_PASSWORD"));
         } catch (SQLException e) {
             logger.error("Ошибка получения соединения с базой данных", e);
             throw e;
@@ -68,9 +70,9 @@ public class JdbcManager {
     public void beginTransaction() throws SQLException {
         if (transactionDepth.get() == 0) {
             Connection connection = DriverManager.getConnection(
-                    props.getProperty("db.url"),
-                    props.getProperty("db.user"),
-                    props.getProperty("db.password"));
+                    resolve("db.url", "DB_URL"),
+                    resolve("db.user", "DB_USER"),
+                    resolve("db.password", "DB_PASSWORD"));
             connection.setAutoCommit(false);
             transactionalConnection.set(connection);
         }
@@ -110,5 +112,16 @@ public class JdbcManager {
             transactionalConnection.remove();
             transactionDepth.remove();
         }
+    }
+
+    private String resolve(String propertyKey, String envKey) {
+        String value = props.getProperty(propertyKey);
+        if (value == null || value.isBlank() || value.matches("\\$\\{[^}]+\\}")) {
+            value = System.getenv(envKey);
+        }
+        if (value == null || value.isBlank()) {
+            throw new ConfigException("Не задано значение для " + propertyKey + " / " + envKey);
+        }
+        return value;
     }
 }
