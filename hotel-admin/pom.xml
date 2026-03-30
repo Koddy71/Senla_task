@@ -15,7 +15,6 @@
         <module>core</module>
         <module>autoconfig</module>
         <module>exceptions</module>
-        <module>console</module>
         <module>web</module>
     </modules>
 

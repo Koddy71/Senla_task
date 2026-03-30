@@ -16,4 +16,8 @@
         <sqlFile path="db/migration/003__alter_room_and_ids.sql" relativeToChangelogFile="false" splitStatements="true" stripComments="false"/>
     </changeSet>
 
+    <changeSet id="004-create-app-user" author="Koddy17">
+        <sqlFile path="db/migration/004__create_app_user.sql" relativeToChangelogFile="false" splitStatements="true" stripComments="false"/>
+    </changeSet>
+
 </databaseChangeLog>

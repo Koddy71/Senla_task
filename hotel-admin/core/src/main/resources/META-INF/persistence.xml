@@ -7,6 +7,7 @@
         <class>ru.ilya.model.Room</class>
         <class>ru.ilya.model.Guest</class>
         <class>ru.ilya.model.Service</class>
+        <class>ru.ilya.model.AppUser</class>
 
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
