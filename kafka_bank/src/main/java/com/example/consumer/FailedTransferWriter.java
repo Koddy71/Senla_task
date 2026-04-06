@@ -6,19 +6,23 @@ import com.example.model.TransferMessage;
 import com.example.model.TransferStatus;
 import com.example.repository.AccountRepository;
 import com.example.repository.MoneyTransferRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 @Profile("consumer")
 public class FailedTransferWriter {
 
     private final MoneyTransferRepository moneyTransferRepository;
     private final AccountRepository accountRepository;
+
+    public FailedTransferWriter(MoneyTransferRepository moneyTransferRepository,
+            AccountRepository accountRepository) {
+        this.moneyTransferRepository = moneyTransferRepository;
+        this.accountRepository = accountRepository;
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveFailed(TransferMessage msg) {

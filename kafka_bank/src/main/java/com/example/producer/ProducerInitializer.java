@@ -7,10 +7,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @Profile("producer")
@@ -29,12 +28,13 @@ public class ProducerInitializer {
         List<Account> accounts = accountRepository.findAll();
 
         if (accounts.isEmpty()) {
-            accounts = IntStream.rangeClosed(1, 1000)
-                    .<Account>mapToObj(i -> Account.builder()
-                            .id((long) i)
-                            .balance(BigDecimal.valueOf(ThreadLocalRandom.current().nextLong(100_00, 1_000_001), 2))
-                            .build())
-                    .collect(Collectors.toList());
+            accounts = new ArrayList<>();
+            for (int i = 1; i <= 1000; i++) {
+                Account account = new Account();
+                account.setId((long) i);
+                account.setBalance(BigDecimal.valueOf(ThreadLocalRandom.current().nextLong(100_00, 1_000_001), 2));
+                accounts.add(account);
+            }
             accountRepository.saveAll(accounts);
         }
 

@@ -1,8 +1,9 @@
 package com.example.producer;
 
 import com.example.model.TransferMessage;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -12,11 +13,10 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
 @Service
 @Profile("producer")
 public class TransferProducer {
-
+    private static final Logger log = LoggerFactory.getLogger(TransferProducer.class);
     private final KafkaTemplate<String, TransferMessage> kafkaTemplate;
     private final AccountCache accountCache;
     private final AtomicInteger partitionCounter = new AtomicInteger(0);
