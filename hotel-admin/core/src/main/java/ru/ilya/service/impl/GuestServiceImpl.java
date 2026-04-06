@@ -1,6 +1,7 @@
 package ru.ilya.service.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -98,7 +99,7 @@ public class GuestServiceImpl implements GuestService {
     @Override
     public List<Guest> getGuestsSorted(String sortBy) {
         logger.info("Начало сортировки гостей по полю '{}'", sortBy);
-        List<Guest> sorted = guestDao.findAll();
+        List<Guest> sorted = new ArrayList<>(guestDao.findAll());
         if ("name".equalsIgnoreCase(sortBy)) {
             sorted.sort(Comparator.comparing(Guest::getName, String.CASE_INSENSITIVE_ORDER));
         } else if ("checkoutDate".equalsIgnoreCase(sortBy)) {
