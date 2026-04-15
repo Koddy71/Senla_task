@@ -1,6 +1,6 @@
 package ru.ilya.dto;
 
-public class RoomDTO {
+public class RoomResponse {
     private int number;
     private String status;
     private int price;
