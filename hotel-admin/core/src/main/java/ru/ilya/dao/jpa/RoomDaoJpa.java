@@ -8,14 +8,14 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import ru.ilya.autoconfig.JpaManager;
 import ru.ilya.dao.GenericDao;
 import ru.ilya.exceptions.PersistenceException;
 import ru.ilya.model.Room;
 
-@Component
+@Repository
 public class RoomDaoJpa implements GenericDao<Room, Integer> {
     private static final Logger logger = LoggerFactory.getLogger(RoomDaoJpa.class);
 

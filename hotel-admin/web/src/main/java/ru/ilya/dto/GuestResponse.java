@@ -3,13 +3,13 @@ package ru.ilya.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-public class GuestDTO {
+public class GuestResponse {
     private int id;
     private String name;
     private int roomNumber;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
-    private List<Integer> serviceIds;
+    private List<String> services;
 
     public int getId() {
         return id;
@@ -51,11 +51,12 @@ public class GuestDTO {
         this.checkOutDate = checkOutDate;
     }
 
-    public List<Integer> getServiceIds(){
-        return serviceIds;
+    public List<String> getServices(){
+        return services;
     }
 
-    public void setServiceIds(List<Integer> serviceIds){
-        this.serviceIds=serviceIds;
+    public void setServices(List<String> services){
+        this.services=services;
     }
+
 }

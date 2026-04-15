@@ -1,6 +1,6 @@
 package ru.ilya.dto;
 
-public class ServiceDTO {
+public class ServiceResponce {
     private int id;
     private String name;
     private int price;

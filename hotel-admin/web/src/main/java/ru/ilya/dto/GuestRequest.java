@@ -3,7 +3,7 @@ package ru.ilya.dto;
 import java.time.LocalDate;
 
 public class GuestRequest {
-    private String name;
+    private String name;    //Тут должны аннотации висеть для проверки тела запроса
     private int roomNumber;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;

@@ -19,10 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import ru.ilya.dto.GuestRequest;
+import ru.ilya.dto.GuestResponse;
 import ru.ilya.exceptions.GuestException;
 import ru.ilya.exceptions.NotFoundException;
 import ru.ilya.model.Guest;
 import ru.ilya.model.Room;
+import ru.ilya.model.Service;
 import ru.ilya.service.GuestService;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,6 +52,19 @@ class GuestControllerTest {
         return guest;
     }
 
+    private static GuestResponse toResponse(Guest guest) {
+        GuestResponse response = new GuestResponse();
+        response.setId(guest.getId());
+        response.setName(guest.getName());
+        if (guest.getRoom() != null) {
+            response.setRoomNumber(guest.getRoom().getNumber());
+        }
+        response.setCheckInDate(guest.getCheckInDate());
+        response.setCheckOutDate(guest.getCheckOutDate());
+        response.setServices(guest.getServices().stream().map(Service::getName).toList());
+        return response;
+    }
+
     @Test
     void getAll_returnsGuests() {
         Room room = room(101);
@@ -57,43 +73,75 @@ class GuestControllerTest {
                 guest(2, "Anna", room, LocalDate.of(2025, 5, 2), LocalDate.of(2025, 5, 6)));
         when(guestService.getAllGuests()).thenReturn(guests);
 
-        ResponseEntity<List<Guest>> response = guestController.getAll();
+        ResponseEntity<List<GuestResponse>> response = guestController.getAll();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(guests, response.getBody());
+        List<GuestResponse> expectedBody = guests.stream()
+                .map(GuestControllerTest::toResponse)
+                .toList();
+        assertEquals(expectedBody, response.getBody());
     }
 
     @Test
     void getAll_emptyList_returnsEmptyBody() {
         when(guestService.getAllGuests()).thenReturn(List.of());
 
-        ResponseEntity<List<Guest>> response = guestController.getAll();
+        ResponseEntity<List<GuestResponse>> response = guestController.getAll();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(List.of(), response.getBody());
     }
 
     @Test
-    void checkInGuest_successReturnsOriginalGuest() {
+    void getById_existingGuest_returnsGuestResponse() {
         Room room = room(101);
-        Guest input = guest(null, "Ivan", room, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
-        Guest created = guest(1, "Ivan", room, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
-        when(guestService.checkIn(anyString(), anyInt(), any(), any())).thenReturn(created);
+        Guest guest = guest(1, "Ivan", room, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
+        when(guestService.findGuestById(1)).thenReturn(guest);
 
-        ResponseEntity<Guest> response = guestController.checkInGuest(input);
+        ResponseEntity<GuestResponse> response = guestController.getById(1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(input, response.getBody());
+        assertEquals(toResponse(guest), response.getBody());
+    }
+
+    @Test
+    void getById_notFound_throwsNotFoundException() {
+        when(guestService.findGuestById(99)).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> guestController.getById(99));
+    }
+
+    @Test
+    void checkInGuest_successReturnsGuestResponse() {
+        GuestRequest request = new GuestRequest();
+        request.setName("Ivan");
+        request.setRoomNumber(101);
+        request.setCheckInDate(LocalDate.of(2025, 5, 1));
+        request.setCheckOutDate(LocalDate.of(2025, 5, 5));
+
+        Room room = room(101);
+        Guest savedGuest = guest(1, "Ivan", room, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
+        when(guestService.checkIn("Ivan", 101, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5)))
+                .thenReturn(savedGuest);
+
+        ResponseEntity<GuestResponse> response = guestController.checkInGuest(request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(toResponse(savedGuest), response.getBody());
         verify(guestService).checkIn("Ivan", 101, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
     }
 
     @Test
     void checkInGuest_serviceReturnedNull_throwsGuestException() {
-        Room room = room(101);
-        Guest input = guest(null, "Ivan", room, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
-        when(guestService.checkIn(anyString(), anyInt(), any(), any())).thenReturn(null);
+        GuestRequest request = new GuestRequest();
+        request.setName("Ivan");
+        request.setRoomNumber(101);
+        request.setCheckInDate(LocalDate.of(2025, 5, 1));
+        request.setCheckOutDate(LocalDate.of(2025, 5, 5));
 
-        assertThrows(GuestException.class, () -> guestController.checkInGuest(input));
+        when(guestService.checkIn(anyString(), anyInt(), any(LocalDate.class), any(LocalDate.class))).thenReturn(null);
+
+        assertThrows(GuestException.class, () -> guestController.checkInGuest(request));
     }
 
     @Test
@@ -120,6 +168,7 @@ class GuestControllerTest {
         ResponseEntity<Void> response = guestController.addServiceToGuest(1, 2);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(guestService).addServiceToGuest(1, 2);
     }
 
     @Test
@@ -136,6 +185,7 @@ class GuestControllerTest {
         ResponseEntity<Void> response = guestController.removeServiceFromGuest(1, 2);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(guestService).removeServiceFromGuest(1, 2);
     }
 
     @Test
