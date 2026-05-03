@@ -26,7 +26,6 @@ import com.sen.dto.response.PrivateUserResponse;
 import com.sen.dto.response.PublicUserResponse;
 import com.sen.entity.User;
 import com.sen.enums.Role;
-import com.sen.exception.AuthenticationRequiredException;
 import com.sen.exception.UserAlreadyExistsException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.UserMapper;
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
-        this.userMapper=userMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -108,46 +107,56 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public PrivateUserResponse getMyProfile() {
-        String currentLogin = getCurrentLogin();
-        logger.info("Запрос собственного профиля пользователя {}", currentLogin);
-        User user = userRepository.findByLogin(currentLogin)
+    public PrivateUserResponse getMyProfile(String login) {
+        logger.info("Запрос собственного профиля пользователя {}", login);
+        User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден в базе", currentLogin);
+                    logger.error("Пользователь {} не найден в базе", login);
                     return new UserNotFoundException();
                 });
-        logger.info("Собственный профиль пользователя {} успешно получен", currentLogin);
+        logger.info("Собственный профиль пользователя {} успешно получен", login);
         return userMapper.toPrivateUserResponse(user);
     }
 
     @Override
-    public PrivateUserResponse updateMyProfile(UserUpdateRequest request) {
-        String currentLogin = getCurrentLogin();
-        logger.info("Запрос на обновление профиля пользователя {}", currentLogin);
-        User user = userRepository.findByLogin(currentLogin)
+    public PrivateUserResponse updateMyProfile(String login, UserUpdateRequest request) {
+        logger.info("Запрос на обновление профиля пользователя {}", login);
+        User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при обновлении профиля", currentLogin);
+                    logger.error("Пользователь {} не найден при обновлении профиля", login);
                     return new UserNotFoundException();
                 });
         userMapper.updateEntity(request, user);
         User updated = userRepository.save(user);
-        logger.info("Профиль пользователя {} успешно обновлён", currentLogin);
+        logger.info("Профиль пользователя {} успешно обновлён", login);
         return userMapper.toPrivateUserResponse(updated);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public PrivateUserResponse balanceUp(BalanceUpRequest request) {
-        String currentLogin = getCurrentLogin();
-        logger.info("Запрос на пополнение баланса для пользователя {} на сумму {}", currentLogin, request.getAmount());
-        User user = userRepository.findByLogin(currentLogin)
+    public void deleteMyProfile(String login) {
+        logger.info("Удаление профиля пользователя {}", login);
+        User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при пополнении баланса", currentLogin);
+                    logger.error("Пользователь {} не найден при удалении профиля", login);
+                    return new UserNotFoundException();
+                });
+        user.setBlocked(true);
+        userRepository.save(user);
+        logger.info("Профиль пользователя {} успешно удалён", login);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PrivateUserResponse balanceUp(String login, BalanceUpRequest request) {
+        logger.info("Запрос на пополнение баланса для пользователя {} на сумму {}", login, request.getAmount());
+        User user = userRepository.findByLogin(login)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден при пополнении баланса", login);
                     return new UserNotFoundException();
                 });
         user.setBalance(user.getBalance().add(request.getAmount()));
         User updated = userRepository.save(user);
-        logger.info("Баланс пользователя {} успешно пополнен. Новый баланс: {}", currentLogin, updated.getBalance());
+        logger.info("Баланс пользователя {} успешно пополнен. Новый баланс: {}", login, updated.getBalance());
         return userMapper.toPrivateUserResponse(updated);
     }
 
@@ -225,16 +234,5 @@ public class UserServiceImpl implements UserService {
                 });
         logger.debug("Внутренний запрос для пользователя {} выполнен успешно", login);
         return userMapper.toInternal(user);
-    }
-
-    private String getCurrentLogin() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            logger.error("Попытка получить текущего пользователя, но аутентификация отсутствует");
-            throw new AuthenticationRequiredException("User not authenticated");
-        }
-        String login = ((UserDetails) auth.getPrincipal()).getUsername();
-        logger.debug("Текущий аутентифицированный пользователь: {}", login);
-        return login;
     }
 }

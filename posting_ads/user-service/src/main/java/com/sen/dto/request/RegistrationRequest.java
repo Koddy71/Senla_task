@@ -16,7 +16,7 @@ public class RegistrationRequest {
 
     @NotBlank(message = "Full name is required")
     @Size(max = 100)
-    private String fullName;
+    private String fullname;
 
     @Size(max = 20)
     private String phone;
@@ -42,11 +42,11 @@ public class RegistrationRequest {
     }
 
     public String getFullName() {
-        return fullName;
+        return fullname;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setFullName(String fullname) {
+        this.fullname = fullname;
     }
 
     public String getPhone() {

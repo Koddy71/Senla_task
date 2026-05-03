@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class PublicUserResponse {
     private String login;
-    private String fullName;
+    private String fullname;
     private LocalDateTime createdAt;
 
     public PublicUserResponse() {
@@ -19,11 +19,11 @@ public class PublicUserResponse {
     }
 
     public String getFullName() {
-        return fullName;
+        return fullname;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setFullName(String fullname) {
+        this.fullname = fullname;
     }
 
     public LocalDateTime getCreatedAt() {

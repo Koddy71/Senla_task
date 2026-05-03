@@ -9,7 +9,7 @@ import com.sen.enums.Role;
 public class PrivateUserResponse {
     private UUID id;
     private String login;
-    private String fullName;
+    private String fullname;
     private String phone;
     private BigDecimal balance;
     private Role role;
@@ -37,11 +37,11 @@ public class PrivateUserResponse {
     }
 
     public String getFullName() {
-        return fullName;
+        return fullname;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setFullName(String fullname) {
+        this.fullname = fullname;
     }
 
     public String getPhone() {

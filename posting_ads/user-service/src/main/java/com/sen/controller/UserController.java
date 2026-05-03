@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,34 +65,43 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<PrivateUserResponse> getMyProfile() {
-        logger.info("Запрос собственного профиля текущим пользователем");
-        PrivateUserResponse response = userService.getMyProfile();
+    @GetMapping("/my")
+    public ResponseEntity<PrivateUserResponse> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Запрос собственного профиля текущим пользователем: {}", userDetails.getUsername());
+        PrivateUserResponse response = userService.getMyProfile(userDetails.getUsername());
         logger.info("Собственный профиль успешно получен для пользователя: {}", response.getLogin());
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/me")
-    public ResponseEntity<PrivateUserResponse> updateMyProfile(
+    @PutMapping("/my")
+    public ResponseEntity<PrivateUserResponse> updateMyProfile(@AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UserUpdateRequest request) {
-        logger.info("Запрос на обновление собственного профиля");
-        PrivateUserResponse response = userService.updateMyProfile(request);
+        logger.info("Запрос на обновление собственного профиля пользователя: {}", userDetails.getUsername());
+        PrivateUserResponse response = userService.updateMyProfile(userDetails.getUsername(), request);
         logger.info("Собственный профиль успешно обновлён для пользователя: {}", response.getLogin());
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/me/balance")
-    public ResponseEntity<PrivateUserResponse> upBalance(
+    @PostMapping("/my/balance")
+    public ResponseEntity<PrivateUserResponse> upBalance(@AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody BalanceUpRequest request) {
-        logger.info("Запрос на пополнение баланса на сумму: {}", request.getAmount());
-        PrivateUserResponse response = userService.balanceUp(request);
+        logger.info("Запрос на пополнение баланса пользователем {} на сумму: {}", userDetails.getUsername(),
+                request.getAmount());
+        PrivateUserResponse response = userService.balanceUp(userDetails.getUsername(), request);
         logger.info("Баланс успешно пополнен. Текущий баланс: {}", response.getBalance());
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/my")
+    public ResponseEntity<Void> deleteMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Запрос на удаление профиля пользователя: {}", userDetails.getUsername());
+        userService.deleteMyProfile(userDetails.getUsername());
+        logger.info("Профиль пользователя {} успешно удалён", userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/admin/{login}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<PrivateUserResponse> getFullProfile(@PathVariable String login) {
         logger.info("Административный запрос полного профиля пользователя: {}", login);
         PrivateUserResponse response = userService.getFullProfile(login);
@@ -98,7 +110,7 @@ public class UserController {
     }
 
     @GetMapping("/admin/all")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<PrivateUserResponse>> getAllUsers(UserFilterRequest filter) {
         logger.info("Административный запрос списка всех пользователей с фильтром: {}", filter);
         List<PrivateUserResponse> response = userService.getAllUsers(filter);

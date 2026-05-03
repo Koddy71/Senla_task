@@ -16,12 +16,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -32,6 +34,8 @@ class UserControllerTest {
 
     @Mock
     private UserService userService;
+    @Mock
+    private UserDetails userDetails;
     @InjectMocks
     private UserController userController;
 
@@ -79,41 +83,63 @@ class UserControllerTest {
 
     @Test
     void getMyProfile_shouldReturnPrivateResponse() {
+        String login = "me";
+        when(userDetails.getUsername()).thenReturn(login);
         PrivateUserResponse resp = new PrivateUserResponse();
-        resp.setLogin("me");
-        when(userService.getMyProfile()).thenReturn(resp);
+        resp.setLogin(login);
+        when(userService.getMyProfile(login)).thenReturn(resp);
 
-        ResponseEntity<PrivateUserResponse> result = userController.getMyProfile();
+        ResponseEntity<PrivateUserResponse> result = userController.getMyProfile(userDetails);
 
-        assertEquals("me", result.getBody().getLogin());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(login, result.getBody().getLogin());
+        verify(userService).getMyProfile(login);
     }
 
     @Test
     void updateMyProfile_shouldCallService() {
+        String login = "me";
+        when(userDetails.getUsername()).thenReturn(login);
         PrivateUserResponse resp = new PrivateUserResponse();
-        when(userService.updateMyProfile(any(UserUpdateRequest.class))).thenReturn(resp);
+        resp.setLogin(login);
+        when(userService.updateMyProfile(eq(login), any(UserUpdateRequest.class))).thenReturn(resp);
 
         UserUpdateRequest req = new UserUpdateRequest();
-        req.setFullName("Updated");
+        req.setFullname("Updated");
 
-        ResponseEntity<PrivateUserResponse> result = userController.updateMyProfile(req);
+        ResponseEntity<PrivateUserResponse> result = userController.updateMyProfile(userDetails, req);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        verify(userService).updateMyProfile(req);
+        verify(userService).updateMyProfile(eq(login), any(UserUpdateRequest.class));
     }
 
     @Test
     void upBalance_shouldCallService() {
+        String login = "me";
+        when(userDetails.getUsername()).thenReturn(login);
         PrivateUserResponse resp = new PrivateUserResponse();
         resp.setBalance(new BigDecimal("150.00"));
-        when(userService.balanceUp(any(BalanceUpRequest.class))).thenReturn(resp);
+        when(userService.balanceUp(eq(login), any(BalanceUpRequest.class))).thenReturn(resp);
 
         BalanceUpRequest req = new BalanceUpRequest();
         req.setAmount(new BigDecimal("50.00"));
 
-        ResponseEntity<PrivateUserResponse> result = userController.upBalance(req);
+        ResponseEntity<PrivateUserResponse> result = userController.upBalance(userDetails, req);
 
         assertEquals(new BigDecimal("150.00"), result.getBody().getBalance());
+        verify(userService).balanceUp(eq(login), any(BalanceUpRequest.class));
+    }
+
+    @Test
+    void deleteMyProfile_shouldReturn204() {
+        String login = "me";
+        when(userDetails.getUsername()).thenReturn(login);
+        doNothing().when(userService).deleteMyProfile(login);
+
+        ResponseEntity<Void> result = userController.deleteMyProfile(userDetails);
+
+        assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
+        verify(userService).deleteMyProfile(login);
     }
 
     @Test

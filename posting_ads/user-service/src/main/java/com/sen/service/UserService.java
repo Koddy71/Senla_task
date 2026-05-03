@@ -17,14 +17,16 @@ public interface UserService {
 
     TokenResponse login(LoginRequest request);
 
+    //USER
     PublicUserResponse getPublicProfile(String login);
 
-    PrivateUserResponse getMyProfile();
+    PrivateUserResponse getMyProfile(String myLogin);
 
-    //MANAGER
-    PrivateUserResponse updateMyProfile(UserUpdateRequest request);
+    PrivateUserResponse balanceUp(String myLogin, BalanceUpRequest request);
 
-    PrivateUserResponse balanceUp(BalanceUpRequest request);
+    PrivateUserResponse updateMyProfile(String myLogin, UserUpdateRequest request);
+
+    void deleteMyProfile(String myLogin);
 
     //ADMIN
     PrivateUserResponse getFullProfile(String login);

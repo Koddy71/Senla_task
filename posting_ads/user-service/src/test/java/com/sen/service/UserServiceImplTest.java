@@ -186,7 +186,6 @@ class UserServiceImplTest {
 
     @Test
     void getMyProfile_shouldReturnPrivateData() {
-        authenticateAs(TEST_LOGIN, Role.USER);
         when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.of(testUser));
 
         PrivateUserResponse privateResponse = new PrivateUserResponse();
@@ -194,7 +193,7 @@ class UserServiceImplTest {
         privateResponse.setBalance(new BigDecimal("100.00"));
         when(userMapper.toPrivateUserResponse(testUser)).thenReturn(privateResponse);
 
-        PrivateUserResponse response = userService.getMyProfile();
+        PrivateUserResponse response = userService.getMyProfile(TEST_LOGIN);
 
         assertNotNull(response);
         assertEquals(testId, response.getId());
@@ -202,12 +201,16 @@ class UserServiceImplTest {
     }
 
     @Test
+    void getMyProfile_shouldThrowWhenUserNotFound() {
+        when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.getMyProfile(TEST_LOGIN));
+    }
+
+    @Test
     void updateMyProfile_shouldUpdateFields() {
-        authenticateAs(TEST_LOGIN, Role.USER);
         when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.of(testUser));
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
-        // Заглушка для updateEntity — ничего не делает
         doNothing().when(userMapper).updateEntity(any(UserUpdateRequest.class), any(User.class));
 
         PrivateUserResponse privateResponse = new PrivateUserResponse();
@@ -216,10 +219,10 @@ class UserServiceImplTest {
         when(userMapper.toPrivateUserResponse(testUser)).thenReturn(privateResponse);
 
         UserUpdateRequest req = new UserUpdateRequest();
-        req.setFullName("Updated Name");
+        req.setFullname("Updated Name");
         req.setPhone("+78888888888");
 
-        PrivateUserResponse response = userService.updateMyProfile(req);
+        PrivateUserResponse response = userService.updateMyProfile(TEST_LOGIN, req);
 
         assertEquals("Updated Name", response.getFullName());
         assertEquals("+78888888888", response.getPhone());
@@ -227,8 +230,14 @@ class UserServiceImplTest {
     }
 
     @Test
+    void updateMyProfile_shouldThrowWhenUserNotFound() {
+        when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.empty());
+        UserUpdateRequest req = new UserUpdateRequest();
+        assertThrows(UserNotFoundException.class, () -> userService.updateMyProfile(TEST_LOGIN, req));
+    }
+
+    @Test
     void upBalance_shouldAddToBalance() {
-        authenticateAs(TEST_LOGIN, Role.USER);
         when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.of(testUser));
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
@@ -239,9 +248,33 @@ class UserServiceImplTest {
         BalanceUpRequest req = new BalanceUpRequest();
         req.setAmount(new BigDecimal("50.00"));
 
-        PrivateUserResponse response = userService.balanceUp(req);
+        PrivateUserResponse response = userService.balanceUp(TEST_LOGIN, req);
 
         assertEquals(new BigDecimal("150.00"), response.getBalance());
+    }
+
+    @Test
+    void upBalance_shouldThrowWhenUserNotFound() {
+        when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.empty());
+        BalanceUpRequest req = new BalanceUpRequest();
+        assertThrows(UserNotFoundException.class, () -> userService.balanceUp(TEST_LOGIN, req));
+    }
+    
+    @Test
+    void deleteMyProfile_shouldSetBlockedTrue() {
+        when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        userService.deleteMyProfile(TEST_LOGIN);
+
+        assertTrue(testUser.getBlocked());
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void deleteMyProfile_shouldThrowWhenUserNotFound() {
+        when(userRepository.findByLogin(TEST_LOGIN)).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.deleteMyProfile(TEST_LOGIN));
     }
 
     @Test

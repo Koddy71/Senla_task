@@ -4,19 +4,19 @@ import jakarta.validation.constraints.Size;
 
 public class UserUpdateRequest {
     @Size(max = 100)
-    private String fullName;
+    private String fullname;
     
     @Size(max = 20)
     private String phone;
 
     public UserUpdateRequest(){}
 
-    public String getFullName() {
-        return fullName;
+    public String getFullname() {
+        return fullname;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
     }
 
     public String getPhone() {

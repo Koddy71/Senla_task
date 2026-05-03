@@ -4,7 +4,7 @@ import com.sen.enums.Role;
 
 public class UserFilterRequest {
     private String login;
-    private String fullName;
+    private String fullname;
     private Role role;
     private Boolean blocked;
     private int page = 0;
@@ -21,12 +21,12 @@ public class UserFilterRequest {
         this.login = login;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getFullname() {
+        return fullname;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
     }
 
     public Role getRole() {

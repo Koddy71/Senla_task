@@ -47,6 +47,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(AdServiceException.class)
+    public ResponseEntity<ErrorResponse> handleAdServiceError(AdServiceException ex) {
+        logger.error("Ошибка внешнего сервиса: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Сервис объявлений временно недоступен, повторите попытку позже");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
         logger.warn("Неудачная попытка входа: неверный логин или пароль");
