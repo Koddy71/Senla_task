@@ -1,6 +1,7 @@
 package com.sen.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.sen.dto.internal.UserInternal;
 import com.sen.dto.request.BalanceUpRequest;
@@ -40,5 +41,7 @@ public interface UserService {
     void unblockUser(String login);
 
     //Internal
-    UserInternal getInternalUser(String login);
+    UserInternal getInternalUserByLogin(String login);
+
+    UserInternal getInternalUserById(UUID id);
 }

@@ -1,5 +1,7 @@
 package com.sen.controller;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +24,18 @@ public class InternalUserController {
     }
 
     @GetMapping("/{login}")
-    public ResponseEntity<UserInternal> getInternalUser(@PathVariable String login) {
+    public ResponseEntity<UserInternal> getInternalUserByLogin(@PathVariable String login) {
         logger.debug("Внутренний запрос на получение пользователя: {}", login);
-        UserInternal user = userService.getInternalUser(login);
+        UserInternal user = userService.getInternalUserByLogin(login);
         logger.debug("Внутренний запрос выполнен успешно для пользователя: {}", login);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserInternal> getInternalUserById(@PathVariable UUID id) {
+        logger.debug("Внутренний запрос на получение пользователя: {}", id);
+        UserInternal user = userService.getInternalUserById(id);
+        logger.debug("Внутренний запрос выполнен успешно для пользователя: {}", id);
         return ResponseEntity.ok(user);
     }
 }

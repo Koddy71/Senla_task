@@ -31,9 +31,9 @@ class InternalUserControllerTest {
         dto.setLogin("seller");
         dto.setRole(Role.USER);
         dto.setBlocked(false);
-        when(userService.getInternalUser("seller")).thenReturn(dto);
+        when(userService.getInternalUserByLogin("seller")).thenReturn(dto);
 
-        ResponseEntity<UserInternal> result = controller.getInternalUser("seller");
+        ResponseEntity<UserInternal> result = controller.getInternalUserByLogin("seller");
 
         assertEquals("seller", result.getBody().getLogin());
         assertFalse(result.getBody().getBlocked());

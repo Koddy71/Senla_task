@@ -1,6 +1,7 @@
 package com.sen.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -9,8 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -225,7 +224,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInternal getInternalUser(String login) {
+    public UserInternal getInternalUserByLogin(String login) {
         logger.debug("Внутренний запрос на получение пользователя {}", login);
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
@@ -233,6 +232,18 @@ public class UserServiceImpl implements UserService {
                     return new UserNotFoundException("User not found: " + login);
                 });
         logger.debug("Внутренний запрос для пользователя {} выполнен успешно", login);
+        return userMapper.toInternal(user);
+    }
+
+    @Override
+    public UserInternal getInternalUserById(UUID id) {
+        logger.debug("Внутренний запрос на получение пользователя {}", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден для внутреннего запроса", id);
+                    return new UserNotFoundException("User not found: " + id);
+                });
+        logger.debug("Внутренний запрос для пользователя {} выполнен успешно", id);
         return userMapper.toInternal(user);
     }
 }

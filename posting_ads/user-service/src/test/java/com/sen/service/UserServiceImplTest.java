@@ -27,13 +27,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -79,14 +76,6 @@ class UserServiceImplTest {
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
-    }
-
-    private void authenticateAs(String login, Role role) {
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                login, "password", Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name())));
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
@@ -334,7 +323,7 @@ class UserServiceImplTest {
         internalResponse.setBlocked(false);
         when(userMapper.toInternal(testUser)).thenReturn(internalResponse);
 
-        UserInternal response = userService.getInternalUser(TEST_LOGIN);
+        UserInternal response = userService.getInternalUserByLogin(TEST_LOGIN);
 
         assertNotNull(response);
         assertEquals(testId, response.getId());
