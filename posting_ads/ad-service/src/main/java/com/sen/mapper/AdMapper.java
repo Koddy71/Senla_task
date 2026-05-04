@@ -31,7 +31,7 @@ public interface AdMapper {
     void updateEntity(AdUpdateRequest request, @MappingTarget Ad ad);
 
     @Mapping(target = "sellerName", source = "sellerName")
-    @Mapping(target = "promoted", expression = "java(ad.getPromotedUntil() != null && ad.getPromotedUntil().isAfter(java.time.LocalDateTime.now()))")
+    @Mapping(target = "promoted", expression = "java(ad.getPromotedUntil() != null && ad.getPromotedUntil().isAfter(java.time.LocalDateTime.now()))")//todo: перенос строки обязательно и в отдельынй метод лучше вынеси эту большую логику
     AdResponse toResponse(Ad ad, String sellerName);
 
     @Mapping(target = "sellerName", source = "sellerName")

@@ -9,7 +9,7 @@ import com.sen.entity.Purchase;
 
 @Mapper(componentModel = "spring")
 public interface PurchaseMapper {
-    PurchaseMapper INSTANCE = Mappers.getMapper(PurchaseMapper.class);
+    PurchaseMapper INSTANCE = Mappers.getMapper(PurchaseMapper.class);//todo: скорее не нужно
 
     @Mapping(source = "ad.id", target = "adId")
     PurchaseResponse toResponse(Purchase purchase);

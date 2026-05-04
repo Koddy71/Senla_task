@@ -14,7 +14,7 @@ import com.sen.dto.internal.UserInternal;
 import com.sen.service.UserService;
 
 @RestController
-@RequestMapping("/internal/users")
+@RequestMapping("/internal/users")//todo: опиши потом в чэм разница двух контроллеров для этого и просто usercontroller
 public class InternalUserController {
     private static final Logger logger = LoggerFactory.getLogger(InternalUserController.class);
     private final UserService userService;

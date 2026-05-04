@@ -1,12 +1,5 @@
 package com.sen.service.impl;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.sen.client.UserServiceClient;
 import com.sen.dto.internal.UserInternalResponse;
 import com.sen.dto.request.AdCreateRequest;
@@ -22,6 +15,12 @@ import com.sen.exception.UserIsBlockedException;
 import com.sen.mapper.AdMapper;
 import com.sen.repository.AdRepository;
 import com.sen.service.AdService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional

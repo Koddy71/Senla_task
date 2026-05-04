@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PrivateUserResponse register(RegistrationRequest request) {
-        if (userRepository.existsByLogin(request.getLogin())) {
+        if (userRepository.existsByLogin(request.getLogin())) {//todo: вынеси в отдельный приватынй метод всё условие
             logger.error("Ошибка регистрации. Логин {} уже существует", request.getLogin());
             throw new UserAlreadyExistsException("Login already exists: " + request.getLogin());
         }
@@ -95,11 +95,12 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public PublicUserResponse getPublicProfile(String login) {
         logger.info("Запрос публичного профиля пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден", login);
-                    return new UserNotFoundException("User not found exception: " + login);
-                });
+  //      User user = userRepository.findByLogin(login)
+  //              .orElseThrow(() -> {
+  //                  logger.error("Пользователь {} не найден", login);
+  //                  return new UserNotFoundException("User not found exception: " + login);
+  //              });
+        // в отдельный метод
         logger.info("Публичный профиль пользователя {} успешно получен", login);
         return userMapper.toPublicUserResponse(user);
     }
@@ -108,11 +109,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public PrivateUserResponse getMyProfile(String login) {
         logger.info("Запрос собственного профиля пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден в базе", login);
-                    return new UserNotFoundException();
-                });
+     //   User user = userRepository.findByLogin(login)
+     //           .orElseThrow(() -> {
+     //               logger.error("Пользователь {} не найден в базе", login);
+     //               return new UserNotFoundException();
+     //           }); аналогично в отделбынй метод приватный и остальные посмотри
         logger.info("Собственный профиль пользователя {} успешно получен", login);
         return userMapper.toPrivateUserResponse(user);
     }

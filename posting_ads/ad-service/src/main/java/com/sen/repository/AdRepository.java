@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.sen.entity.Ad;
 import com.sen.enums.AdStatus;
-
+//todo @repository не помешает
 public interface AdRepository {
     Optional<Ad> findById(UUID id);
 
