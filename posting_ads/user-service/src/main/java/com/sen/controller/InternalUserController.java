@@ -1,5 +1,6 @@
 package com.sen.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -7,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,5 +40,13 @@ public class InternalUserController {
         UserInternal user = userService.getInternalUserById(id);
         logger.debug("Внутренний запрос выполнен успешно для пользователя: {}", id);
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<List<UserInternal>> getInternalUsersByIds(@RequestBody List<UUID> ids) {
+        logger.debug("Внутренний запрос на получение пользователей по ids: {}", ids);
+        List<UserInternal> users = userService.getInternalUsersByIds(ids);
+        logger.debug("Внутренний запрос выполнен успешно, получено пользователей: {}", users.size());
+        return ResponseEntity.ok(users);
     }
 }

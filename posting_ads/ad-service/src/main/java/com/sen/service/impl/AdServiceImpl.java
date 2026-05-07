@@ -1,6 +1,9 @@
 package com.sen.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,7 +28,7 @@ import com.sen.service.AdService;
 
 @Service
 @Transactional
-public class AdServiceImpl implements AdService{
+public class AdServiceImpl implements AdService {
     private final AdRepository adRepository;
     private final UserServiceClient userServiceClient;
     private final AdMapper adMapper;
@@ -33,7 +36,7 @@ public class AdServiceImpl implements AdService{
     public AdServiceImpl(AdRepository adRepository, UserServiceClient userServiceClient, AdMapper adMapper) {
         this.adRepository = adRepository;
         this.userServiceClient = userServiceClient;
-        this.adMapper=adMapper;
+        this.adMapper = adMapper;
     }
 
     @Override
@@ -54,10 +57,10 @@ public class AdServiceImpl implements AdService{
 
     @Override
     public AdDetailResponse updateAd(UUID adId, String myLogin, AdUpdateRequest request) {
-        Ad ad =  adRepository.findById(adId)
-            .orElseThrow(() -> new AdNotFoundException(adId));
+        Ad ad = adRepository.findById(adId)
+                .orElseThrow(() -> new AdNotFoundException(adId));
         UserInternalResponse user = userServiceClient.getByLogin(myLogin);
-        if (!ad.getSellerId().equals(user.getId())){
+        if (!ad.getSellerId().equals(user.getId())) {
             throw new NotOwnerException();
         }
 
@@ -68,8 +71,8 @@ public class AdServiceImpl implements AdService{
     @Override
     public void deleteAd(UUID adId, String myLogin) {
         Ad ad = adRepository.findById(adId)
-            .orElseThrow(() -> new AdNotFoundException(adId));
-        
+                .orElseThrow(() -> new AdNotFoundException(adId));
+
         UserInternalResponse user = userServiceClient.getByLogin(myLogin);
         if (!ad.getSellerId().equals(user.getId())) {
             throw new NotOwnerException();
@@ -85,38 +88,75 @@ public class AdServiceImpl implements AdService{
         UserInternalResponse user = userServiceClient.getByLogin(myLogin);
         String userFullName = user.getFullName();
         return adRepository.findBySellerId(user.getId()).stream()
-            .map(ad -> adMapper.toDetailResponse(ad, userFullName))
-            .collect(Collectors.toList());
+                .map(ad -> adMapper.toDetailResponse(ad, userFullName))
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AdResponse> searchAds(AdFilterRequest filter) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchAds'");
+        List<Ad> ads = adRepository.searchAds(filter);
+        Map<UUID, String> sellerNames = resolveSellerNames(ads);
+
+        return ads.stream()
+                .map(ad -> {
+                    String sellerName = sellerNames.getOrDefault(ad.getSellerId(), "Неизвестно");
+                    AdResponse resp = adMapper.toResponse(ad, sellerName);
+                    return resp;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<AdResponse> getAdsBySeller(String sellerLogin) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAdsBySeller'");
+        UserInternalResponse user =userServiceClient.getByLogin(sellerLogin);
+        String userFullName = user.getFullName();
+        List<Ad> ads = adRepository.findBySellerIdAndStatus(user.getId(), AdStatus.ACTIVE);
+
+        return ads.stream()
+                .map(ad -> adMapper.toResponse(ad, userFullName))
+                .collect(Collectors.toList());
     }
 
     @Override
     public void promoteAd(UUID adId, int hours) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'promoteAd'");
+        Ad ad = adRepository.findById(adId)
+                .orElseThrow(() -> new AdNotFoundException(adId));
+        
+        LocalDateTime base;
+        boolean isPromotedActive = ad.getPromotedUntil().isAfter(LocalDateTime.now());        
+        if(ad.getPromotedUntil()!=null && isPromotedActive){
+            base = ad.getPromotedUntil();
+        } else {
+            base = LocalDateTime.now();
+        }
+
+        ad.setPromotedUntil(base.plusHours(hours));
+        adRepository.save(ad);
     }
 
     @Override
-    public void blockAds(String sellerLogin) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'blockAds'");
+    public void blockAd(UUID adId) {
+        Ad ad = adRepository.findById(adId)
+                .orElseThrow(() -> new AdNotFoundException(adId));
+        ad.setStatus(AdStatus.ARCHIVED);
+        adRepository.save(ad);
     }
 
     @Override
-    public void unblockAds(String sellerLogin) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'unblockAds'");
+    public void unblockAd(UUID adId) {
+        Ad ad = adRepository.findById(adId)
+                .orElseThrow(() -> new AdNotFoundException(adId));
+        ad.setStatus(AdStatus.ACTIVE);
+        adRepository.save(ad);
+    }
+
+    private Map<UUID, String> resolveSellerNames(List<Ad> ads) {
+        Set<UUID> sellersIds = ads.stream()
+                .map(Ad::getSellerId)
+                .collect(Collectors.toSet());
+        List<UserInternalResponse> users = userServiceClient.getByIds(sellersIds);
+        return users.stream()
+                .collect(Collectors.toMap(UserInternalResponse::getId, UserInternalResponse::getFullName));
     }
 }

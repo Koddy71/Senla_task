@@ -18,4 +18,6 @@ public interface UserRepository {
     void delete(User user);
 
     boolean existsByLogin(String login);
+
+    List<User> findAllById(List<UUID> ids);
 }

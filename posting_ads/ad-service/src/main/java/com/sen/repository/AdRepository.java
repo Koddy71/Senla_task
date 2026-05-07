@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sen.dto.request.AdFilterRequest;
 import com.sen.entity.Ad;
 import com.sen.enums.AdStatus;
 
@@ -16,4 +17,5 @@ public interface AdRepository {
 
     List<Ad> findBySellerIdAndStatus(UUID sellerId, AdStatus status);
 
+    List<Ad> searchAds(AdFilterRequest filter);
 }

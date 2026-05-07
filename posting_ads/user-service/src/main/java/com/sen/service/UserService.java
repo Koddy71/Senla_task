@@ -44,4 +44,6 @@ public interface UserService {
     UserInternal getInternalUserByLogin(String login);
 
     UserInternal getInternalUserById(UUID id);
+
+    List<UserInternal> getInternalUsersByIds(List<UUID> ids);
 }

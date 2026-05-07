@@ -26,9 +26,9 @@ public interface AdService {
 
     /**
      * Поиск с фильтрами + сортировка:
-     * 1. promoted_until > now (топ)
-     * 2. рейтинг продавца (высокий -> низкий)
-     * 3. created_at DESC
+     * 1. продвигаемые
+     * 2. рейтинг продавца
+     * 3. дата создания
      */
     List<AdResponse> searchAds(AdFilterRequest filter);
 
@@ -43,7 +43,7 @@ public interface AdService {
     void promoteAd(UUID adId, int hours);
 
     // ADMIN|MANAGER
-    void blockAds(String sellerLogin);
+    void blockAd(UUID adId);
 
-    void unblockAds(String sellerLogin);
+    void unblockAd(UUID adId);
 }

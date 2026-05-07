@@ -145,7 +145,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public PrivateUserResponse balanceUp(String login, BalanceUpRequest request) {
         logger.info("Запрос на пополнение баланса для пользователя {} на сумму {}", login, request.getAmount());
         User user = userRepository.findByLogin(login)
@@ -173,6 +172,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PrivateUserResponse> getAllUsers(UserFilterRequest filter) {
         logger.info("Запрос списка всех пользователей с фильтром: страница {}, размер {}", filter.getPage(),
                 filter.getSize());
@@ -224,6 +224,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserInternal getInternalUserByLogin(String login) {
         logger.debug("Внутренний запрос на получение пользователя {}", login);
         User user = userRepository.findByLogin(login)
@@ -236,6 +237,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserInternal getInternalUserById(UUID id) {
         logger.debug("Внутренний запрос на получение пользователя {}", id);
         User user = userRepository.findById(id)
@@ -245,5 +247,19 @@ public class UserServiceImpl implements UserService {
                 });
         logger.debug("Внутренний запрос для пользователя {} выполнен успешно", id);
         return userMapper.toInternal(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserInternal> getInternalUsersByIds(List<UUID> ids) {
+        logger.debug("Внутренний запрос на получение пользователей по ids: {}", ids);
+        List<User> users = userRepository.findAllById(ids);
+        if(users.size() < ids.size()){
+            logger.warn("Найдено {} пользователей из запрошенных {}", users.size(), ids.size());
+        }
+        logger.debug("Внутренний запрос выполнен успешно, получено пользователей: {}", users.size());
+        return users.stream()
+            .map(userMapper::toInternal)
+            .collect(Collectors.toList());
     }
 }

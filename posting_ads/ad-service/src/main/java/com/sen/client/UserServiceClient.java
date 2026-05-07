@@ -1,5 +1,8 @@
 package com.sen.client;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +34,14 @@ public class UserServiceClient {
     public UserInternalResponse getById(UUID id) {
         try {
             return restTemplate.getForObject(serviceUrl + id, UserInternalResponse.class);
+        } catch (RestClientException e) {
+            throw new UserServiceException("User service недоступен: " + e.getMessage());
+        }
+    }
+
+    public List<UserInternalResponse> getByIds(Set<UUID> ids) {
+        try {
+            return Arrays.asList(restTemplate.postForObject(serviceUrl + "batch", ids, UserInternalResponse[].class));
         } catch (RestClientException e) {
             throw new UserServiceException("User service недоступен: " + e.getMessage());
         }
