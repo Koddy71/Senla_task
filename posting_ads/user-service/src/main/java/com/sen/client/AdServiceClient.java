@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.sen.dto.internal.AdInternal;
 import com.sen.exception.AdServiceException;
 
 @Component
@@ -30,6 +31,16 @@ public class AdServiceClient {
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове ad-service: {}", e.getMessage(), e);
             throw new AdServiceException("Ad service недоступен: " + e);
+        }
+    }
+
+    public AdInternal getAdById(UUID adId) {
+        String url = serviceUrl + adId;
+        try {
+            return restTemplate.getForObject(url, AdInternal.class);
+        } catch (RestClientException e) {
+            logger.error("Ошибка при вызове ad-service для получения объявления {}: {}", adId, e.getMessage(), e);
+            throw new AdServiceException("Ad service недоступен: " + e.getMessage());
         }
     }
 }

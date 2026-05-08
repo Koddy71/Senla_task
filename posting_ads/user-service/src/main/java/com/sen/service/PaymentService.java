@@ -9,9 +9,9 @@ import com.sen.dto.response.PaymentResponse;
 public interface PaymentService {
     PaymentResponse createPayment(String userLogin, PaymentCreateRequest paymentRequest);
 
-    PaymentResponse processPayment(UUID transactionId);
+    PaymentResponse processPayment(UUID transactionId, String userLogin);
 
     List<PaymentResponse> getUserTransactions(String userLogin);
 
-    List<PaymentResponse> getTransactionsByAdId(UUID adId);
+    List<PaymentResponse> getTransactionsByAdId(UUID adId, String userLogin);
 }

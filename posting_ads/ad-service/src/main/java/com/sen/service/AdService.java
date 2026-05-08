@@ -3,6 +3,7 @@ package com.sen.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.sen.dto.internal.AdInternal;
 import com.sen.dto.request.AdCreateRequest;
 import com.sen.dto.request.AdFilterRequest;
 import com.sen.dto.request.AdUpdateRequest;
@@ -18,7 +19,7 @@ public interface AdService {
     // Редактирование своего объявления. Проверка владельца внутри.
     AdDetailResponse updateAd(UUID adId, String myLogin, AdUpdateRequest request);
 
-    // (Смена статуса на ARCHIVED). Только владелец или менеджер/админ
+    // (Смена статуса на ARCHIVED). Только владелец
     void deleteAd(UUID adId, String myLogin);
     
     // Все мои активные объявления
@@ -46,4 +47,7 @@ public interface AdService {
     void blockAd(UUID adId);
 
     void unblockAd(UUID adId);
+
+    //INTERNAL
+    AdInternal getAdById(UUID id);
 }

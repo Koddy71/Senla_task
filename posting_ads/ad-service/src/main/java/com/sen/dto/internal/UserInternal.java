@@ -2,14 +2,14 @@ package com.sen.dto.internal;
 
 import java.util.UUID;
 
-public class UserInternalResponse {
+public class UserInternal {
     private UUID id;
     private String login;
     private String fullName;
     private String role;
     private boolean blocked;
 
-    public UserInternalResponse() {
+    public UserInternal() {
     }
 
     public UUID getId() {

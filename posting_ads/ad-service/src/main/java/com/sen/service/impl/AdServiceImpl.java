@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sen.client.UserServiceClient;
-import com.sen.dto.internal.UserInternalResponse;
+import com.sen.dto.internal.AdInternal;
+import com.sen.dto.internal.UserInternal;
 import com.sen.dto.request.AdCreateRequest;
 import com.sen.dto.request.AdFilterRequest;
 import com.sen.dto.request.AdUpdateRequest;
@@ -41,7 +42,7 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public AdDetailResponse createAd(String myLogin, AdCreateRequest request) {
-        UserInternalResponse user = userServiceClient.getByLogin(myLogin);
+        UserInternal user = userServiceClient.getByLogin(myLogin);
         if (user.isBlocked()) {
             throw new UserIsBlockedException(myLogin);
         }
@@ -59,7 +60,7 @@ public class AdServiceImpl implements AdService {
     public AdDetailResponse updateAd(UUID adId, String myLogin, AdUpdateRequest request) {
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
-        UserInternalResponse user = userServiceClient.getByLogin(myLogin);
+        UserInternal user = userServiceClient.getByLogin(myLogin);
         if (!ad.getSellerId().equals(user.getId())) {
             throw new NotOwnerException();
         }
@@ -73,7 +74,7 @@ public class AdServiceImpl implements AdService {
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
 
-        UserInternalResponse user = userServiceClient.getByLogin(myLogin);
+        UserInternal user = userServiceClient.getByLogin(myLogin);
         if (!ad.getSellerId().equals(user.getId())) {
             throw new NotOwnerException();
         }
@@ -85,7 +86,7 @@ public class AdServiceImpl implements AdService {
     @Override
     @Transactional(readOnly = true)
     public List<AdDetailResponse> getMyAds(String myLogin) {
-        UserInternalResponse user = userServiceClient.getByLogin(myLogin);
+        UserInternal user = userServiceClient.getByLogin(myLogin);
         String userFullName = user.getFullName();
         return adRepository.findBySellerId(user.getId()).stream()
                 .map(ad -> adMapper.toDetailResponse(ad, userFullName))
@@ -109,7 +110,7 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public List<AdResponse> getAdsBySeller(String sellerLogin) {
-        UserInternalResponse user =userServiceClient.getByLogin(sellerLogin);
+        UserInternal user =userServiceClient.getByLogin(sellerLogin);
         String userFullName = user.getFullName();
         List<Ad> ads = adRepository.findBySellerIdAndStatus(user.getId(), AdStatus.ACTIVE);
 
@@ -155,8 +156,15 @@ public class AdServiceImpl implements AdService {
         Set<UUID> sellersIds = ads.stream()
                 .map(Ad::getSellerId)
                 .collect(Collectors.toSet());
-        List<UserInternalResponse> users = userServiceClient.getByIds(sellersIds);
+        List<UserInternal> users = userServiceClient.getByIds(sellersIds);
         return users.stream()
-                .collect(Collectors.toMap(UserInternalResponse::getId, UserInternalResponse::getFullName));
+                .collect(Collectors.toMap(UserInternal::getId, UserInternal::getFullName));
+    }
+
+    @Override
+    public AdInternal getAdById(UUID id) {
+        Ad ad = adRepository.findById(id)
+                .orElseThrow(() -> new AdNotFoundException(id));
+        return adMapper.toInternal(ad);
     }
 }

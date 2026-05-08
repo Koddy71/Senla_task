@@ -42,10 +42,11 @@ public class PaymentController {
     }
 
     @PostMapping("/{id}/process")
-    public ResponseEntity<PaymentResponse> processPayment(@PathVariable UUID id) {
-        logger.info("Запрос на обработку платежа с ID: {}", id);
-        PaymentResponse response = paymentService.processPayment(id);
-        logger.info("Платёж с ID {} успешно обработан. Статус: {}", id, response.getStatus());
+    public ResponseEntity<PaymentResponse> processPayment(@PathVariable UUID transactionId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Запрос на обработку платежа с ID: {} от пользователя {}",
+                transactionId, userDetails.getUsername());
+        PaymentResponse response = paymentService.processPayment(transactionId, userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
@@ -59,10 +60,10 @@ public class PaymentController {
     }
 
     @GetMapping("/ad/{adId}")
-    public ResponseEntity<List<PaymentResponse>> getTransactionsByAd(@PathVariable UUID adId) {
-        logger.info("Запрос транзакций по объявлению с ID: {}", adId);
-        List<PaymentResponse> transactions = paymentService.getTransactionsByAdId(adId);
-        logger.info("Найдено {} транзакций для объявления {}", transactions.size(), adId);
+    public ResponseEntity<List<PaymentResponse>> getTransactionsByAd(@PathVariable UUID adId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Запрос транзакций по объявлению {} от пользователя {}", adId, userDetails.getUsername());
+        List<PaymentResponse> transactions = paymentService.getTransactionsByAdId(adId, userDetails.getUsername());
         return ResponseEntity.ok(transactions);
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.sen.dto.internal.UserInternalResponse;
+import com.sen.dto.internal.UserInternal;
 import com.sen.exception.UserServiceException;
 
 @Component
@@ -23,25 +23,25 @@ public class UserServiceClient {
         this.serviceUrl=serviceUrl;
     }
 
-    public UserInternalResponse getByLogin(String login){
+    public UserInternal getByLogin(String login){
         try{
-            return restTemplate.getForObject(serviceUrl + login, UserInternalResponse.class);
+            return restTemplate.getForObject(serviceUrl + login, UserInternal.class);
         } catch (RestClientException e){
             throw new UserServiceException("User service недоступен: " + e.getMessage());
         }
     }
 
-    public UserInternalResponse getById(UUID id) {
+    public UserInternal getById(UUID id) {
         try {
-            return restTemplate.getForObject(serviceUrl + id, UserInternalResponse.class);
+            return restTemplate.getForObject(serviceUrl + id, UserInternal.class);
         } catch (RestClientException e) {
             throw new UserServiceException("User service недоступен: " + e.getMessage());
         }
     }
 
-    public List<UserInternalResponse> getByIds(Set<UUID> ids) {
+    public List<UserInternal> getByIds(Set<UUID> ids) {
         try {
-            return Arrays.asList(restTemplate.postForObject(serviceUrl + "batch", ids, UserInternalResponse[].class));
+            return Arrays.asList(restTemplate.postForObject(serviceUrl + "batch", ids, UserInternal[].class));
         } catch (RestClientException e) {
             throw new UserServiceException("User service недоступен: " + e.getMessage());
         }

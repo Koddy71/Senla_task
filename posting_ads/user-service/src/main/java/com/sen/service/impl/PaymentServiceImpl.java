@@ -12,12 +12,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sen.client.AdServiceClient;
+import com.sen.dto.internal.AdInternal;
 import com.sen.dto.request.PaymentCreateRequest;
 import com.sen.dto.response.PaymentResponse;
 import com.sen.entity.Payment;
 import com.sen.entity.User;
 import com.sen.enums.PaymentStatus;
+import com.sen.exception.AdException;
 import com.sen.exception.InsufficientBalanceException;
+import com.sen.exception.NotOwnerException;
 import com.sen.exception.PaymentException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.PaymentMapper;
@@ -57,6 +60,17 @@ public class PaymentServiceImpl implements PaymentService {
                     logger.error("Пользователь {} не найден при создании платежа", userLogin);
                     return new UserNotFoundException("User not found: " + userLogin);
                 });
+
+        AdInternal ad = adServiceClient.getAdById(paymentRequest.getAdId());
+
+        if (!"ACTIVE".equals(ad.getStatus())) {
+            throw new AdException();
+        }
+        if (!ad.getSellerId().equals(user.getId())) {
+            throw new NotOwnerException();
+        }
+
+
         BigDecimal amount = PRICE_HOUR.multiply(BigDecimal.valueOf(paymentRequest.getHours()));
         Payment payment = new Payment();
         payment.setUser(user);
@@ -71,7 +85,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse processPayment(UUID transactionId) {
+    @Transactional(noRollbackFor = InsufficientBalanceException.class)
+    public PaymentResponse processPayment(UUID transactionId, String userLogin) {
         logger.info("Запрос на обработку платежа, transactionId: {}", transactionId);
         Payment payment = paymentRepository.findById(transactionId)
                 .orElseThrow(() -> {
@@ -79,10 +94,20 @@ public class PaymentServiceImpl implements PaymentService {
                     return new PaymentException("PaymentTransaction not found: " + transactionId);
                 });
 
+        if (!payment.getUser().getLogin().equals(userLogin)) {
+            throw new PaymentException("Вы не можете обработать чужой платёж");
+        }
+
         if (payment.getStatus() != PaymentStatus.PENDING) {
             logger.error("Платёж уже обработан, transactionId: {}, текущий статус: {}",
                     transactionId, payment.getStatus());
             throw new PaymentException("PaymentTransaction already processed");
+        }
+
+        AdInternal ad = adServiceClient.getAdById(payment.getAdId());
+
+        if (!"ACTIVE".equals(ad.getStatus())) {
+            throw new AdException();
         }
 
         User user = payment.getUser();
@@ -127,12 +152,24 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentResponse> getTransactionsByAdId(UUID adId) {
+    public List<PaymentResponse> getTransactionsByAdId(UUID adId, String userLogin) {
         logger.info("Запрос списка транзакций для объявления {}", adId);
+        AdInternal ad = adServiceClient.getAdById(adId);
+
+        User user = userRepository.findByLogin(userLogin)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден", userLogin);
+                    return new UserNotFoundException("User not found: " + userLogin);
+                });
+        
+        if (!ad.getSellerId().equals(user.getId())) {
+            throw new NotOwnerException();
+        }
+
         List<PaymentResponse> transactions = paymentRepository.findAdId(adId).stream()
                 .map(paymentMapper::toResponse)
                 .collect(Collectors.toList());
         logger.info("Найдено {} транзакций для объявления {}", transactions.size(), adId);
         return transactions;
     }
-}
+}   
