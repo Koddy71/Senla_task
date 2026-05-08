@@ -55,21 +55,10 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse createPayment(String userLogin, PaymentCreateRequest paymentRequest) {
         logger.info("Запрос на создание платежа для пользователя {}, объявление {}, часов {}",
                 userLogin, paymentRequest.getAdId(), paymentRequest.getHours());
-        User user = userRepository.findByLogin(userLogin)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при создании платежа", userLogin);
-                    return new UserNotFoundException("User not found: " + userLogin);
-                });
 
-        AdInternal ad = adServiceClient.getAdById(paymentRequest.getAdId());
-
-        if (!"ACTIVE".equals(ad.getStatus())) {
-            throw new AdException();
-        }
-        if (!ad.getSellerId().equals(user.getId())) {
-            throw new NotOwnerException();
-        }
-
+        User user = findUserByLogin(userLogin);
+        AdInternal ad = getActiveAd(paymentRequest.getAdId());
+        validateUserIsSeller(user, ad);
 
         BigDecimal amount = PRICE_HOUR.multiply(BigDecimal.valueOf(paymentRequest.getHours()));
         Payment payment = new Payment();
@@ -88,41 +77,16 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(noRollbackFor = InsufficientBalanceException.class)
     public PaymentResponse processPayment(UUID transactionId, String userLogin) {
         logger.info("Запрос на обработку платежа, transactionId: {}", transactionId);
-        Payment payment = paymentRepository.findById(transactionId)
-                .orElseThrow(() -> {
-                    logger.error("Платёж не найден, transactionId: {}", transactionId);
-                    return new PaymentException("PaymentTransaction not found: " + transactionId);
-                });
 
-        if (!payment.getUser().getLogin().equals(userLogin)) {
-            throw new PaymentException("Вы не можете обработать чужой платёж");
-        }
+        Payment payment = findPaymentById(transactionId);
+        validatePaymentOwnership(payment, userLogin);
+        validatePaymentPending(payment);
 
-        if (payment.getStatus() != PaymentStatus.PENDING) {
-            logger.error("Платёж уже обработан, transactionId: {}, текущий статус: {}",
-                    transactionId, payment.getStatus());
-            throw new PaymentException("PaymentTransaction already processed");
-        }
-
-        AdInternal ad = adServiceClient.getAdById(payment.getAdId());
-
-        if (!"ACTIVE".equals(ad.getStatus())) {
-            throw new AdException();
-        }
-
+        AdInternal ad = getActiveAd(payment.getAdId());
         User user = payment.getUser();
 
-        if (user.getBalance().compareTo(payment.getAmount()) < 0) {
-            logger.warn("Недостаточно средств для платежа {}, баланс: {}, требуется: {}",
-                    transactionId, user.getBalance(), payment.getAmount());
-            payment.setStatus(PaymentStatus.FAILED);
-            paymentRepository.save(payment);
-            throw new InsufficientBalanceException("Insufficient balance for payment");
-        }
+        deductBalance(user, payment);
 
-        logger.info("Списание средств с баланса пользователя {}, сумма: {}", user.getLogin(), payment.getAmount());
-        user.setBalance(user.getBalance().subtract(payment.getAmount()));
-        userRepository.save(user);
         payment.setStatus(PaymentStatus.SUCCESS);
         payment.setProcessedAt(LocalDateTime.now());
 
@@ -138,11 +102,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public List<PaymentResponse> getUserTransactions(String userLogin) {
         logger.info("Запрос списка транзакций для пользователя {}", userLogin);
-        User user = userRepository.findByLogin(userLogin)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при получении транзакций", userLogin);
-                    return new UserNotFoundException("User not found: " + userLogin);
-                });
+        User user = findUserByLogin(userLogin);
         List<PaymentResponse> transactions = paymentRepository.findUserId(user.getId()).stream()
                 .map(paymentMapper::toResponse)
                 .collect(Collectors.toList());
@@ -154,17 +114,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public List<PaymentResponse> getTransactionsByAdId(UUID adId, String userLogin) {
         logger.info("Запрос списка транзакций для объявления {}", adId);
-        AdInternal ad = adServiceClient.getAdById(adId);
-
-        User user = userRepository.findByLogin(userLogin)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден", userLogin);
-                    return new UserNotFoundException("User not found: " + userLogin);
-                });
-        
-        if (!ad.getSellerId().equals(user.getId())) {
-            throw new NotOwnerException();
-        }
+        AdInternal ad = getActiveAd(adId);
+        User user = findUserByLogin(userLogin);
+        validateUserIsSeller(user, ad);
 
         List<PaymentResponse> transactions = paymentRepository.findAdId(adId).stream()
                 .map(paymentMapper::toResponse)
@@ -172,4 +124,60 @@ public class PaymentServiceImpl implements PaymentService {
         logger.info("Найдено {} транзакций для объявления {}", transactions.size(), adId);
         return transactions;
     }
-}   
+
+    private User findUserByLogin(String login) {
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден", login);
+                    return new UserNotFoundException("User not found: " + login);
+                });
+    }
+
+    private Payment findPaymentById(UUID transactionId) {
+        return paymentRepository.findById(transactionId)
+                .orElseThrow(() -> {
+                    logger.error("Платёж не найден, transactionId: {}", transactionId);
+                    return new PaymentException("PaymentTransaction not found: " + transactionId);
+                });
+    }
+
+    private AdInternal getActiveAd(UUID adId) {
+        AdInternal ad = adServiceClient.getAdById(adId);
+        if (!"ACTIVE".equals(ad.getStatus())) {
+            throw new AdException();
+        }
+        return ad;
+    }
+
+    private void validateUserIsSeller(User user, AdInternal ad) {
+        if (!ad.getSellerId().equals(user.getId())) {
+            throw new NotOwnerException();
+        }
+    }
+
+    private void validatePaymentPending(Payment payment) {
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            logger.error("Платёж уже обработан, статус: {}", payment.getStatus());
+            throw new PaymentException("PaymentTransaction already processed");
+        }
+    }
+
+    private void validatePaymentOwnership(Payment payment, String userLogin) {
+        if (!payment.getUser().getLogin().equals(userLogin)) {
+            throw new PaymentException("Вы не можете обработать чужой платёж");
+        }
+    }
+
+    private void deductBalance(User user, Payment payment) {
+        if (user.getBalance().compareTo(payment.getAmount()) < 0) {
+            logger.warn("Недостаточно средств для платежа {}, баланс: {}, требуется: {}",
+                    payment.getId(), user.getBalance(), payment.getAmount());
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+            throw new InsufficientBalanceException("Insufficient balance for payment");
+        }
+        logger.info("Списание средств с баланса пользователя {}, сумма: {}", user.getLogin(), payment.getAmount());
+        user.setBalance(user.getBalance().subtract(payment.getAmount()));
+        userRepository.save(user);
+    }
+}

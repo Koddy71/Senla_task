@@ -36,11 +36,11 @@ public class PrivateUserResponse {
         this.login = login;
     }
 
-    public String getFullName() {
+    public String getFullname() {
         return fullname;
     }
 
-    public void setFullName(String fullname) {
+    public void setFullname(String fullname) {
         this.fullname = fullname;
     }
 

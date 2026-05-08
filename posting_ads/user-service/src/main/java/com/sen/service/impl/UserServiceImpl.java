@@ -58,10 +58,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PrivateUserResponse register(RegistrationRequest request) {
-        if (userRepository.existsByLogin(request.getLogin())) {
-            logger.error("Ошибка регистрации. Логин {} уже существует", request.getLogin());
-            throw new UserAlreadyExistsException("Login already exists: " + request.getLogin());
-        }
+        validateLoginNotExists(request.getLogin());
 
         User user = userMapper.toEntity(request);
 
@@ -95,11 +92,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public PublicUserResponse getPublicProfile(String login) {
         logger.info("Запрос публичного профиля пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден", login);
-                    return new UserNotFoundException("User not found exception: " + login);
-                });
+        User user = findUserByLogin(login);
         logger.info("Публичный профиль пользователя {} успешно получен", login);
         return userMapper.toPublicUserResponse(user);
     }
@@ -108,11 +101,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public PrivateUserResponse getMyProfile(String login) {
         logger.info("Запрос собственного профиля пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден в базе", login);
-                    return new UserNotFoundException();
-                });
+        User user = findUserByLogin(login);
         logger.info("Собственный профиль пользователя {} успешно получен", login);
         return userMapper.toPrivateUserResponse(user);
     }
@@ -120,11 +109,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PrivateUserResponse updateMyProfile(String login, UserUpdateRequest request) {
         logger.info("Запрос на обновление профиля пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при обновлении профиля", login);
-                    return new UserNotFoundException();
-                });
+        User user = findUserByLogin(login);
         userMapper.updateEntity(request, user);
         User updated = userRepository.save(user);
         logger.info("Профиль пользователя {} успешно обновлён", login);
@@ -134,11 +119,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteMyProfile(String login) {
         logger.info("Удаление профиля пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при удалении профиля", login);
-                    return new UserNotFoundException();
-                });
+        User user = findUserByLogin(login);
         user.setBlocked(true);
         userRepository.save(user);
         logger.info("Профиль пользователя {} успешно удалён", login);
@@ -147,11 +128,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PrivateUserResponse balanceUp(String login, BalanceUpRequest request) {
         logger.info("Запрос на пополнение баланса для пользователя {} на сумму {}", login, request.getAmount());
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при пополнении баланса", login);
-                    return new UserNotFoundException();
-                });
+        User user = findUserByLogin(login);
         user.setBalance(user.getBalance().add(request.getAmount()));
         User updated = userRepository.save(user);
         logger.info("Баланс пользователя {} успешно пополнен. Новый баланс: {}", login, updated.getBalance());
@@ -162,11 +139,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public PrivateUserResponse getFullProfile(String login) {
         logger.info("Административный запрос полного профиля пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден для получения полного профиля", login);
-                    return new UserNotFoundException("User not found: " + login);
-                });
+        User user = findUserByLogin(login);
         logger.info("Полный профиль пользователя {} успешно получен", login);
         return userMapper.toPrivateUserResponse(user);
     }
@@ -187,11 +160,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeUserRole(String login, String newRole) {
         logger.info("Запрос на изменение роли пользователя {} на {}", login, newRole);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при изменении роли", login);
-                    return new UserNotFoundException("User not found: " + login);
-                });
+        User user = findUserByLogin(login);
         user.setRole(Role.valueOf(newRole));
         userRepository.save(user);
         logger.info("Роль пользователя {} успешно изменена на {}", login, newRole);
@@ -200,11 +169,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void blockUser(String login) {
         logger.info("Запрос на блокировку пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при блокировке", login);
-                    return new UserNotFoundException("User not found: " + login);
-                });
+        User user = findUserByLogin(login);
         user.setBlocked(true);
         userRepository.save(user);
         logger.info("Пользователь {} успешно заблокирован", login);
@@ -213,11 +178,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void unblockUser(String login) {
         logger.info("Запрос на разблокировку пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден при разблокировке", login);
-                    return new UserNotFoundException("User not found: " + login);
-                });
+        User user = findUserByLogin(login);
         user.setBlocked(false);
         userRepository.save(user);
         logger.info("Пользователь {} успешно разблокирован", login);
@@ -227,11 +188,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserInternal getInternalUserByLogin(String login) {
         logger.debug("Внутренний запрос на получение пользователя {}", login);
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден для внутреннего запроса", login);
-                    return new UserNotFoundException("User not found: " + login);
-                });
+        User user = findUserByLogin(login);
         logger.debug("Внутренний запрос для пользователя {} выполнен успешно", login);
         return userMapper.toInternal(user);
     }
@@ -240,11 +197,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserInternal getInternalUserById(UUID id) {
         logger.debug("Внутренний запрос на получение пользователя {}", id);
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Пользователь {} не найден для внутреннего запроса", id);
-                    return new UserNotFoundException("User not found: " + id);
-                });
+        User user = findUserById(id);
         logger.debug("Внутренний запрос для пользователя {} выполнен успешно", id);
         return userMapper.toInternal(user);
     }
@@ -254,12 +207,35 @@ public class UserServiceImpl implements UserService {
     public List<UserInternal> getInternalUsersByIds(List<UUID> ids) {
         logger.debug("Внутренний запрос на получение пользователей по ids: {}", ids);
         List<User> users = userRepository.findAllById(ids);
-        if(users.size() < ids.size()){
+        if (users.size() < ids.size()) {
             logger.warn("Найдено {} пользователей из запрошенных {}", users.size(), ids.size());
         }
         logger.debug("Внутренний запрос выполнен успешно, получено пользователей: {}", users.size());
         return users.stream()
-            .map(userMapper::toInternal)
-            .collect(Collectors.toList());
+                .map(userMapper::toInternal)
+                .collect(Collectors.toList());
+    }
+
+    private User findUserByLogin(String login) {
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден", login);
+                    return new UserNotFoundException("User not found: " + login);
+                });
+    }
+
+    private User findUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден", id);
+                    return new UserNotFoundException("User not found: " + id);
+                });
+    }
+
+    private void validateLoginNotExists(String login) {
+        if (userRepository.existsByLogin(login)) {
+            logger.error("Ошибка регистрации. Логин {} уже существует", login);
+            throw new UserAlreadyExistsException("Login already exists: " + login);
+        }
     }
 }

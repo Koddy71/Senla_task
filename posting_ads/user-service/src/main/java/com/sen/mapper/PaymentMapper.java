@@ -2,14 +2,12 @@ package com.sen.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import com.sen.dto.response.PaymentResponse;
 import com.sen.entity.Payment;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
-    PaymentMapper INTSTANCE = Mappers.getMapper(PaymentMapper.class);
 
     @Mapping(source = "user.id", target = "userId")
     PaymentResponse toResponse(Payment payment);

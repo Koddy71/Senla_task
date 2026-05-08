@@ -2,6 +2,8 @@ package com.sen.controller;
 
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +18,9 @@ import com.sen.service.AdService;
 @RestController
 @RequestMapping("/internal/ads")
 public class InternalAdController {
+
+    private static final Logger logger = LoggerFactory.getLogger(InternalAdController.class);
+
     private final AdService adService;
 
     public InternalAdController(AdService adService) {
@@ -25,13 +30,17 @@ public class InternalAdController {
     @PostMapping("/{id}/promote")
     public ResponseEntity<Void> promote(@PathVariable UUID id,
             @RequestParam int hours) {
+        logger.debug("Внутренний запрос на продвижение объявления id: {} на {} часов", id, hours);
         adService.promoteAd(id, hours);
+        logger.debug("Объявление id {} успешно продвинуто", id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AdInternal> getAdById(@PathVariable UUID id) {
+        logger.debug("Внутренний запрос на получение объявления id: {}", id);
         AdInternal ad = adService.getAdById(id);
+        logger.debug("Внутренний запрос выполнен успешно для объявления id: {}", id);
         return ResponseEntity.ok(ad);
     }
 }
