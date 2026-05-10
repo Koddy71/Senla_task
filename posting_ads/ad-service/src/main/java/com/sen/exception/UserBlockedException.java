@@ -1,7 +1,7 @@
 package com.sen.exception;
 
-public class UserIsBlockedException extends RuntimeException{
-    public UserIsBlockedException(String login){
+public class UserBlockedException extends RuntimeException{
+    public UserBlockedException(String login){
         super("Профиль пользователя " + login + " удалён");
     }
 }

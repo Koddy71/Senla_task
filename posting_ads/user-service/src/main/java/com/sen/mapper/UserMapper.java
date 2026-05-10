@@ -18,6 +18,7 @@ public interface UserMapper {
 
     PublicUserResponse toPublicUserResponse(User user);
 
+    @Mapping(target = "role", expression = "java(user.getRole().name())")
     UserInternal toInternal(User user);
 
     @Mapping(target = "id", ignore = true)

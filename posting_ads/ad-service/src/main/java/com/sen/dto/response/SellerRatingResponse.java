@@ -1,26 +1,28 @@
 package com.sen.dto.response;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 public class SellerRatingResponse {
-    private UUID sellerId;
-    private BigDecimal averageRating;
+    private String sellerLogin;
+    private double averageRating;
     private Long totalReviews;
 
-    public UUID getSellerId() {
-        return sellerId;
+    public SellerRatingResponse(String sellerLogin, double averageRating, long totalReviews) {
+        this.averageRating = averageRating;
+        this.totalReviews = totalReviews;
     }
 
-    public void setSellerId(UUID sellerId) {
-        this.sellerId = sellerId;
+    public String getSellerId() {
+        return sellerLogin;
     }
 
-    public BigDecimal getAverageRating() {
+    public void setSellerLogin(String sellerLogin) {
+        this.sellerLogin = sellerLogin;
+    }
+
+    public double getAverageRating() {
         return averageRating;
     }
 
-    public void setAverageRating(BigDecimal averageRating) {
+    public void setAverageRating(double averageRating) {
         this.averageRating = averageRating;
     }
 

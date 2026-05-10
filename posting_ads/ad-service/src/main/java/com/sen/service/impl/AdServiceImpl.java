@@ -24,7 +24,7 @@ import com.sen.entity.Ad;
 import com.sen.enums.AdStatus;
 import com.sen.exception.AdNotFoundException;
 import com.sen.exception.NotOwnerException;
-import com.sen.exception.UserIsBlockedException;
+import com.sen.exception.UserBlockedException;
 import com.sen.mapper.AdMapper;
 import com.sen.repository.AdRepository;
 import com.sen.service.AdService;
@@ -51,7 +51,7 @@ public class AdServiceImpl implements AdService {
         UserInternal user = getUserByLogin(myLogin);
         if (user.isBlocked()) {
             logger.error("Пользователь {} заблокирован, создание объявления невозможно", myLogin);
-            throw new UserIsBlockedException(myLogin);
+            throw new UserBlockedException(myLogin);
         }
 
         Ad ad = adMapper.toEntity(request);
@@ -168,14 +168,6 @@ public class AdServiceImpl implements AdService {
         logger.info("Объявление {} разблокировано (статус ACTIVE)", adId);
     }
 
-    private Map<UUID, String> resolveSellerNames(List<Ad> ads) {
-        Set<UUID> sellersIds = ads.stream()
-                .map(Ad::getSellerId)
-                .collect(Collectors.toSet());
-        List<UserInternal> users = userServiceClient.getByIds(sellersIds);
-        return users.stream()
-                .collect(Collectors.toMap(UserInternal::getId, UserInternal::getFullName));
-    }
 
     @Override
     public AdInternal getAdById(UUID id) {
@@ -184,6 +176,15 @@ public class AdServiceImpl implements AdService {
         AdInternal internal = adMapper.toInternal(ad);
         logger.debug("Внутреннее представление объявления {} получено", id);
         return internal;
+    }
+
+    private Map<UUID, String> resolveSellerNames(List<Ad> ads) {
+        Set<UUID> sellersIds = ads.stream()
+                .map(Ad::getSellerId)
+                .collect(Collectors.toSet());
+        List<UserInternal> users = userServiceClient.getByIds(sellersIds);
+        return users.stream()
+                .collect(Collectors.toMap(UserInternal::getId, UserInternal::getFullName));
     }
 
     private Ad findAdById(UUID adId) {

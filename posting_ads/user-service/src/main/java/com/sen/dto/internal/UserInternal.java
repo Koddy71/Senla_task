@@ -2,8 +2,6 @@ package com.sen.dto.internal;
 
 import java.util.UUID;
 
-import com.sen.enums.Role;
-
 /**
  * Используется когда Ad Service или Messaging Service запрашивает
  * информацию о пользователе через REST
@@ -13,7 +11,7 @@ public class UserInternal {
     private UUID id;
     private String login;
     private String fullname;
-    private Role role;
+    private String role;
     private Boolean blocked;
 
     public UserInternal() {
@@ -43,11 +41,11 @@ public class UserInternal {
         this.fullname = fullname;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 

@@ -38,7 +38,7 @@ public class Purchase {
     private PurchaseStatus status = PurchaseStatus.COMPLETED;
 
     @Column(name = "completed_at", nullable = false)
-    private LocalDateTime completedAt;
+    private LocalDateTime completedAt = LocalDateTime.now();  
 
     @Column(name = "score")
     private Integer score;

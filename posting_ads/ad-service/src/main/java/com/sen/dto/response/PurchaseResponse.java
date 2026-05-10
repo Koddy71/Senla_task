@@ -8,7 +8,7 @@ import com.sen.enums.PurchaseStatus;
 public class PurchaseResponse {
     private UUID id;
     private UUID adId;
-    private UUID buyerId;
+    private String buyerLogin;
     private PurchaseStatus status;
     private LocalDateTime completedAt;
     private Integer score;
@@ -31,12 +31,12 @@ public class PurchaseResponse {
         this.adId = adId;
     }
 
-    public UUID getBuyerId() {
-        return buyerId;
+    public String getBuyerLogin() {
+        return buyerLogin;
     }
 
-    public void setBuyerId(UUID buyerId) {
-        this.buyerId = buyerId;
+    public void setBuyerLogin(String buyerLogin) {
+        this.buyerLogin = buyerLogin;
     }
 
     public PurchaseStatus getStatus() {
