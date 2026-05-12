@@ -59,16 +59,18 @@ class PaymentControllerTest {
     @Test
     void processPayment_shouldReturn200() {
         UUID paymentId = UUID.randomUUID();
+        UserDetails userDetails = createUserDetails("buyer");
         PaymentResponse response = new PaymentResponse();
         response.setId(paymentId);
         response.setStatus(PaymentStatus.SUCCESS);
 
-        when(paymentService.processPayment(paymentId)).thenReturn(response);
+        when(paymentService.processPayment(eq(paymentId), eq("buyer"))).thenReturn(response);
 
-        ResponseEntity<PaymentResponse> result = paymentController.processPayment(paymentId);
+        ResponseEntity<PaymentResponse> result = paymentController.processPayment(paymentId, userDetails);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(PaymentStatus.SUCCESS, result.getBody().getStatus());
+        verify(paymentService).processPayment(paymentId, "buyer");
     }
 
     @Test
@@ -85,11 +87,12 @@ class PaymentControllerTest {
     @Test
     void getTransactionsByAdId_shouldReturnList() {
         UUID adId = UUID.randomUUID();
-        when(paymentService.getTransactionsByAdId(adId)).thenReturn(List.of(new PaymentResponse()));
+        UserDetails userDetails = createUserDetails("buyer");
+        when(paymentService.getTransactionsByAdId(eq(adId), eq("buyer"))).thenReturn(List.of(new PaymentResponse()));
 
-        ResponseEntity<List<PaymentResponse>> result = paymentController.getTransactionsByAd(adId);
+        ResponseEntity<List<PaymentResponse>> result = paymentController.getTransactionsByAd(adId, userDetails);
 
         assertEquals(1, result.getBody().size());
-        verify(paymentService).getTransactionsByAdId(adId);
+        verify(paymentService).getTransactionsByAdId(adId, "buyer");
     }
 }

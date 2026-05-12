@@ -1,12 +1,17 @@
 package com.sen.service;
 
+import com.sen.client.AdServiceClient;
+import com.sen.dto.internal.AdInternal;
 import com.sen.dto.request.PaymentCreateRequest;
 import com.sen.dto.response.PaymentResponse;
 import com.sen.entity.Payment;
 import com.sen.entity.User;
 import com.sen.enums.PaymentStatus;
 import com.sen.enums.Role;
+import com.sen.exception.AdException;
 import com.sen.exception.InsufficientBalanceException;
+import com.sen.exception.NotOwnerException;
+import com.sen.exception.PaymentException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.PaymentMapper;
 import com.sen.repository.PaymentRepository;
@@ -26,14 +31,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceImplTest {
@@ -43,7 +44,9 @@ class PaymentServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private PaymentMapper paymentMapper; // добавлен мок маппера
+    private PaymentMapper paymentMapper;
+    @Mock
+    private AdServiceClient adServiceClient;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
@@ -72,16 +75,21 @@ class PaymentServiceImplTest {
     void createPayment_shouldCreatePendingTransaction() {
         PaymentCreateRequest request = new PaymentCreateRequest();
         request.setAdId(testAdId);
-        request.setHours(3); // 3 часа * 10.00 = 30.00
+        request.setHours(3);
+
+        AdInternal ad = new AdInternal();
+        ad.setId(testAdId);
+        ad.setSellerId(testUser.getId());
+        ad.setStatus("ACTIVE");
 
         when(userRepository.findByLogin("buyer")).thenReturn(Optional.of(testUser));
+        when(adServiceClient.getAdById(testAdId)).thenReturn(ad);
         when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> {
             Payment p = inv.getArgument(0);
             p.setId(testPaymentId);
             return p;
         });
 
-        // мок маппера
         PaymentResponse expectedResponse = new PaymentResponse();
         expectedResponse.setId(testPaymentId);
         expectedResponse.setStatus(PaymentStatus.PENDING);
@@ -117,6 +125,39 @@ class PaymentServiceImplTest {
                 () -> paymentService.createPayment("unknown", request));
     }
 
+    @Test
+    void createPayment_shouldThrowWhenAdInactive() {
+        PaymentCreateRequest request = new PaymentCreateRequest();
+        request.setAdId(testAdId);
+        request.setHours(1);
+
+        AdInternal ad = new AdInternal();
+        ad.setStatus("INACTIVE");
+
+        when(userRepository.findByLogin("buyer")).thenReturn(Optional.of(testUser));
+        when(adServiceClient.getAdById(testAdId)).thenReturn(ad);
+
+        assertThrows(AdException.class,
+                () -> paymentService.createPayment("buyer", request));
+    }
+
+    @Test
+    void createPayment_shouldThrowWhenUserIsNotSeller() {
+        PaymentCreateRequest request = new PaymentCreateRequest();
+        request.setAdId(testAdId);
+        request.setHours(1);
+
+        AdInternal ad = new AdInternal();
+        ad.setSellerId(UUID.randomUUID()); // другой продавец
+        ad.setStatus("ACTIVE");
+
+        when(userRepository.findByLogin("buyer")).thenReturn(Optional.of(testUser));
+        when(adServiceClient.getAdById(testAdId)).thenReturn(ad);
+
+        assertThrows(NotOwnerException.class,
+                () -> paymentService.createPayment("buyer", request));
+    }
+
     // ==================== PROCESS PAYMENT ====================
 
     @Test
@@ -129,7 +170,12 @@ class PaymentServiceImplTest {
         payment.setHours(3);
         payment.setStatus(PaymentStatus.PENDING);
 
+        AdInternal ad = new AdInternal();
+        ad.setId(testAdId);
+        ad.setStatus("ACTIVE");
+
         when(paymentRepository.findById(testPaymentId)).thenReturn(Optional.of(payment));
+        when(adServiceClient.getAdById(testAdId)).thenReturn(ad);
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
         when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -138,14 +184,15 @@ class PaymentServiceImplTest {
         expectedResponse.setProcessedAt(LocalDateTime.now());
         when(paymentMapper.toResponse(any(Payment.class))).thenReturn(expectedResponse);
 
-        PaymentResponse response = paymentService.processPayment(testPaymentId);
+        PaymentResponse response = paymentService.processPayment(testPaymentId, "buyer");
 
         assertEquals(PaymentStatus.SUCCESS, response.getStatus());
         assertNotNull(response.getProcessedAt());
-        assertEquals(new BigDecimal("70.00"), testUser.getBalance()); // 100 - 30
+        assertEquals(new BigDecimal("70.00"), testUser.getBalance());
 
         verify(userRepository).save(testUser);
         verify(paymentRepository, atLeastOnce()).save(any());
+        verify(adServiceClient).promoteAd(testAdId, 3);
     }
 
     @Test
@@ -153,11 +200,27 @@ class PaymentServiceImplTest {
         Payment payment = new Payment();
         payment.setId(testPaymentId);
         payment.setStatus(PaymentStatus.SUCCESS);
+        payment.setUser(testUser);
 
         when(paymentRepository.findById(testPaymentId)).thenReturn(Optional.of(payment));
 
-        assertThrows(RuntimeException.class,
-                () -> paymentService.processPayment(testPaymentId));
+        assertThrows(PaymentException.class,
+                () -> paymentService.processPayment(testPaymentId, "buyer"));
+    }
+
+    @Test
+    void processPayment_shouldThrowWhenPaymentNotOwnedByUser() {
+        Payment payment = new Payment();
+        payment.setId(testPaymentId);
+        payment.setStatus(PaymentStatus.PENDING);
+        User otherUser = new User();
+        otherUser.setLogin("other");
+        payment.setUser(otherUser);
+
+        when(paymentRepository.findById(testPaymentId)).thenReturn(Optional.of(payment));
+
+        assertThrows(PaymentException.class,
+                () -> paymentService.processPayment(testPaymentId, "buyer"));
     }
 
     @Test
@@ -169,16 +232,22 @@ class PaymentServiceImplTest {
         payment.setUser(testUser);
         payment.setAmount(new BigDecimal("50.00"));
         payment.setStatus(PaymentStatus.PENDING);
+        payment.setAdId(testAdId);
+
+        AdInternal ad = new AdInternal();
+        ad.setStatus("ACTIVE");
 
         when(paymentRepository.findById(testPaymentId)).thenReturn(Optional.of(payment));
+        when(adServiceClient.getAdById(testAdId)).thenReturn(ad);
         when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
 
         assertThrows(InsufficientBalanceException.class,
-                () -> paymentService.processPayment(testPaymentId));
+                () -> paymentService.processPayment(testPaymentId, "buyer"));
 
         assertEquals(PaymentStatus.FAILED, payment.getStatus());
         verify(paymentRepository).save(payment);
         verify(userRepository, never()).save(any());
+        verify(adServiceClient, never()).promoteAd(any(), anyInt());
     }
 
     // ==================== GET TRANSACTIONS ====================
@@ -213,11 +282,33 @@ class PaymentServiceImplTest {
         PaymentResponse resp = new PaymentResponse();
         resp.setAdId(testAdId);
         when(paymentMapper.toResponse(any(Payment.class))).thenReturn(resp);
+
+        AdInternal ad = new AdInternal();
+        ad.setId(testAdId);
+        ad.setSellerId(testUser.getId());
+        ad.setStatus("ACTIVE");
+
+        when(userRepository.findByLogin("buyer")).thenReturn(Optional.of(testUser));
+        when(adServiceClient.getAdById(testAdId)).thenReturn(ad);
         when(paymentRepository.findAdId(testAdId)).thenReturn(List.of(p1));
 
-        List<PaymentResponse> result = paymentService.getTransactionsByAdId(testAdId);
+        List<PaymentResponse> result = paymentService.getTransactionsByAdId(testAdId, "buyer");
 
         assertEquals(1, result.size());
         assertEquals(testAdId, result.get(0).getAdId());
+    }
+
+    @Test
+    void getTransactionsByAdId_shouldThrowWhenUserIsNotSeller() {
+        AdInternal ad = new AdInternal();
+        ad.setId(testAdId);
+        ad.setSellerId(UUID.randomUUID()); // другой продавец
+        ad.setStatus("ACTIVE");
+
+        when(userRepository.findByLogin("buyer")).thenReturn(Optional.of(testUser));
+        when(adServiceClient.getAdById(testAdId)).thenReturn(ad);
+
+        assertThrows(NotOwnerException.class,
+                () -> paymentService.getTransactionsByAdId(testAdId, "buyer"));
     }
 }

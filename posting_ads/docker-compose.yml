@@ -18,6 +18,23 @@ services:
       timeout: 5s
       retries: 10
 
+  postgres-ads:
+    image: postgres:16-alpine
+    container_name: postgres-ads
+    environment:
+      POSTGRES_DB: ads
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_ads_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ads" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   user-service:
     build: ./user-service
     container_name: user-service
@@ -32,7 +49,23 @@ services:
       DB_URL: jdbc:postgresql://postgres-users:5432/users
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
-      EUREKA_URL: http://eureka:8761/eureka
+      AD_SERVICE_URL: http://ad-service:8080
+
+  ad-service:
+    build: ./ad-service
+    container_name: ad-service
+    depends_on:
+      postgres-ads:
+        condition: service_healthy
+      eureka:
+        condition: service_started
+    ports:
+      - "8082:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres-ads:5432/ads
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      USER_SERVICE_URL: http://user-service:8080
 
 volumes:
   pg_users_data:

@@ -83,7 +83,7 @@ class UserServiceImplTest {
         RegistrationRequest req = new RegistrationRequest();
         req.setLogin("newuser");
         req.setPassword("password123");
-        req.setFullName("New User");
+        req.setFullname("New User");
         req.setRole(Role.USER);
 
         when(userRepository.existsByLogin("newuser")).thenReturn(false);
@@ -104,7 +104,7 @@ class UserServiceImplTest {
         // Мок маппера для toPrivateUserResponse
         PrivateUserResponse expectedResponse = new PrivateUserResponse();
         expectedResponse.setLogin("newuser");
-        expectedResponse.setFullName("New User");
+        expectedResponse.setFullname("New User");
         expectedResponse.setRole(Role.USER);
         when(userMapper.toPrivateUserResponse(any(User.class))).thenReturn(expectedResponse);
 
@@ -112,7 +112,7 @@ class UserServiceImplTest {
 
         assertNotNull(response);
         assertEquals("newuser", response.getLogin());
-        assertEquals("New User", response.getFullName());
+        assertEquals("New User", response.getFullname());
         assertEquals(Role.USER, response.getRole());
         verify(userRepository).save(any(User.class));
     }
@@ -203,7 +203,7 @@ class UserServiceImplTest {
         doNothing().when(userMapper).updateEntity(any(UserUpdateRequest.class), any(User.class));
 
         PrivateUserResponse privateResponse = new PrivateUserResponse();
-        privateResponse.setFullName("Updated Name");
+        privateResponse.setFullname("Updated Name");
         privateResponse.setPhone("+78888888888");
         when(userMapper.toPrivateUserResponse(testUser)).thenReturn(privateResponse);
 
@@ -213,7 +213,7 @@ class UserServiceImplTest {
 
         PrivateUserResponse response = userService.updateMyProfile(TEST_LOGIN, req);
 
-        assertEquals("Updated Name", response.getFullName());
+        assertEquals("Updated Name", response.getFullname());
         assertEquals("+78888888888", response.getPhone());
         verify(userMapper).updateEntity(any(UserUpdateRequest.class), any(User.class));
     }

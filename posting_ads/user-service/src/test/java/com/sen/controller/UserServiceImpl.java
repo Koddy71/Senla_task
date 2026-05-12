@@ -48,7 +48,7 @@ class UserControllerTest {
         RegistrationRequest req = new RegistrationRequest();
         req.setLogin("newuser");
         req.setPassword("pass");
-        req.setFullName("New");
+        req.setFullname("New");
 
         ResponseEntity<PrivateUserResponse> result = userController.register(req);
 

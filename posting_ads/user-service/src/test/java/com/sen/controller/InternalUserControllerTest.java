@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,11 +26,11 @@ class InternalUserControllerTest {
     private InternalUserController controller;
 
     @Test
-    void getInternalUser_shouldReturnDto() {
+    void getInternalUserByLogin_shouldReturnDto() {
         UserInternal dto = new UserInternal();
         dto.setId(UUID.randomUUID());
         dto.setLogin("seller");
-        dto.setRole(Role.USER);
+        dto.setRole("USER");
         dto.setBlocked(false);
         when(userService.getInternalUserByLogin("seller")).thenReturn(dto);
 
@@ -37,5 +38,43 @@ class InternalUserControllerTest {
 
         assertEquals("seller", result.getBody().getLogin());
         assertFalse(result.getBody().getBlocked());
+    }
+
+    @Test
+    void getInternalUserById_shouldReturnDto() {
+        UUID userId = UUID.randomUUID();
+        UserInternal dto = new UserInternal();
+        dto.setId(userId);
+        dto.setLogin("seller");
+        dto.setRole("USER");
+        dto.setBlocked(false);
+        when(userService.getInternalUserById(userId)).thenReturn(dto);
+
+        ResponseEntity<UserInternal> result = controller.getInternalUserById(userId);
+
+        assertEquals(userId, result.getBody().getId());
+        assertEquals("seller", result.getBody().getLogin());
+    }
+
+    @Test
+    void getInternalUsersByIds_shouldReturnList() {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+        List<UUID> ids = List.of(id1, id2);
+
+        UserInternal dto1 = new UserInternal();
+        dto1.setId(id1);
+        dto1.setLogin("user1");
+        UserInternal dto2 = new UserInternal();
+        dto2.setId(id2);
+        dto2.setLogin("user2");
+
+        when(userService.getInternalUsersByIds(ids)).thenReturn(List.of(dto1, dto2));
+
+        ResponseEntity<List<UserInternal>> result = controller.getInternalUsersByIds(ids);
+
+        assertEquals(2, result.getBody().size());
+        assertEquals("user1", result.getBody().get(0).getLogin());
+        assertEquals("user2", result.getBody().get(1).getLogin());
     }
 }

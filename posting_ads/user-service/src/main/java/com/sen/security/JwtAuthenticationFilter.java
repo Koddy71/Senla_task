@@ -1,4 +1,5 @@
 package com.sen.security;
+
 //перехватывает каждый HTTP-запрос, извлекает и проверяет JWT.
 //если токен валиден, создаёт и устанавливает объект Authentication в SecurityContext, 
 //делая пользователя аутентифицированным для последующей обработки запроса
@@ -14,6 +15,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -27,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(
             JwtTokenProvider tokenProvider,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
-        this.jwtTokenProvider =tokenProvider;
+        this.jwtTokenProvider = tokenProvider;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
@@ -63,8 +66,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtTokenProvider.getUsernameFromToken(token);
             Collection<? extends GrantedAuthority> authorities = jwtTokenProvider.extractAuthorities(token);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null,
-                    authorities);
+            UserDetails userDetails = new User(username, "", authorities);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, authorities);
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
