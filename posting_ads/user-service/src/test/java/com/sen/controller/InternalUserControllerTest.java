@@ -1,7 +1,6 @@
 package com.sen.controller;
 
 import com.sen.dto.internal.UserInternal;
-import com.sen.enums.Role;
 import com.sen.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

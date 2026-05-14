@@ -21,6 +21,8 @@ import jakarta.persistence.EntityManagerFactory;
 @Configuration
 @EnableTransactionManagement
 public class DatabaseConfig {
+    @Value("${db.driver}")
+    private String dbDriver;
 
     @Value("${db.url}")
     private String dbUrl;
@@ -40,6 +42,7 @@ public class DatabaseConfig {
     @Bean
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
+        config.setDriverClassName(dbDriver);
         config.setJdbcUrl(dbUrl);
         config.setUsername(dbUsername);
         config.setPassword(dbPassword);

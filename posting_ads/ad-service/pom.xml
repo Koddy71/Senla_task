@@ -7,6 +7,7 @@
     <groupId>com.sen</groupId>
     <artifactId>ad-service</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
     <name>ad-service</name>
 
 
