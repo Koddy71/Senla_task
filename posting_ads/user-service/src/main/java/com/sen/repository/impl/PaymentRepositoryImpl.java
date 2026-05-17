@@ -26,7 +26,7 @@ public class PaymentRepositoryImpl implements PaymentRepository{
 
     @Override
     public List<Payment> findUserId(UUID userId) {
-        TypedQuery<Payment> query = entityManager.createNamedQuery("SELECT pt FROM PaymentTransaction pt WHERE pt.user.id = :userId ORDER BY pt.createdAt DESC", Payment.class);
+        TypedQuery<Payment> query = entityManager.createQuery("SELECT pt FROM Payment pt WHERE pt.user.id = :userId ORDER BY pt.createdAt DESC", Payment.class);
         query.setParameter("userId", userId);
         return query.getResultList();
     }
@@ -34,7 +34,7 @@ public class PaymentRepositoryImpl implements PaymentRepository{
     @Override
     public List<Payment> findAdId(UUID adId) {
         TypedQuery<Payment> query = entityManager.createQuery(
-                "SELECT pt FROM PaymentTransaction pt WHERE pt.adId = :adId ORDER BY pt.createdAt DESC",
+                "SELECT pt FROM Payment pt WHERE pt.adId = :adId ORDER BY pt.createdAt DESC",
                 Payment.class);
         query.setParameter("adId", adId);
         return query.getResultList();

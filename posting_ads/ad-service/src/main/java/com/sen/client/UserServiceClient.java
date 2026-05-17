@@ -1,5 +1,6 @@
 package com.sen.client;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.sen.dto.internal.UserInternal;
 import com.sen.exception.UserServiceException;
@@ -29,7 +31,11 @@ public class UserServiceClient {
 
     public UserInternal getByLogin(String login) {
         try {
-            return restTemplate.getForObject(serviceUrl + login, UserInternal.class);
+            URI uri = UriComponentsBuilder.fromUriString(serviceUrl)
+                .pathSegment("by-login", login)
+                .build()
+                .toUri();
+        return restTemplate.getForObject(uri, UserInternal.class);
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове user-service для получения пользователя по логину {}: {}", login,
                     e.getMessage(), e);
@@ -39,7 +45,11 @@ public class UserServiceClient {
 
     public UserInternal getById(UUID id) {
         try {
-            return restTemplate.getForObject(serviceUrl + id, UserInternal.class);
+            URI uri = UriComponentsBuilder.fromUriString(serviceUrl)
+                    .pathSegment("by-id", id.toString())
+                    .build()
+                    .toUri();
+            return restTemplate.getForObject(uri, UserInternal.class);
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове user-service для получения пользователя по id {}: {}", id, e.getMessage(),
                     e);
@@ -49,7 +59,11 @@ public class UserServiceClient {
 
     public List<UserInternal> getByIds(Set<UUID> ids) {
         try {
-            UserInternal[] users = restTemplate.postForObject(serviceUrl + "batch", ids, UserInternal[].class);
+            URI uri = UriComponentsBuilder.fromUriString(serviceUrl)
+                    .pathSegment("batch")
+                    .build()
+                    .toUri();
+            UserInternal[] users = restTemplate.postForObject(uri, ids, UserInternal[].class);
             return Arrays.asList(users);
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове user-service для получения пользователей по ids {}: {}", ids,

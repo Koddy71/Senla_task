@@ -23,19 +23,6 @@ CREATE TABLE ad_service.purchase (
     completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     score INT CHECK (score BETWEEN 1 AND 5), -- NULL = отзыв ещё не оставлен
     comment TEXT,
-    review_created_at TIMESTAMP CONSTRAINT fk_purchase_ad FOREIGN KEY (ad_id) REFERENCES ad (id) ON DELETE RESTRICT
+    review_created_at TIMESTAMP, 
+    CONSTRAINT fk_purchase_ad FOREIGN KEY (ad_id) REFERENCES ad_service.ad (id) ON DELETE RESTRICT
 );
-
--- SELECT COALESCE(AVG(p.score), 0)     средняя оценка
--- FROM purchase p
---     JOIN ad a ON p.ad_id = a.id
--- WHERE
---     a.seller_id = ?
---     AND p.score IS NOT NULL
-
--- SELECT p.*, a.title, a.price         история продаж
--- FROM purchase p
---     JOIN ad a ON p.ad_id = a.id
--- WHERE
---     a.seller_id = ?
--- ORDER BY p.completed_at DESC;

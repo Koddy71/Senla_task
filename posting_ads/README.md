@@ -2,13 +2,11 @@
 
 Архитектура проекта
 User Service — регистрация, профили, аутентификация, роли, баланс, платежи
-![alt text](image-1.png)
+![alt text](images/image-1.png)
 Ad Service — управление объявлениями (CRUD), поиск, фильтрация, отзыв об объявлении, рейтинг продавца, история продаж
-![alt text](image-2.png)
+![alt text](images/image-2.png)
 Message Service — личная переписка
-![alt text](image-3.png)
-API Gateway — единая точка входа, маршрутизация, проверка JWT
-Service Discovery (Eureka) - регистрация и обнаружение сервисов
+![alt text](images/image-3.png)
 
 Роли и доступ 
 Неавторизованный пользователь:

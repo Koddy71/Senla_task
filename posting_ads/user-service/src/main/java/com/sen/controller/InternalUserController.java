@@ -26,7 +26,7 @@ public class InternalUserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{login}")
+    @GetMapping("/by-login/{login}")
     public ResponseEntity<UserInternal> getInternalUserByLogin(@PathVariable String login) {
         logger.debug("Внутренний запрос на получение пользователя: {}", login);
         UserInternal user = userService.getInternalUserByLogin(login);
@@ -34,7 +34,7 @@ public class InternalUserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/by-id/{id}")
     public ResponseEntity<UserInternal> getInternalUserById(@PathVariable UUID id) {
         logger.debug("Внутренний запрос на получение пользователя: {}", id);
         UserInternal user = userService.getInternalUserById(id);

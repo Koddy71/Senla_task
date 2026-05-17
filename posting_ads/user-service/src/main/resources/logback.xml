@@ -1,9 +1,12 @@
 <configuration>
+    <property name="APP_NAME" value="user-service"/>
+    <!-- ${catalina.base} это  /usr/local/tomcat -->
+    <property name="LOG_DIR" value="${catalina.base}/logs"/>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/user-service.log</file>
+        <file>${LOG_DIR}/${APP_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/user-service.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -11,15 +14,6 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-
-    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE" />
-    </logger>
-
-    <!--Параметры запросов (закомментировано, чтобы не было большого вывода) -->
-    <!-- <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
-        <appender-ref ref="FILE" />
-    </logger> -->
 
     <root level="INFO">
         <appender-ref ref="FILE" />

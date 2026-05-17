@@ -13,15 +13,11 @@ public class LiquibaseConfig {
     @Value("${liquibase.changeLog}")
     private String changelog;
 
-    @Value("${hibernate.default_schema}")
-    private String dbSchema;
-
     @Bean
     public SpringLiquibase liquibase(DataSource dataSource) {
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(dataSource);
         liquibase.setChangeLog(changelog);
-        liquibase.setDefaultSchema(dbSchema);
         liquibase.setShouldRun(true);
         return liquibase;
     }
