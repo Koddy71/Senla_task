@@ -5,7 +5,7 @@ import java.util.UUID;
 public class UserInternal {
     private UUID id;
     private String login;
-    private String fullName;
+    private String fullname;
     private String role;
     private boolean blocked;
 
@@ -28,12 +28,12 @@ public class UserInternal {
         this.login = login;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getFullname() {
+        return fullname;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setFullname(String fullName) {
+        this.fullname = fullName;
     }
 
     public String getRole() {

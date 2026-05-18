@@ -41,7 +41,7 @@ public class PaymentController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}/process")
+    @PostMapping("/{transactionId}/process")
     public ResponseEntity<PaymentResponse> processPayment(@PathVariable UUID transactionId,
             @AuthenticationPrincipal UserDetails userDetails) {
         logger.info("Запрос на обработку платежа с ID: {} от пользователя {}",

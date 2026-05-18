@@ -2,12 +2,19 @@ package com.sen.dto.request;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+
 public class AdFilterRequest {
     private String category;
+    @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal minPrice;
+    @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal maxPrice;
     private String search;
+    @Min(0)
     private int page = 0;
+    @Min(1)
     private int size = 20;
 
     public String getCategory() {

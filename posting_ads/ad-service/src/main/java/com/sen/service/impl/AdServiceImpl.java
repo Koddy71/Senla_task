@@ -61,7 +61,7 @@ public class AdServiceImpl implements AdService {
 
         Ad saved = adRepository.save(ad);
         logger.info("Объявление успешно создано, id: {}, sellerId: {}", saved.getId(), saved.getSellerId());
-        return adMapper.toDetailResponse(saved, user.getFullName());
+        return adMapper.toDetailResponse(saved, user.getFullname());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class AdServiceImpl implements AdService {
         adMapper.updateEntity(request, ad);
         Ad updated = adRepository.save(ad);
         logger.info("Объявление {} успешно обновлено", adId);
-        return adMapper.toDetailResponse(updated, user.getFullName());
+        return adMapper.toDetailResponse(updated, user.getFullname());
     }
 
     @Override
@@ -94,7 +94,7 @@ public class AdServiceImpl implements AdService {
     public List<AdDetailResponse> getMyAds(String myLogin) {
         logger.info("Запрос списка объявлений пользователя {}", myLogin);
         UserInternal user = getUserByLogin(myLogin);
-        String userFullName = user.getFullName();
+        String userFullName = user.getFullname();
         List<AdDetailResponse> ads = adRepository.findBySellerId(user.getId()).stream()
                 .map(ad -> adMapper.toDetailResponse(ad, userFullName))
                 .collect(Collectors.toList());
@@ -122,7 +122,7 @@ public class AdServiceImpl implements AdService {
     public List<AdResponse> getAdsBySeller(String sellerLogin) {
         logger.info("Запрос активных объявлений продавца {}", sellerLogin);
         UserInternal user = getUserByLogin(sellerLogin);
-        String userFullName = user.getFullName();
+        String userFullName = user.getFullname();
         List<Ad> ads = adRepository.findBySellerIdAndStatus(user.getId(), AdStatus.ACTIVE);
         List<AdResponse> responses = ads.stream()
                 .map(ad -> adMapper.toResponse(ad, userFullName))
@@ -184,7 +184,7 @@ public class AdServiceImpl implements AdService {
                 .collect(Collectors.toSet());
         List<UserInternal> users = userServiceClient.getByIds(sellersIds);
         return users.stream()
-                .collect(Collectors.toMap(UserInternal::getId, UserInternal::getFullName));
+                .collect(Collectors.toMap(UserInternal::getId, UserInternal::getFullname));
     }
 
     private Ad findAdById(UUID adId) {

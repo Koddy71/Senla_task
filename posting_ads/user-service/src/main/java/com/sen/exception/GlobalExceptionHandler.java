@@ -21,6 +21,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.sen.dto.response.ErrorResponse;
+import com.sen.dto.response.ErrorFullResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -56,6 +57,34 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 
+    @ExceptionHandler(AuthenticationRequiredException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationRequired(AuthenticationRequiredException ex) {
+        logger.warn("Требуется аутентификация: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(NotOwnerException.class)
+    public ResponseEntity<ErrorResponse> handleNotOwner(NotOwnerException ex) {
+        logger.warn("Пользователь не является владельцем ресурса: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentError(PaymentException ex) {
+        logger.warn("Ошибка платежа: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(AdException.class)
+    public ResponseEntity<ErrorResponse> handleAdError(AdException ex) {
+        logger.warn("Ошибка при работе с объявлением: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
         logger.warn("Неудачная попытка входа: неверный логин или пароль");
@@ -71,7 +100,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class) // неверный тип параметра запроса
     public ResponseEntity<Object> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         logger.warn("Неверный тип параметра: параметр '{}' должен быть типа {}",
                 ex.getName(), ex.getRequiredType().getSimpleName());
@@ -81,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(IllegalArgumentException.class) // некорректное значение аргумента в коде
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
         logger.warn("Некорректное значение аргумента: {}", ex.getMessage());
         String message = "Некорректное значение параметра: " + ex.getMessage();
@@ -89,13 +118,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
-
+    @ExceptionHandler(MethodArgumentNotValidException.class) //ошибка валидации
+    public ResponseEntity<ErrorFullResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         logger.warn("Ошибка валидации полей запроса: {}", ex.getMessage());
 
         Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
@@ -105,39 +129,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                 : fieldError.getCode(),
                         (existing, replacement) -> existing));
 
-        ErrorResponse body = new ErrorResponse(
-                status.value(),
+        ErrorFullResponse body = new ErrorFullResponse(
+                HttpStatus.BAD_REQUEST.value(),
                 "Ошибка валидации запроса",
                 fieldErrors);
-        return ResponseEntity.status(status).body(body);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(
-            HttpMessageNotReadableException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
-
+    @ExceptionHandler(HttpMessageNotReadableException.class) // некорректный формат тела запроса
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         logger.warn("Некорректный формат тела запроса: {}", ex.getMostSpecificCause().getMessage());
-        ErrorResponse body = new ErrorResponse(
-                status.value(),
-                "Некорректный формат запроса: " + ex.getMostSpecificCause().getMessage());
-        return ResponseEntity.status(status).body(body);
+        String message = "Некорректный формат запроса: " + ex.getMostSpecificCause().getMessage();
+        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestParameter(
-            MissingServletRequestParameterException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
-
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex) {
         logger.warn("Отсутствует обязательный параметр запроса: {}", ex.getParameterName());
-        ErrorResponse body = new ErrorResponse(
-                status.value(),
-                "Отсутствует обязательный параметр: " + ex.getParameterName());
-        return ResponseEntity.status(status).body(body);
+        String message = "Отсутствует обязательный параметр: " + ex.getParameterName();
+        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @Override
@@ -150,7 +163,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         if (status.is5xxServerError()) {
             logger.error("Внутренняя ошибка сервера при обработке запроса {} {}: {}",
-                    request.getDescription(false), ex.getMessage(), ex);
+                    request.getDescription(false), ex);
         } else {
             logger.warn("Ошибка при обработке запроса: {} - {}", status.value(), ex.getMessage());
         }

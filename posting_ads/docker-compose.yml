@@ -45,7 +45,7 @@ services:
       DB_URL: jdbc:postgresql://postgres-users:5432/users
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
-      AD_SERVICE_URL: http://ad-service:8080
+      AD_SERVICE_URL: http://ad-service:8080/internal/ads/
 
   ad-service:
     build: ./ad-service
@@ -59,7 +59,7 @@ services:
       DB_URL: jdbc:postgresql://postgres-ads:5432/ads
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
-      USER_SERVICE_URL: http://user-service:8080
+      USER_SERVICE_URL: http://user-service:8080/internal/users/
 
 volumes:
   pg_users_data:
