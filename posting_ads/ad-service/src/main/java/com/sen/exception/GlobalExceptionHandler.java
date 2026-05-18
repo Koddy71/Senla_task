@@ -27,67 +27,67 @@ import com.sen.dto.response.ErrorFullResponse;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
-        logger.warn("Пользователь не найден: {}", ex.getMessage());
+    @ExceptionHandler(AdNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAdNotFound(AdNotFoundException ex) {
+        logger.warn("Объявление не найдено: {}", ex.getMessage());
         ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        logger.warn("Попытка регистрации с уже существующим логином: {}", ex.getMessage());
-        ErrorResponse body = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
-    }
-
-    @ExceptionHandler(InsufficientBalanceException.class)
-    public ResponseEntity<ErrorResponse> handleInsufficientBalance(InsufficientBalanceException ex) {
-        logger.warn("Недостаточно средств: {}", ex.getMessage());
+    @ExceptionHandler(AdNotActiveException.class)
+    public ResponseEntity<ErrorResponse> handleAdNotActive(AdNotActiveException ex) {
+        logger.warn("Объявление не активно: {}", ex.getMessage());
         ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-
-    @ExceptionHandler(AdServiceException.class)
-    public ResponseEntity<ErrorResponse> handleAdServiceError(AdServiceException ex) {
-        logger.error("Ошибка внешнего сервиса: {}", ex.getMessage());
-        ErrorResponse body = new ErrorResponse(
-                HttpStatus.SERVICE_UNAVAILABLE.value(),
-                "Сервис объявлений временно недоступен, повторите попытку позже");
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
-    }
-
-    @ExceptionHandler(AuthenticationRequiredException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationRequired(AuthenticationRequiredException ex) {
-        logger.warn("Требуется аутентификация: {}", ex.getMessage());
-        ErrorResponse body = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
     @ExceptionHandler(NotOwnerException.class)
     public ResponseEntity<ErrorResponse> handleNotOwner(NotOwnerException ex) {
-        logger.warn("Пользователь не является владельцем ресурса: {}", ex.getMessage());
+        logger.warn("Пользователь не владелец: {}", ex.getMessage());
         ErrorResponse body = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
-    @ExceptionHandler(PaymentException.class)
-    public ResponseEntity<ErrorResponse> handlePaymentError(PaymentException ex) {
-        logger.warn("Ошибка платежа: {}", ex.getMessage());
+    @ExceptionHandler(PurchaseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePurchaseNotFound(PurchaseNotFoundException ex) {
+        logger.warn("Покупка не найдена: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(ReviewAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleReviewAlreadyExists(ReviewAlreadyExistsException ex) {
+        logger.warn("Отзыв уже существует: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(SelfPurchaseException.class)
+    public ResponseEntity<ErrorResponse> handleSelfPurchase(SelfPurchaseException ex) {
+        logger.warn("Попытка купить собственное объявление: {}", ex.getMessage());
         ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(AdException.class)
-    public ResponseEntity<ErrorResponse> handleAdError(AdException ex) {
-        logger.warn("Ошибка при работе с объявлением: {}", ex.getMessage());
-        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    @ExceptionHandler(UserBlockedException.class)
+    public ResponseEntity<ErrorResponse> handleUserBlocked(UserBlockedException ex) {
+        logger.warn("Пользователь заблокирован: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    @ExceptionHandler(UserServiceException.class)
+    public ResponseEntity<ErrorResponse> handleUserServiceError(UserServiceException ex) {
+        logger.error("Ошибка вызова user-service: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Сервис пользователей временно недоступен, повторите попытку позже");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
-        logger.warn("Неудачная попытка входа: неверный логин или пароль");
+        logger.warn("Неудачная попытка аутентификации");
         ErrorResponse body = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "Неверный логин или пароль");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
@@ -95,49 +95,48 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         logger.warn("Доступ запрещён: {}", ex.getMessage());
-        ErrorResponse body = new ErrorResponse(HttpStatus.FORBIDDEN.value(),
-                "Недостаточно прав для выполнения операции");
+        ErrorResponse body = new ErrorResponse(HttpStatus.FORBIDDEN.value(), "Недостаточно прав");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class) // неверный тип параметра запроса
-    public ResponseEntity<Object> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        logger.warn("Неверный тип параметра: параметр '{}' должен быть типа {}",
-                ex.getName(), ex.getRequiredType().getSimpleName());
-        String errorMessage = String.format("Параметр '%s' должен быть типа %s",
-                ex.getName(), ex.getRequiredType().getSimpleName());
-        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errorMessage);
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        logger.warn("Неверный тип параметра '{}' ожидался {}", ex.getName(), ex.getRequiredType().getSimpleName());
+        String message = String.format("Параметр '%s' должен быть типа %s", ex.getName(),
+                ex.getRequiredType().getSimpleName());
+        ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class) // некорректное значение аргумента в коде
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        logger.warn("Некорректное значение аргумента: {}", ex.getMessage());
+        logger.warn("Некорректный аргумент: {}", ex.getMessage());
         String message = "Некорректное значение параметра: " + ex.getMessage();
         ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @Override  // ошибка валидации
+    @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
             HttpStatusCode status,
             WebRequest request) {
-        logger.warn("Ошибка валидации полей запроса: {}", ex.getMessage());
-
+        logger.warn("Ошибка валидации полей: {}", ex.getMessage());
         Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         fieldError -> fieldError.getField(),
                         fieldError -> fieldError.getDefaultMessage() != null ? fieldError.getDefaultMessage()
                                 : fieldError.getCode(),
-                        (existing, replacement) -> existing));
-
-        ErrorFullResponse body = new ErrorFullResponse(status.value(),"Ошибка валидации запроса",fieldErrors);
+                        (e, r) -> e));
+        ErrorFullResponse body = new ErrorFullResponse(
+                status.value(),
+                "Ошибка валидации запроса",
+                fieldErrors);
         return ResponseEntity.status(status).body(body);
     }
 
-    @Override  // некорректный формат тела запроса
+    @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex,
             HttpHeaders headers,
@@ -155,7 +154,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatusCode status,
             WebRequest request) {
-        logger.warn("Отсутствует обязательный параметр запроса: {}", ex.getParameterName());
+        logger.warn("Отсутствует параметр: {}", ex.getParameterName());
         String message = "Отсутствует обязательный параметр: " + ex.getParameterName();
         ErrorResponse body = new ErrorResponse(status.value(), message);
         return ResponseEntity.status(status).body(body);
@@ -168,14 +167,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatusCode status,
             WebRequest request) {
-
         if (status.is5xxServerError()) {
-            logger.error("Внутренняя ошибка сервера при обработке запроса {} {}: {}",
-                    request.getDescription(false), ex);
+            logger.error("Внутренняя ошибка сервера: {}", request.getDescription(false), ex);
         } else {
-            logger.warn("Ошибка при обработке запроса: {} - {}", status.value(), ex.getMessage());
+            logger.warn("Ошибка запроса: {} - {}", status.value(), ex.getMessage());
         }
-
         String clientMessage = status.is5xxServerError() ? "Внутренняя ошибка сервера" : ex.getMessage();
         ErrorResponse apiError = new ErrorResponse(status.value(), clientMessage);
         return ResponseEntity.status(status).headers(headers).body(apiError);

@@ -26,6 +26,7 @@ import com.sen.dto.response.PublicUserResponse;
 import com.sen.entity.User;
 import com.sen.enums.Role;
 import com.sen.exception.UserAlreadyExistsException;
+import com.sen.exception.UserBlockedException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.UserMapper;
 import com.sen.repository.UserRepository;
@@ -93,6 +94,7 @@ public class UserServiceImpl implements UserService {
     public PublicUserResponse getPublicProfile(String login) {
         logger.info("Запрос публичного профиля пользователя {}", login);
         User user = findUserByLogin(login);
+        checkNotBlocked(user);
         logger.info("Публичный профиль пользователя {} успешно получен", login);
         return userMapper.toPublicUserResponse(user);
     }
@@ -102,6 +104,7 @@ public class UserServiceImpl implements UserService {
     public PrivateUserResponse getMyProfile(String login) {
         logger.info("Запрос собственного профиля пользователя {}", login);
         User user = findUserByLogin(login);
+        checkNotBlocked(user);
         logger.info("Собственный профиль пользователя {} успешно получен", login);
         return userMapper.toPrivateUserResponse(user);
     }
@@ -110,6 +113,7 @@ public class UserServiceImpl implements UserService {
     public PrivateUserResponse updateMyProfile(String login, UserUpdateRequest request) {
         logger.info("Запрос на обновление профиля пользователя {}", login);
         User user = findUserByLogin(login);
+        checkNotBlocked(user);
         userMapper.updateEntity(request, user);
         User updated = userRepository.save(user);
         logger.info("Профиль пользователя {} успешно обновлён", login);
@@ -120,6 +124,7 @@ public class UserServiceImpl implements UserService {
     public void deleteMyProfile(String login) {
         logger.info("Удаление профиля пользователя {}", login);
         User user = findUserByLogin(login);
+        checkNotBlocked(user);
         user.setBlocked(true);
         userRepository.save(user);
         logger.info("Профиль пользователя {} успешно удалён", login);
@@ -129,6 +134,7 @@ public class UserServiceImpl implements UserService {
     public PrivateUserResponse balanceUp(String login, BalanceUpRequest request) {
         logger.info("Запрос на пополнение баланса для пользователя {} на сумму {}", login, request.getAmount());
         User user = findUserByLogin(login);
+        checkNotBlocked(user);
         user.setBalance(user.getBalance().add(request.getAmount()));
         User updated = userRepository.save(user);
         logger.info("Баланс пользователя {} успешно пополнен. Новый баланс: {}", login, updated.getBalance());
@@ -222,6 +228,13 @@ public class UserServiceImpl implements UserService {
                     logger.error("Пользователь {} не найден", login);
                     return new UserNotFoundException("User not found: " + login);
                 });
+    }
+
+    private void checkNotBlocked(User user) {
+        if (user.isBlocked()) {
+            logger.warn("Пользователь {} заблокирован, операция запрещена", user.getLogin());
+            throw new UserBlockedException(user.getLogin());
+        }
     }
 
     private User findUserById(UUID id) {

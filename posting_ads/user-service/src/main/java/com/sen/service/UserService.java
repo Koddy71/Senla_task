@@ -19,13 +19,13 @@ public interface UserService {
     TokenResponse login(LoginRequest request);
 
     //USER
-    PublicUserResponse getPublicProfile(String login);
+    PublicUserResponse getPublicProfile(String login); 
 
-    PrivateUserResponse getMyProfile(String myLogin);
+    PrivateUserResponse getMyProfile(String myLogin); 
 
-    PrivateUserResponse balanceUp(String myLogin, BalanceUpRequest request);
+    PrivateUserResponse balanceUp(String myLogin, BalanceUpRequest request); 
 
-    PrivateUserResponse updateMyProfile(String myLogin, UserUpdateRequest request);
+    PrivateUserResponse updateMyProfile(String myLogin, UserUpdateRequest request); 
 
     void deleteMyProfile(String myLogin);
 
