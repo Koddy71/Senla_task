@@ -6,4 +6,8 @@
         <sqlFile path="migration/001-create-tables.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="true"/>
     </changeSet>
 
+    <changeSet id="002-insert-admin" author="Koddy71">
+        <sqlFile path="migration/002-insert-admin.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="true"/>
+    </changeSet>
+
 </databaseChangeLog>
