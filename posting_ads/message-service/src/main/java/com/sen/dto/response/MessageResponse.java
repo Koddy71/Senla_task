@@ -9,7 +9,6 @@ public class MessageResponse {
     private String senderLogin;
     private String text;
     private LocalDateTime sentAt;
-    private boolean read;
 
     public MessageResponse() {
     }
@@ -52,14 +51,6 @@ public class MessageResponse {
 
     public void setSentAt(LocalDateTime sentAt) {
         this.sentAt = sentAt;
-    }
-
-    public boolean isRead() {
-        return read;
-    }
-
-    public void setRead(boolean read) {
-        this.read = read;
     }
 
 }

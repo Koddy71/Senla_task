@@ -1,320 +1,265 @@
-// package com.sen.service.impl;
+package com.sen.service.impl;
 
-// import java.time.LocalDateTime;
-// import java.util.Comparator;
-// import java.util.HashMap;
-// import java.util.HashSet;
-// import java.util.List;
-// import java.util.Map;
-// import java.util.Set;
-// import java.util.UUID;
-// import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-// import org.springframework.stereotype.Service;
-// import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// import com.sen.client.UserServiceClient;
-// import com.sen.dto.internal.UserInternal;
-// import com.sen.dto.request.CreateDialogRequest;
-// import com.sen.dto.request.SendMessageRequest;
-// import com.sen.dto.response.DialogResponse;
-// import com.sen.dto.response.MessageResponse;
-// import com.sen.entity.Dialog;
-// import com.sen.entity.Message;
-// import com.sen.exception.DialogAccessDeniedException;
-// import com.sen.exception.DialogNotFoundException;
-// import com.sen.exception.EmptyMessageException;
-// import com.sen.exception.SelfDialogException;
-// import com.sen.exception.UserBlockedException;
-// import com.sen.exception.UserNotFoundException;
-// import com.sen.exception.UserServiceException;
-// import com.sen.mapper.MessageMapper;
-// import com.sen.repository.DialogRepository;
-// import com.sen.repository.MessageRepository;
-// import com.sen.service.DialogService;
+import com.sen.client.UserServiceClient;
+import com.sen.dto.internal.UserInternal;
+import com.sen.dto.request.CreateDialogRequest;
+import com.sen.dto.request.MessageRequest;
+import com.sen.dto.response.DialogResponse;
+import com.sen.dto.response.MessageResponse;
+import com.sen.entity.Dialog;
+import com.sen.entity.Message;
+import com.sen.exception.DialogAccessDeniedException;
+import com.sen.exception.DialogAlreadyExistsException;
+import com.sen.exception.DialogNotFoundException;
+import com.sen.exception.SelfDialogException;
+import com.sen.exception.UserBlockedException;
+import com.sen.mapper.DialogMapper;
+import com.sen.mapper.MessageMapper;
+import com.sen.repository.DialogRepository;
+import com.sen.repository.MessageRepository;
+import com.sen.service.DialogService;
 
-// @Service
-// @Transactional
-// public class DialogServiceImpl implements DialogServiceService {
+@Service
+@Transactional
+public class DialogServiceImpl implements DialogService {
 
-//     private final DialogRepository dialogRepository;
-//     private final MessageRepository messageRepository;
-//     private final UserServiceClient userServiceClient;
-//     private final MessageMapper messageMapper;
+    private static final Logger logger = LoggerFactory.getLogger(DialogServiceImpl.class);
 
-//     public MessageServiceImpl(DialogRepository dialogRepository,
-//             MessageRepository messageRepository,
-//             UserServiceClient userServiceClient,
-//             MessageMapper messageMapper) {
-//         this.dialogRepository = dialogRepository;
-//         this.messageRepository = messageRepository;
-//         this.userServiceClient = userServiceClient;
-//         this.messageMapper = messageMapper;
-//     }
+    private final DialogRepository dialogRepository;
+    private final MessageRepository messageRepository;
+    private final UserServiceClient userServiceClient;
+    private final MessageMapper messageMapper;
+    private final DialogMapper dialogMapper;
 
-//     @Override
-//     public DialogResponse createOrGetDialog(String myLogin, CreateDialogRequest request) {
-//         UserInternal me = getUserByLogin(myLogin);
-//         ensureNotBlocked(me);
+    public DialogServiceImpl(DialogRepository dialogRepository,
+            MessageRepository messageRepository,
+            UserServiceClient userServiceClient,
+            MessageMapper messageMapper,
+            DialogMapper dialogMapper) {
+        this.dialogRepository = dialogRepository;
+        this.messageRepository = messageRepository;
+        this.userServiceClient = userServiceClient;
+        this.messageMapper = messageMapper;
+        this.dialogMapper = dialogMapper;
+    }
 
-//         String participantLogin = normalizeLogin(request.getParticipantLogin());
-//         UserInternal participant = getUserByLogin(participantLogin);
-//         ensureNotBlocked(participant);
+    @Override
+    public DialogResponse createDialog(String myLogin, CreateDialogRequest request) {
+        logger.info("Запрос на создание диалога от пользователя {} с участником {}", myLogin,
+                request.getParticipantLogin());
+        UserInternal me = getUserByLogin(myLogin);
+        ensureNotBlocked(me);
 
-//         if (me.getLogin() != null && me.getLogin().equalsIgnoreCase(participant.getLogin())) {
-//             throw new SelfDialogException();
-//         }
+        UserInternal participant = getUserByLogin(request.getParticipantLogin());
+        ensureNotBlocked(participant);
 
-//         UUID user1Id = first(me.getId(), participant.getId());
-//         UUID user2Id = second(me.getId(), participant.getId());
+        if (me.getLogin() != null && me.getLogin().equalsIgnoreCase(participant.getLogin())) {
+            logger.error("Попытка создать диалог с самим собой от пользователя {}", myLogin);
+            throw new SelfDialogException();
+        }
 
-//         Dialog dialog = dialogRepository.findByUser1IdAndUser2Id(user1Id, user2Id)
-//                 .orElseGet(() -> {
-//                     Dialog created = new Dialog();
-//                     created.setUser1Id(user1Id);
-//                     created.setUser2Id(user2Id);
-//                     created.setCreatedAt(LocalDateTime.now());
-//                     return dialogRepository.save(created);
-//                 });
+        UUID user1Id = me.getId();
+        UUID user2Id = participant.getId();
 
-//         return messageMapper.toDialogResponse(dialog, me.getLogin(), participant.getLogin());
-//     }
+        Optional<Dialog> existing = dialogRepository.findByUser1IdAndUser2Id(user1Id, user2Id);
+        if (existing.isPresent()) {
+            logger.warn("Диалог между {} и {} уже существует", myLogin, request.getParticipantLogin());
+            throw new DialogAlreadyExistsException();
+        }
 
-//     @Override
-//     @Transactional(readOnly = true)
-//     public List<DialogResponse> getMyDialogs(String myLogin) {
-//         UserInternal me = getUserByLogin(myLogin);
-//         ensureNotBlocked(me);
+        Dialog dialog = new Dialog();
+        dialog.setUser1Id(user1Id);
+        dialog.setUser2Id(user2Id);
+        dialog.setCreatedAt(LocalDateTime.now());
+        Dialog saved = dialogRepository.save(dialog);
+        logger.info("Диалог успешно создан, id: {}, между {} и {}", saved.getId(), me.getLogin(),
+                participant.getLogin());
+        return dialogMapper.toDialogResponse(saved, me.getLogin(), participant.getLogin());
+    }
 
-//         List<Dialog> dialogs = dialogRepository.findDialogsByUserId(me.getId());
-//         if (dialogs.isEmpty()) {
-//             return List.of();
-//         }
+    @Override
+    @Transactional(readOnly = true)
+    public List<DialogResponse> getMyDialogs(String myLogin) {
+        logger.info("Запрос списка диалогов пользователя {}", myLogin);
+        UserInternal me = getUserByLogin(myLogin);
+        ensureNotBlocked(me);
 
-//         Set<UUID> ids = new HashSet<>();
-//         for (Dialog dialog : dialogs) {
-//             ids.add(otherUserId(dialog, me.getId()));
-//         }
+        List<Dialog> dialogs = dialogRepository.findDialogsByUserId(me.getId());
+        logger.debug("Найдено диалогов: {}", dialogs.size());
 
-//         Map<UUID, String> logins = loadLogins(ids);
+        Map<UUID, String> logins = resolveDialogLogins(dialogs, me.getId());
 
-//         return dialogs.stream()
-//                 .map(dialog -> {
-//                     UUID otherId = otherUserId(dialog, me.getId());
-//                     String otherLogin = logins.get(otherId);
-//                     if (otherLogin == null) {
-//                         throw new UserNotFoundException("Пользователь не найден: " + otherId);
-//                     }
+        List<DialogResponse> responses = dialogs.stream()
+                .map(dialog -> {
+                    UUID otherId = otherUserId(dialog, me.getId());
+                    return dialogMapper.toDialogResponse(
+                            dialog,
+                            me.getLogin(),
+                            logins.get(otherId));
+                })
+                .sorted(Comparator.comparing(DialogResponse::getCreatedAt).reversed())
+                .collect(Collectors.toList());
+        logger.info("Получено {} диалогов для пользователя {}", responses.size(), myLogin);
+        return responses;
+    }
 
-//                     return messageMapper.toDialogResponse(
-//                             dialog,
-//                             loginForUserId(dialog.getUser1Id(), me, logins),
-//                             loginForUserId(dialog.getUser2Id(), me, logins));
-//                 })
-//                 .sorted(Comparator.comparing(DialogResponse::getCreatedAt,
-//                         Comparator.nullsLast(Comparator.naturalOrder())).reversed())
-//                 .collect(Collectors.toList());
-//     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<MessageResponse> getDialog(UUID dialogId, String myLogin) {
+        logger.info("Запрос сообщений диалога {} от пользователя {}", dialogId, myLogin);
+        UserInternal me = getUserByLogin(myLogin);
+        ensureNotBlocked(me);
 
-//     @Override
-//     @Transactional(readOnly = true)
-//     public List<MessageResponse> getDialog(UUID dialogId, String myLogin) {
-//         UserInternal me = getUserByLogin(myLogin);
-//         ensureNotBlocked(me);
+        Dialog dialog = findDialog(dialogId);
+        checkAccess(dialog, me.getId());
 
-//         Dialog dialog = findDialogOrThrow(dialogId);
-//         checkAccess(dialog, me.getId());
+        List<Message> messages = messageRepository.findByDialogId(dialogId);
+        logger.debug("В диалоге {} найдено сообщений: {}", dialogId, messages.size());
 
-//         List<Message> messages = messageRepository.findByDialogId(dialogId);
-//         if (messages.isEmpty()) {
-//             return List.of();
-//         }
+        Map<UUID, String> logins = resolveSenderLogins(messages);
 
-//         messageRepository.findByDialogId(dialogId).stream()
-//                 .filter(m -> !me.getId().equals(m.getSenderId()))
-//                 .forEach(m -> {
-//                     // no-op, just keeps method behavior explicit for read marking below
-//                 });
+        List<MessageResponse> responses = messages.stream()
+                .map(message -> {
+                    String senderLogin = logins.get(message.getSenderId());
+                    return messageMapper.toMessageResponse(message, senderLogin);
+                })
+                .collect(Collectors.toList());
+        logger.info("Возвращено {} сообщений для диалога {}", responses.size(), dialogId);
+        return responses;
+    }
 
-//         // Отмечаем как прочитанные только входящие сообщения
-//         messages.stream()
-//                 .filter(m -> !me.getId().equals(m.getSenderId()) && !m.isRead())
-//                 .forEach(m -> {
-//                     m.setRead(true);
-//                     messageRepository.save(m);
-//                 });
+    @Override
+    public MessageResponse sendMessage(UUID dialogId, String myLogin, MessageRequest request) {
+        logger.info("Пользователь {} отправляет сообщение в диалог {}", myLogin, dialogId);
+        UserInternal me = getUserByLogin(myLogin);
+        ensureNotBlocked(me);
 
-//         Set<UUID> senderIds = messages.stream()
-//                 .map(Message::getSenderId)
-//                 .collect(Collectors.toSet());
+        Dialog dialog = findDialog(dialogId);
+        checkAccess(dialog, me.getId());
 
-//         Map<UUID, String> logins = loadLogins(senderIds);
+        Message message = new Message();
+        message.setDialogId(dialogId);
+        message.setSenderId(me.getId());
+        message.setText(request.getText());
+        message.setSentAt(LocalDateTime.now());
 
-//         return messages.stream()
-//                 .map(message -> {
-//                     String senderLogin = logins.get(message.getSenderId());
-//                     if (senderLogin == null) {
-//                         throw new UserNotFoundException("Пользователь не найден: " + message.getSenderId());
-//                     }
-//                     return messageMapper.toMessageResponse(message, senderLogin);
-//                 })
-//                 .collect(Collectors.toList());
-//     }
+        Message saved = messageRepository.save(message);
+        logger.info("Сообщение успешно отправлено, id: {}, в диалог {}", saved.getId(), dialogId);
+        return messageMapper.toMessageResponse(saved, me.getLogin());
+    }
 
-//     @Override
-//     public MessageResponse sendMessage(UUID dialogId, String myLogin, SendMessageRequest request) {
-//         UserInternal me = getUserByLogin(myLogin);
-//         ensureNotBlocked(me);
+    @Override
+    public void deleteDialog(UUID dialogId, String myLogin) {
+        logger.info("Запрос на удаление диалога {} от пользователя {}", dialogId, myLogin);
+        UserInternal me = getUserByLogin(myLogin);
+        ensureNotBlocked(me);
 
-//         Dialog dialog = findDialogOrThrow(dialogId);
-//         checkAccess(dialog, me.getId());
+        Dialog dialog = findDialog(dialogId);
+        checkAccess(dialog, me.getId());
 
-//         String text = request.getText() == null ? "" : request.getText().trim();
-//         if (text.isBlank()) {
-//             throw new EmptyMessageException();
-//         }
+        dialogRepository.deleteById(dialogId);
+        logger.info("Диалог {} успешно удалён", dialogId);
+    }
 
-//         Message message = new Message();
-//         message.setDialogId(dialogId);
-//         message.setSenderId(me.getId());
-//         message.setText(text);
-//         message.setSentAt(LocalDateTime.now());
-//         message.setRead(false);
+    @Override
+    public void deleteMessage(UUID messageId, String myLogin) {
+        logger.info("Запрос на удаление сообщения {} от пользователя {}", messageId, myLogin);
+        UserInternal me = getUserByLogin(myLogin);
+        ensureNotBlocked(me);
 
-//         Message saved = messageRepository.save(message);
-//         return messageMapper.toMessageResponse(saved, me.getLogin());
-//     }
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> {
+                    logger.error("Сообщение с id {} не найдено", messageId);
+                    return new DialogNotFoundException("Сообщение не найдено: " + messageId);
+                });
 
-//     @Override
-//     public void deleteDialog(UUID dialogId, String myLogin) {
-//         UserInternal me = getUserByLogin(myLogin);
-//         ensureNotBlocked(me);
+        if (!me.getId().equals(message.getSenderId())) {
+            logger.error("Пользователь {} не является отправителем сообщения {}", myLogin, messageId);
+            throw new DialogAccessDeniedException("Удалять сообщение может только его отправитель");
+        }
 
-//         Dialog dialog = findDialogOrThrow(dialogId);
-//         checkAccess(dialog, me.getId());
+        messageRepository.deleteById(messageId);
+        logger.info("Сообщение {} успешно удалено", messageId);
+    }
 
-//         dialogRepository.deleteById(dialogId);
-//     }
+    private UserInternal getUserByLogin(String login) {
+        logger.debug("Получение пользователя по логину: {}", login);
+        return userServiceClient.getByLogin(login);
+    }
 
-//     @Override
-//     public void deleteMessage(UUID messageId, String myLogin) {
-//         UserInternal me = getUserByLogin(myLogin);
-//         ensureNotBlocked(me);
+    private void ensureNotBlocked(UserInternal user) {
+        if (user.isBlocked()) {
+            logger.error("Пользователь {} заблокирован, операция невозможна", user.getLogin());
+            throw new UserBlockedException(user.getLogin());
+        }
+    }
 
-//         Message message = messageRepository.findById(messageId)
-//                 .orElseThrow(() -> new DialogNotFoundException("Сообщение не найдено: " + messageId));
+    private UUID otherUserId(Dialog dialog, UUID myUserId) {
+        if (myUserId.equals(dialog.getUser1Id())) {
+            return dialog.getUser2Id();
+        } else if (myUserId.equals(dialog.getUser2Id())) {
+            return dialog.getUser1Id();
+        } else {
+            logger.error("Пользователь {} не является участником диалога {}", myUserId, dialog.getId());
+            throw new DialogAccessDeniedException();
+        }
+    }
 
-//         if (!me.getId().equals(message.getSenderId())) {
-//             throw new DialogAccessDeniedException("Удалять сообщение может только его отправитель");
-//         }
+    private Map<UUID, String> resolveDialogLogins(List<Dialog> dialogs, UUID myId) {
+        Set<UUID> otherIds = dialogs.stream()
+                .map(d -> otherUserId(d, myId))
+                .collect(Collectors.toSet());
 
-//         boolean deleted = messageRepository.deleteById(messageId);
-//         if (!deleted) {
-//             throw new DialogNotFoundException("Сообщение не найдено: " + messageId);
-//         }
-//     }
+        if (otherIds.isEmpty()) {
+            return Map.of();
+        }
+        List<UserInternal> users = userServiceClient.getByIds(otherIds);
+        logger.debug("Загружено логинов для {} участников диалогов", users.size());
+        return users.stream()
+                .collect(Collectors.toMap(UserInternal::getId, UserInternal::getLogin));
+    }
 
-//     private UserInternal getUserByLogin(String login) {
-//         try {
-//             UserInternal user = userServiceClient.getByLogin(login);
-//             if (user == null || user.getId() == null) {
-//                 throw new UserNotFoundException("Пользователь не найден: " + login);
-//             }
-//             return user;
-//         } catch (UserServiceException ex) {
-//             throw ex;
-//         } catch (RuntimeException ex) {
-//             throw new UserServiceException("Ошибка получения пользователя по логину: " + login, ex);
-//         }
-//     }
+    private Map<UUID, String> resolveSenderLogins(List<Message> messages) {
+        Set<UUID> senderIds = messages.stream()
+                .map(Message::getSenderId)
+                .collect(Collectors.toSet());
 
-//     private Map<UUID, String> loadLogins(Set<UUID> ids) {
-//         if (ids == null || ids.isEmpty()) {
-//             return Map.of();
-//         }
+        if (senderIds.isEmpty()) {
+            return Map.of();
+        }
+        List<UserInternal> users = userServiceClient.getByIds(senderIds);
+        logger.debug("Загружено логинов для {} отправителей сообщений", users.size());
+        return users.stream()
+                .collect(Collectors.toMap(UserInternal::getId, UserInternal::getLogin));
+    }
 
-//         try {
-//             List<UserInternal> users = userServiceClient.getByIds(ids);
-//             if (users == null) {
-//                 throw new UserServiceException("User service returned empty response");
-//             }
+    private Dialog findDialog(UUID dialogId) {
+        return dialogRepository.findById(dialogId)
+                .orElseThrow(() -> {
+                    logger.error("Диалог с id {} не найден", dialogId);
+                    return new DialogNotFoundException(dialogId);
+                });
+    }
 
-//             Map<UUID, String> result = new HashMap<>();
-//             for (UserInternal user : users) {
-//                 if (user != null && user.getId() != null && user.getLogin() != null) {
-//                     result.put(user.getId(), user.getLogin());
-//                 }
-//             }
-
-//             for (UUID id : ids) {
-//                 if (!result.containsKey(id)) {
-//                     throw new UserNotFoundException("Пользователь не найден: " + id);
-//                 }
-//             }
-
-//             return result;
-//         } catch (UserServiceException ex) {
-//             throw ex;
-//         } catch (RuntimeException ex) {
-//             throw new UserServiceException("Ошибка пакетного получения пользователей", ex);
-//         }
-//     }
-
-//     private void ensureNotBlocked(UserInternal user) {
-//         if (Boolean.TRUE.equals(user.getBlocked())) {
-//             throw new UserBlockedException("Пользователь заблокирован: " + user.getLogin());
-//         }
-//     }
-
-//     private Dialog findDialogOrThrow(UUID dialogId) {
-//         return dialogRepository.findById(dialogId)
-//                 .orElseThrow(() -> new DialogNotFoundException(dialogId));
-//     }
-
-//     private void checkAccess(Dialog dialog, UUID myUserId) {
-//         boolean allowed = myUserId.equals(dialog.getUser1Id()) || myUserId.equals(dialog.getUser2Id());
-//         if (!allowed) {
-//             throw new DialogAccessDeniedException();
-//         }
-//     }
-
-//     private UUID otherUserId(Dialog dialog, UUID myUserId) {
-//         if (myUserId.equals(dialog.getUser1Id())) {
-//             return dialog.getUser2Id();
-//         }
-//         if (myUserId.equals(dialog.getUser2Id())) {
-//             return dialog.getUser1Id();
-//         }
-//         throw new DialogAccessDeniedException();
-//     }
-
-//     private UUID first(UUID a, UUID b) {
-//         return a.compareTo(b) <= 0 ? a : b;
-//     }
-
-//     private UUID second(UUID a, UUID b) {
-//         return a.compareTo(b) <= 0 ? b : a;
-//     }
-
-//     private String normalizeLogin(String login) {
-//         if (login == null) {
-//             return null;
-//         }
-//         String value = login.trim();
-//         if (value.isBlank()) {
-//             throw new UserNotFoundException("Логин участника не может быть пустым");
-//         }
-//         return value;
-//     }
-
-//     private String loginForUserId(UUID userId, UserInternal me, Map<UUID, String> logins) {
-//         if (me.getId().equals(userId)) {
-//             return me.getLogin();
-//         }
-//         String login = logins.get(userId);
-//         if (login == null) {
-//             throw new UserNotFoundException("Пользователь не найден: " + userId);
-//         }
-//         return login;
-//     }
-// }
+    private void checkAccess(Dialog dialog, UUID myUserId) {
+        boolean allowed = myUserId.equals(dialog.getUser1Id()) || myUserId.equals(dialog.getUser2Id());
+        if (!allowed) {
+            logger.error("Пользователь {} не имеет доступа к диалогу {}", myUserId, dialog.getId());
+            throw new DialogAccessDeniedException();
+        }
+    }
+}

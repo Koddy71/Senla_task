@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sen.dto.request.CreateDialogRequest;
-import com.sen.dto.request.SendMessageRequest;
+import com.sen.dto.request.MessageRequest;
 import com.sen.dto.response.DialogResponse;
 import com.sen.dto.response.MessageResponse;
 import com.sen.service.DialogService;
@@ -37,12 +37,13 @@ public class DialogController {
     }
 
     @PostMapping
-    public ResponseEntity<DialogResponse> createOrGet(
+    public ResponseEntity<DialogResponse> createDialog(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody CreateDialogRequest request) {
-        logger.info("Запрос на создание/получение диалога от пользователя {}", userDetails.getUsername());
+        logger.info("Запрос на создание диалога от пользователя {}", userDetails.getUsername());
         DialogResponse response = dialogService.createDialog(userDetails.getUsername(), request);
-        return ResponseEntity.ok(response);
+        logger.info("Диалог успешно создан, id: {}", response.getId());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/my")
@@ -65,7 +66,7 @@ public class DialogController {
     public ResponseEntity<MessageResponse> sendMessage(
             @PathVariable UUID dialogId,
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody SendMessageRequest request) {
+            @Valid @RequestBody MessageRequest request) {
         logger.info("Отправка сообщения в диалог {} пользователем {}", dialogId, userDetails.getUsername());
         MessageResponse response = dialogService.sendMessage(dialogId, userDetails.getUsername(), request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

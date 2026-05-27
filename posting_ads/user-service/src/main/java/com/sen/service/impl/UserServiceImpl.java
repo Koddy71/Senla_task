@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByLogin(login)
                 .orElseThrow(() -> {
                     logger.error("Пользователь {} не найден", login);
-                    return new UserNotFoundException("User not found: " + login);
+                    return new UserNotFoundException("Пользователь не найден: " + login);
                 });
     }
 
@@ -241,14 +241,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Пользователь {} не найден", id);
-                    return new UserNotFoundException("User not found: " + id);
+                    return new UserNotFoundException("Пользователь не найден: " + id);
                 });
     }
 
     private void validateLoginNotExists(String login) {
         if (userRepository.existsByLogin(login)) {
             logger.error("Ошибка регистрации. Логин {} уже существует", login);
-            throw new UserAlreadyExistsException("Login already exists: " + login);
+            throw new UserAlreadyExistsException("Логин уже существует: " + login);
         }
     }
 }

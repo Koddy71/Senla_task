@@ -41,11 +41,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5434:5432"
+      - "5435:5432"
     volumes:
-      - pg_ads_data:/var/lib/postgresql/data
+      - pg_messages_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d ads" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d messages" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -82,12 +82,12 @@ services:
     build: ./message-service
     container_name: message-service
     depends_on:
-      postgres-ads:
+      postgres-messages:
         condition: service_healthy
     ports:
       - "8083:8080"
     environment:
-      DB_URL: jdbc:postgresql://postgres-ads:5432/messages
+      DB_URL: jdbc:postgresql://postgres-messages:5432/messages
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       USER_SERVICE_URL: http://user-service:8080/internal/users/
@@ -95,3 +95,4 @@ services:
 volumes:
   pg_users_data:
   pg_ads_data:
+  pg_messages_data:

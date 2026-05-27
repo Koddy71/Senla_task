@@ -34,6 +34,16 @@ public class DialogRepositoryImpl implements DialogRepository {
     }
 
     @Override
+    public Optional<Dialog> findByUser1IdAndUser2Id(UUID user1Id, UUID user2Id) {
+        TypedQuery<Dialog> q = em.createQuery(
+                "SELECT d FROM Dialog d WHERE (d.user1Id = :id1 AND d.user2Id = :id2) OR (d.user1Id = :id2 AND d.user2Id = :id1)",
+                Dialog.class);
+        q.setParameter("id1", user1Id);
+        q.setParameter("id2", user2Id);
+        return q.getResultStream().findFirst();
+    }
+
+    @Override
     public List<Dialog> findDialogsByUserId(UUID userId) {
         TypedQuery<Dialog> q = em.createQuery(
                 "SELECT d FROM Dialog d WHERE d.user1Id = :userId OR d.user2Id = :userId ORDER BY d.createdAt DESC",

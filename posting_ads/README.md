@@ -2,11 +2,14 @@
 
 Архитектура проекта
 User Service — регистрация, профили, аутентификация, роли, баланс, платежи
-![alt text](images/image-1.png)
+
+![alt text](images/user-service_db.png)
 Ad Service — управление объявлениями (CRUD), поиск, фильтрация, отзыв об объявлении, рейтинг продавца, история продаж
-![alt text](images/image-2.png)
+
+![alt text](images/ad-service_db.png)
 Message Service — личная переписка
-![alt text](images/image-3.png)
+
+![alt text](images/message-service_db.png)
 
 Роли и доступ 
 Неавторизованный пользователь:
@@ -41,3 +44,7 @@ Message Service — личная переписка
 
 Удаление сущностей:
 При удалении user и ad, самого удаления из БД не происходит. Меняется статус поля blocked и status. При удалении пользователя, поле blocked становится true. При удалении объявления, поле status становится ARCHIVED. Админы могут восстановить профиль, менеджеры могут восстановить объявления.
+
+
+Запуск: 
+docker compose up

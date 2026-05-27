@@ -15,7 +15,6 @@ CREATE TABLE messages (
     sender_id UUID NOT NULL,
     text TEXT NOT NULL,
     sent_at TIMESTAMP NOT NULL DEFAULT now(),
-    is_read BOOLEAN NOT NULL DEFAULT false,
-    CONSTRAINT fk_messages_dialog_id FOREIGN KEY (dialog_id) REFERENCES dialogs (id) ON DELETE CASCADE
+    CONSTRAINT fk_messages_dialog_id FOREIGN KEY (dialog_id) REFERENCES dialogs (id) ON DELETE CASCADE,
     CONSTRAINT chk_text_length CHECK (length(text) <= 5000)
 );

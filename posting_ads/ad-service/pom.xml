@@ -25,6 +25,9 @@
         <jackson.version>2.15.3</jackson.version>
         <jjwt.version>0.12.5</jjwt.version>
 
+        <postgresql.version>42.7.3</postgresql.version>
+        <hikari.version>5.1.0</hikari.version>
+
         <junit.version>5.10.2</junit.version>
         <mockito.version>5.11.0</mockito.version>
     </properties>
@@ -116,7 +119,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.3</version>
+            <version>${postgresql.version}</version>
         </dependency>
 
         <!-- LIQUIBASE -->
@@ -130,7 +133,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>5.1.0</version>
+            <version>${hikari.version}</version>
         </dependency>
 
         <!-- JACKSON -->
