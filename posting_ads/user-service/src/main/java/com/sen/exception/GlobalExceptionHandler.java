@@ -41,6 +41,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    @ExceptionHandler(UserBlockedException.class)
+    public ResponseEntity<ErrorResponse> handleUserBlocked(UserBlockedException ex) {
+        logger.warn("Попытка найти удалённый профиль: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<ErrorResponse> handleInsufficientBalance(InsufficientBalanceException ex) {
         logger.warn("Недостаточно средств: {}", ex.getMessage());
@@ -118,7 +125,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @Override  // ошибка валидации
+    @Override // ошибка валидации
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
@@ -133,11 +140,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                 : fieldError.getCode(),
                         (existing, replacement) -> existing));
 
-        ErrorFullResponse body = new ErrorFullResponse(status.value(),"Ошибка валидации запроса",fieldErrors);
+        ErrorFullResponse body = new ErrorFullResponse(status.value(), "Ошибка валидации запроса", fieldErrors);
         return ResponseEntity.status(status).body(body);
     }
 
-    @Override  // некорректный формат тела запроса
+    @Override // некорректный формат тела запроса
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex,
             HttpHeaders headers,

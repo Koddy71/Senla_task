@@ -232,7 +232,7 @@ public class UserServiceImpl implements UserService {
 
     private void checkNotBlocked(User user) {
         if (user.isBlocked()) {
-            logger.warn("Пользователь {} заблокирован, операция запрещена", user.getLogin());
+            logger.warn("Пользователь {} удалён", user.getLogin());
             throw new UserBlockedException(user.getLogin());
         }
     }

@@ -102,7 +102,7 @@ public class UserController {
 
     @GetMapping("/admin/{login}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<PrivateUserResponse> getFullProfile(@PathVariable String login) {
+    public ResponseEntity<PrivateUserResponse> getFullProfile(@Valid @PathVariable String login) {
         logger.info("Административный запрос полного профиля пользователя: {}", login);
         PrivateUserResponse response = userService.getFullProfile(login);
         logger.info("Полный профиль пользователя {} успешно получен", login);
