@@ -29,11 +29,11 @@ public class MessageResponse {
         this.dialogId = dialogId;
     }
 
-    public String getSender() {
+    public String getSenderLogin() {
         return senderLogin;
     }
 
-    public void setSender(String senderLogin) {
+    public void setSenderLogin(String senderLogin) {
         this.senderLogin = senderLogin;
     }
 

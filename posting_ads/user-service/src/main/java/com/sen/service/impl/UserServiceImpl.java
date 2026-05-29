@@ -66,9 +66,7 @@ public class UserServiceImpl implements UserService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setBalance(new java.math.BigDecimal("0.00"));
         user.setBlocked(false);
-        if (request.getRole() != Role.USER) {
-            user.setRole(Role.USER);
-        }
+        user.setRole(Role.USER);
 
         User saved = userRepository.save(user);
         logger.info("Пользователь {} успешно зарегистрирован с ролью {}", saved.getLogin(), saved.getRole());

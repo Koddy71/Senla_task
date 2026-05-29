@@ -159,7 +159,7 @@ public class DialogServiceImpl implements DialogService {
 
         Message saved = messageRepository.save(message);
         logger.info("Сообщение успешно отправлено, id: {}, в диалог {}", saved.getId(), dialogId);
-        return messageMapper.toMessageResponse(saved, me.getLogin());
+        return messageMapper.toMessageResponse(saved, myLogin);
     }
 
     @Override

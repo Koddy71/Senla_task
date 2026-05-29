@@ -1,7 +1,5 @@
 package com.sen.dto.request;
 
-import com.sen.enums.Role;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -20,8 +18,6 @@ public class RegistrationRequest {
 
     @Size(max = 20)
     private String phone;
-
-    private Role role = Role.USER;
 
     public RegistrationRequest() {}
 
@@ -57,11 +53,4 @@ public class RegistrationRequest {
         this.phone = phone;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role != null ? role : Role.USER;
-    }
 }

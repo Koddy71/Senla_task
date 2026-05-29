@@ -84,7 +84,6 @@ class UserServiceImplTest {
         req.setLogin("newuser");
         req.setPassword("password123");
         req.setFullname("New User");
-        req.setRole(Role.USER);
 
         when(userRepository.existsByLogin("newuser")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encoded");
