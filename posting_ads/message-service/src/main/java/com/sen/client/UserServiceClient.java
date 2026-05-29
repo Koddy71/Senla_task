@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -20,6 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.sen.dto.internal.UserInternal;
+import com.sen.exception.UserNotFoundException;
 import com.sen.exception.UserServiceException;
 
 @Component
@@ -46,6 +48,10 @@ public class UserServiceClient {
             ResponseEntity<UserInternal> response = restTemplate.exchange(
                     uri, HttpMethod.GET, entity, UserInternal.class);
             return response.getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            logger.error("Пользователь не найден по логину: {}", login);
+            throw new UserNotFoundException("Пользователь не найден: " + login);
+
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове user-service для получения пользователя по логину {}: {}", login,
                     e.getMessage(), e);
@@ -63,6 +69,9 @@ public class UserServiceClient {
             ResponseEntity<UserInternal> response = restTemplate.exchange(
                     uri, HttpMethod.GET, entity, UserInternal.class);
             return response.getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            logger.error("Пользователь не найден по id: {}", id);
+            throw new UserNotFoundException("Пользователь не найден: " + id);
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове user-service для получения пользователя по id {}: {}", id, e.getMessage(),
                     e);
@@ -79,7 +88,15 @@ public class UserServiceClient {
             HttpEntity<Set<UUID>> entity = new HttpEntity<>(ids, authHeaders());
             ResponseEntity<UserInternal[]> response = restTemplate.exchange(
                     uri, HttpMethod.POST, entity, UserInternal[].class);
-            return Arrays.asList(response.getBody());
+
+            List<UserInternal> result = Arrays.asList(response.getBody());
+            if (result.size() != ids.size()) {
+                logger.error("Не все пользователи найдены. Запрошено: {}, получено: {}", ids.size(), result.size());
+                throw new UserNotFoundException("Не все пользователи найдены");
+            }
+
+            return result;
+
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове user-service для получения пользователей по ids {}: {}", ids,
                     e.getMessage(), e);

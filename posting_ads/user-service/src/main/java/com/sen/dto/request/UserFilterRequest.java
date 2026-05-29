@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Min;
 
 public class UserFilterRequest {
     @Min(1)
-    private int page = 0;
+    private int page = 1;
     @Min(1)
     private int size = 20;
 

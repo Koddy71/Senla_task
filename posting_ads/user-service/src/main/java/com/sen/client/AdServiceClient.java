@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -17,6 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.sen.dto.internal.AdInternal;
+import com.sen.exception.AdNotFoundException;
 import com.sen.exception.AdServiceException;
 
 @Component
@@ -59,6 +61,9 @@ public class AdServiceClient {
             ResponseEntity<AdInternal> response = restTemplate.exchange(
                     uri, HttpMethod.GET, entity, AdInternal.class);
             return response.getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            logger.error("Объявление не найдено: {}", adId);
+            throw new AdNotFoundException("Объявление не найдено: " + adId);
         } catch (RestClientException e) {
             logger.error("Ошибка при вызове ad-service для получения объявления {}: {}", adId, e.getMessage(), e);
             throw new AdServiceException("Ad service недоступен: " + e.getMessage());

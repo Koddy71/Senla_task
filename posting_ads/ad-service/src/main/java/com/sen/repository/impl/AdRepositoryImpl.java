@@ -100,7 +100,7 @@ public class AdRepositoryImpl implements AdRepository{
                 LIMIT :limit OFFSET :offset
                 """;
         params.put("limit", filter.getSize());
-        params.put("offset", filter.getPage() * filter.getSize());
+        params.put("offset", (filter.getPage() - 1) * filter.getSize());
 
         Query q = em.createNativeQuery(sql, Ad.class);
         params.forEach(q::setParameter);

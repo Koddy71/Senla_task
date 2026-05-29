@@ -6,16 +6,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class RegistrationRequest {
-    @NotBlank(message = "Login is required")
-    @Size(min = 3, max = 64, message = "Login must be between 3 and 64 characters")
+    @NotBlank(message = "Логин обязателен")
+    @Size(min = 3, max = 64, message = "Логин должен содержать от 3 до 64 символов")
     private String login;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @NotBlank(message = "Пароль обязателен")
+    @Size(min = 6, message = "Пароль должен содержать не менее 6 символов")
     private String password;
 
-    @NotBlank(message = "Full name is required")
-    @Size(max = 100)
+    @NotBlank(message = "Полное имя обязательно")
+    @Size(max = 100, message = "Полное имя не должно превышать 100 символов")
     private String fullname;
 
     @Size(max = 20)

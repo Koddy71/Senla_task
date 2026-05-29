@@ -55,6 +55,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(AdNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(AdNotFoundException ex) {
+        logger.warn("Пользователь не найден: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
     @ExceptionHandler(AdServiceException.class)
     public ResponseEntity<ErrorResponse> handleAdServiceError(AdServiceException ex) {
         logger.error("Ошибка внешнего сервиса: {}", ex.getMessage());

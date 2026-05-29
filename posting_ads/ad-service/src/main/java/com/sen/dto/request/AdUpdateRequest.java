@@ -6,18 +6,23 @@ import com.sen.enums.AdStatus;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class AdUpdateRequest {
     @Size(max = 200)
+    @NotNull
     private String title;
     @Size(max = 5000)
     private String description;
     @Size(max = 100)
+    @NotNull
     private String category;
     @DecimalMin("0.00")
     @Digits(integer = 8, fraction = 2)
+    @NotNull
     private BigDecimal price;
+    @NotNull
     private AdStatus status;
 
     public String getTitle() {

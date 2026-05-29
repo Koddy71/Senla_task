@@ -55,6 +55,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+        logger.warn("Пользователь не найден: {}", ex.getMessage());
+        ErrorResponse body = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
     @ExceptionHandler(UserBlockedException.class)
     public ResponseEntity<ErrorResponse> handleUserBlocked(UserBlockedException ex) {
         logger.warn("Пользователь заблокирован: {}", ex.getMessage());

@@ -12,8 +12,8 @@ public class AdFilterRequest {
     @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal maxPrice;
     private String search;
-    @Min(0)
-    private int page = 0;
+    @Min(1)
+    private int page = 1;
     @Min(1)
     private int size = 20;
 
