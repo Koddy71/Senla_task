@@ -45,7 +45,7 @@ public class PurchaseRepositoryImpl implements PurchaseRepository{
     @Override
     public SellerRatingProjection getSellerRating(UUID sellerId) {
         return em.createQuery("""
-                SELECT new com.example.SellerRatingProjection(
+                SELECT new com.sen.repository.SellerRatingProjection(
                     COALESCE(AVG(p.score), 0.0),
                     COUNT(p.score)
                 )

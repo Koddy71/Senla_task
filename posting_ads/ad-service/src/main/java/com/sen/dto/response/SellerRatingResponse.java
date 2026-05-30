@@ -6,11 +6,12 @@ public class SellerRatingResponse {
     private Long totalReviews;
 
     public SellerRatingResponse(String sellerLogin, double averageRating, long totalReviews) {
+        this.sellerLogin = sellerLogin;
         this.averageRating = averageRating;
         this.totalReviews = totalReviews;
     }
 
-    public String getSellerId() {
+    public String getSellerLogin() {
         return sellerLogin;
     }
 
