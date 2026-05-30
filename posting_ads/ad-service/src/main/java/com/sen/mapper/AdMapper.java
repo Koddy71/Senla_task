@@ -1,8 +1,10 @@
 package com.sen.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.sen.dto.internal.AdInternal;
 import com.sen.dto.request.AdCreateRequest;
@@ -26,6 +28,7 @@ public interface AdMapper {
     @Mapping(target = "updatedAt", ignore = true)
     Ad toEntity(AdCreateRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "sellerId", ignore = true)
     @Mapping(target = "promotedUntil", ignore = true)

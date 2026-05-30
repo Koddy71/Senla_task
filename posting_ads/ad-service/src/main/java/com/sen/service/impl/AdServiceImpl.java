@@ -67,6 +67,13 @@ public class AdServiceImpl implements AdService {
     @Override
     public AdDetailResponse updateAd(UUID adId, String myLogin, AdUpdateRequest request) {
         logger.info("Запрос на обновление объявления {} от пользователя {}", adId, myLogin);
+
+        if (request.getTitle() == null && request.getDescription() == null &&
+                request.getCategory() == null && request.getPrice() == null &&
+                request.getStatus() == null) {
+            throw new IllegalArgumentException("Нет данных для обновления");
+        }
+        
         Ad ad = findAdById(adId);
         UserInternal user = getUserByLogin(myLogin);
         checkOwnership(ad, user);
