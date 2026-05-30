@@ -14,6 +14,8 @@ import com.sen.exception.NotOwnerException;
 import com.sen.exception.PaymentException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.PaymentMapper;
+import com.sen.rabbit.event.AdPromotionRequestedEvent;
+import com.sen.rabbit.publisher.AdPromotionEventPublisher;
 import com.sen.repository.PaymentRepository;
 import com.sen.repository.UserRepository;
 import com.sen.service.impl.PaymentServiceImpl;
@@ -47,6 +49,8 @@ class PaymentServiceImplTest {
     private PaymentMapper paymentMapper;
     @Mock
     private AdServiceClient adServiceClient;
+    @Mock
+    private AdPromotionEventPublisher adPromotionEventPublisher;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
@@ -192,7 +196,16 @@ class PaymentServiceImplTest {
 
         verify(userRepository).save(testUser);
         verify(paymentRepository, atLeastOnce()).save(any());
-        verify(adServiceClient).promoteAd(testAdId, 3);
+
+        ArgumentCaptor<AdPromotionRequestedEvent> eventCaptor = ArgumentCaptor
+                .forClass(AdPromotionRequestedEvent.class);
+        verify(adPromotionEventPublisher).publish(eventCaptor.capture());
+
+        AdPromotionRequestedEvent sentEvent = eventCaptor.getValue();
+        assertEquals(testPaymentId, sentEvent.getPaymentId());
+        assertEquals(testAdId, sentEvent.getAdId());
+        assertEquals(3, sentEvent.getHours());
+        assertEquals("buyer", sentEvent.getUserLogin());
     }
 
     @Test
@@ -247,7 +260,7 @@ class PaymentServiceImplTest {
         assertEquals(PaymentStatus.FAILED, payment.getStatus());
         verify(paymentRepository).save(payment);
         verify(userRepository, never()).save(any());
-        verify(adServiceClient, never()).promoteAd(any(), anyInt());
+        verify(adPromotionEventPublisher, never()).publish(any(AdPromotionRequestedEvent.class));
     }
 
     // ==================== GET TRANSACTIONS ====================

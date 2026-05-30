@@ -1,4 +1,14 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: marketplace
+      RABBITMQ_DEFAULT_PASS: marketplace
+
   postgres-users:
     image: postgres:16-alpine
     container_name: postgres-users
@@ -63,6 +73,10 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       AD_SERVICE_URL: http://ad-service:8080/internal/ads/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: marketplace
+      RABBITMQ_PASSWORD: marketplace
 
   ad-service:
     build: ./ad-service
@@ -77,6 +91,10 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       USER_SERVICE_URL: http://user-service:8080/internal/users/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: marketplace
+      RABBITMQ_PASSWORD: marketplace
 
   message-service:
     build: ./message-service

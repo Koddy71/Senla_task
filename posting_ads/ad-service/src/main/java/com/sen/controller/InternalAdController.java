@@ -27,15 +27,6 @@ public class InternalAdController {
         this.adService = adService;
     }
 
-    @PostMapping("/{id}/promote")
-    public ResponseEntity<Void> promote(@PathVariable UUID id,
-            @RequestParam int hours) {
-        logger.debug("Внутренний запрос на продвижение объявления id: {} на {} часов", id, hours);
-        adService.promoteAd(id, hours);
-        logger.debug("Объявление id {} успешно продвинуто", id);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<AdInternal> getAdById(@PathVariable UUID id) {
         logger.debug("Внутренний запрос на получение объявления id: {}", id);

@@ -33,23 +33,6 @@ public class AdServiceClient {
         this.serviceUrl = serviceUrl;
     }
 
-    public void promoteAd(UUID adId, int hours) {
-        try {
-            String uri = UriComponentsBuilder
-                    .fromUriString(serviceUrl)
-                    .pathSegment(adId.toString(), "promote")
-                    .queryParam("hours", hours)
-                    .toUriString();
-
-            HttpEntity<Void> entity = new HttpEntity<>(authHeaders());
-            restTemplate.exchange(uri, HttpMethod.POST, entity, Void.class);
-        } catch (RestClientException e) {
-            logger.error("Ошибка при вызове ad-service для продвижения объявления {} на {} часов: {}", adId, hours,
-                    e.getMessage(), e);
-            throw new AdServiceException("Ad service недоступен: " + e.getMessage());
-        }
-    }
-
     public AdInternal getAdById(UUID adId) {
         try {
             String uri = UriComponentsBuilder

@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.sen.client.AdServiceClient;
 import com.sen.dto.internal.AdInternal;
@@ -24,6 +26,8 @@ import com.sen.exception.NotOwnerException;
 import com.sen.exception.PaymentException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.PaymentMapper;
+import com.sen.rabbit.event.AdPromotionRequestedEvent;
+import com.sen.rabbit.publisher.AdPromotionEventPublisher;
 import com.sen.repository.PaymentRepository;
 import com.sen.repository.UserRepository;
 import com.sen.service.PaymentService;
@@ -38,17 +42,20 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserRepository userRepository;
     private final PaymentMapper paymentMapper;
     private final AdServiceClient adServiceClient;
+    private final AdPromotionEventPublisher adPromotionEventPublisher;
 
     private static final BigDecimal PRICE_HOUR = new BigDecimal("10.00");
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
             UserRepository userRepository,
             PaymentMapper paymentMapper,
-            AdServiceClient adServiceClient) {
+            AdServiceClient adServiceClient,
+            AdPromotionEventPublisher adPromotionEventPublisher) {
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
         this.paymentMapper = paymentMapper;
         this.adServiceClient = adServiceClient;
+        this.adPromotionEventPublisher = adPromotionEventPublisher;
     }
 
     @Override
@@ -90,10 +97,10 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.SUCCESS);
         payment.setProcessedAt(LocalDateTime.now());
 
-        logger.info("Вызов сервиса продвижения объявления adId: {}, часов: {}", payment.getAdId(), payment.getHours());
-        adServiceClient.promoteAd(payment.getAdId(), payment.getHours());
-
         Payment saved = paymentRepository.save(payment);
+
+        publishPromotionRequestedEvent(saved);
+
         logger.info("Платёж успешно обработан, transactionId: {}, статус: {}", transactionId, saved.getStatus());
         return paymentMapper.toResponse(saved);
     }
@@ -180,4 +187,29 @@ public class PaymentServiceImpl implements PaymentService {
         user.setBalance(user.getBalance().subtract(payment.getAmount()));
         userRepository.save(user);
     }
+
+    private void publishPromotionRequestedEvent(Payment payment) {  //отправка события после коммита транзакции
+        AdPromotionRequestedEvent event = new AdPromotionRequestedEvent(
+                payment.getId(),
+                payment.getAdId(),
+                payment.getHours(),
+                payment.getUser().getLogin());
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try {
+                        adPromotionEventPublisher.publish(event);
+                    } catch (Exception ex) {
+                        logger.error("Не удалось отправить событие продвижения объявления adId={}, paymentId={}",
+                                event.getAdId(), event.getPaymentId(), ex);
+                    }
+                }
+            });
+        } else {
+            adPromotionEventPublisher.publish(event);
+        }
+    };
+
 }
