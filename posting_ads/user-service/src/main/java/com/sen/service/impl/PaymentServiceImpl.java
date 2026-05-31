@@ -99,7 +99,12 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
-        publishPromotionRequestedEvent(saved);
+        AdPromotionRequestedEvent event = new AdPromotionRequestedEvent(
+                saved.getId(),
+                saved.getAdId(),
+                saved.getHours(),
+                saved.getUser().getLogin());
+        adPromotionEventPublisher.publish(event);
 
         logger.info("Платёж успешно обработан, transactionId: {}, статус: {}", transactionId, saved.getStatus());
         return paymentMapper.toResponse(saved);
@@ -187,29 +192,4 @@ public class PaymentServiceImpl implements PaymentService {
         user.setBalance(user.getBalance().subtract(payment.getAmount()));
         userRepository.save(user);
     }
-
-    private void publishPromotionRequestedEvent(Payment payment) {  //отправка события после коммита транзакции
-        AdPromotionRequestedEvent event = new AdPromotionRequestedEvent(
-                payment.getId(),
-                payment.getAdId(),
-                payment.getHours(),
-                payment.getUser().getLogin());
-
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    try {
-                        adPromotionEventPublisher.publish(event);
-                    } catch (Exception ex) {
-                        logger.error("Не удалось отправить событие продвижения объявления adId={}, paymentId={}",
-                                event.getAdId(), event.getPaymentId(), ex);
-                    }
-                }
-            });
-        } else {
-            adPromotionEventPublisher.publish(event);
-        }
-    };
-
 }

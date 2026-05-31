@@ -50,4 +50,9 @@ public interface AdService {
 
     //INTERNAL
     AdInternal getAdById(UUID id);
+
+    //Rabbit
+    void archiveAdsByUserBlock(UUID sellerId);
+
+    void restoreAdsAfterUserUnblock(UUID sellerId);
 }

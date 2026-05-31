@@ -29,6 +29,9 @@ import com.sen.exception.UserAlreadyExistsException;
 import com.sen.exception.UserBlockedException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.UserMapper;
+import com.sen.rabbit.event.UserBlockedEvent;
+import com.sen.rabbit.event.UserUnblockedEvent;
+import com.sen.rabbit.publisher.UserStatusEventPublisher;
 import com.sen.repository.UserRepository;
 import com.sen.security.JwtTokenProvider;
 import com.sen.service.UserService;
@@ -44,17 +47,20 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final UserMapper userMapper;
+    private final UserStatusEventPublisher userStatusEventPublisher;
 
     public UserServiceImpl(UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
             JwtTokenProvider tokenProvider,
-            UserMapper userMapper) {
+            UserMapper userMapper,
+            UserStatusEventPublisher userStatusEventPublisher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.userMapper = userMapper;
+        this.userStatusEventPublisher = userStatusEventPublisher;
     }
 
     @Override
@@ -125,6 +131,8 @@ public class UserServiceImpl implements UserService {
         checkNotBlocked(user);
         user.setBlocked(true);
         userRepository.save(user);
+
+        userStatusEventPublisher.publishUserBlocked(new UserBlockedEvent(user.getId(), user.getLogin()));
         logger.info("Профиль пользователя {} успешно удалён", login);
     }
 
@@ -176,6 +184,8 @@ public class UserServiceImpl implements UserService {
         User user = findUserByLogin(login);
         user.setBlocked(true);
         userRepository.save(user);
+
+        userStatusEventPublisher.publishUserBlocked(new UserBlockedEvent(user.getId(), user.getLogin()));
         logger.info("Пользователь {} успешно заблокирован", login);
     }
 
@@ -185,6 +195,8 @@ public class UserServiceImpl implements UserService {
         User user = findUserByLogin(login);
         user.setBlocked(false);
         userRepository.save(user);
+        
+        userStatusEventPublisher.publishUserUnblocked(new UserUnblockedEvent(user.getId(), user.getLogin()));
         logger.info("Пользователь {} успешно разблокирован", login);
     }
 

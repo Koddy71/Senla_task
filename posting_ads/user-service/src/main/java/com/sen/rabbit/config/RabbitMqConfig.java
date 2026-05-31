@@ -15,8 +15,9 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMqConfig {
 
     public static final String EVENTS_EXCHANGE = "marketplace.events";
-    public static final String PAYMENT_PROCESSED_QUEUE = "ad-service.payment-processed";
     public static final String PAYMENT_PROCESSED_ROUTING_KEY = "payment.processed";
+    public static final String USER_BLOCKED_ROUTING_KEY = "user.blocked";
+    public static final String USER_UNBLOCKED_ROUTING_KEY = "user.unblocked";
 
     @Bean
     public ConnectionFactory rabbitConnectionFactory( // соединение с rabbit

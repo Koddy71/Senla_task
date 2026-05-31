@@ -185,6 +185,32 @@ public class AdServiceImpl implements AdService {
         return internal;
     }
 
+    @Override
+    public void archiveAdsByUserBlock(UUID sellerId) {
+        logger.info("Архивация объявлений пользователя {} из-за блокировки", sellerId);
+
+        List<Ad> ads = adRepository.findBySellerIdAndStatus(sellerId, AdStatus.ACTIVE);
+        for (Ad ad : ads) {
+            ad.setStatus(AdStatus.ARCHIVE_BY_BLOCK);
+            adRepository.save(ad);
+        }
+
+        logger.info("Архивировано {} объявлений пользователя {} из-за блокировки", ads.size(), sellerId);
+    }
+
+    @Override
+    public void restoreAdsAfterUserUnblock(UUID sellerId) {
+        logger.info("Восстановление объявлений пользователя {} после разблокировки", sellerId);
+
+        List<Ad> ads = adRepository.findBySellerIdAndStatus(sellerId, AdStatus.ARCHIVE_BY_BLOCK);
+        for (Ad ad : ads) {
+            ad.setStatus(AdStatus.ACTIVE);
+            adRepository.save(ad);
+        }
+
+        logger.info("Восстановлено {} объявлений пользователя {} после разблокировки", ads.size(), sellerId);
+    }
+
     private Map<UUID, String> resolveSellerNames(List<Ad> ads) {
         Set<UUID> sellersIds = ads.stream()
                 .map(Ad::getSellerId)
