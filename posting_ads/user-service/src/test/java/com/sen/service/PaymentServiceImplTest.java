@@ -75,7 +75,7 @@ class PaymentServiceImplTest {
         testUser.setBlocked(false);
     }
 
-    // ==================== CREATE PAYMENT ====================
+    //  CREATE PAYMENT 
 
     @Test
     void createPayment_shouldCreatePendingTransaction() {
@@ -164,7 +164,7 @@ class PaymentServiceImplTest {
                 () -> paymentService.createPayment("buyer", request));
     }
 
-    // ==================== PROCESS PAYMENT ====================
+    //  PROCESS PAYMENT 
 
     @Test
     void processPayment_shouldDeductBalanceAndSetSuccess() {
@@ -265,7 +265,7 @@ class PaymentServiceImplTest {
         verify(adPromotionEventPublisher, never()).publish(any(AdPromotionRequestedEvent.class));
     }
 
-    // ==================== GET TRANSACTIONS ====================
+    //  GET TRANSACTIONS 
 
     @Test
     void getUserTransactions_shouldReturnList() {

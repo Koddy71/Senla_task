@@ -102,7 +102,7 @@ public class UserController {
 
     //ADMIN
     
-    @GetMapping("/admin/{login}")
+    @GetMapping("/private/{login}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<PrivateUserResponse> getFullProfile(@Valid @PathVariable String login) {
         logger.info("Административный запрос полного профиля пользователя: {}", login);
@@ -111,7 +111,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/admin/all")
+    @GetMapping("/private/all")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<PrivateUserResponse>> getAllUsers(UserFilterRequest filter) {
         logger.info("Административный запрос списка всех пользователей с фильтром: {}", filter);
@@ -120,7 +120,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/admin/{login}/role")
+    @PutMapping("/private/{login}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> changeRole(@PathVariable String login,
             @RequestParam String role) {
@@ -130,7 +130,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/admin/{login}/block")
+    @PostMapping("/private/{login}/block")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> blockUser(@PathVariable String login) {
         logger.info("Административный запрос на блокировку пользователя: {}", login);
@@ -139,7 +139,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/admin/{login}/unblock")
+    @PostMapping("/private/{login}/unblock")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> unblockUser(@PathVariable String login) {
         logger.info("Административный запрос на разблокировку пользователя: {}", login);

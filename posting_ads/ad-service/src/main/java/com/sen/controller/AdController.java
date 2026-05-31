@@ -96,7 +96,7 @@ public class AdController {
 
     // ADMIN | MANAGER
 
-    @PostMapping("/manager/seller/{id}/block")
+    @PostMapping("/private/seller/{id}/block")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Void> block(@PathVariable UUID id) {
         logger.info("Административный/менеджерский запрос на блокировку объявления id: {}", id);
@@ -105,7 +105,7 @@ public class AdController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/manager/seller/{id}/unblock")
+    @PostMapping("/private/seller/{id}/unblock")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Void> unblock(@PathVariable UUID id) {
         logger.info("Административный/менеджерский запрос на разблокировку объявления id: {}", id);

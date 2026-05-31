@@ -82,7 +82,7 @@ class UserServiceImplTest {
         SecurityContextHolder.clearContext();
     }
 
-    // ==================== POSITIVE TESTS ====================
+    //  POSITIVE TESTS 
 
     @Test
     void register_shouldCreateNewUser() {
