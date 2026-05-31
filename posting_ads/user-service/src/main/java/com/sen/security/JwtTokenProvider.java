@@ -56,19 +56,19 @@ public class JwtTokenProvider {
         return createToken(userDetails.getUsername(), userDetails.getAuthorities());
     }
 
-    // public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
-    //     Claims claims = parseToken(token);
-    //     Object claim = claims.get("authorities");
-    //     if (!(claim instanceof Collection<?>)) {
-    //         return Collections.emptyList();
-    //     }
-    //     Collection<?> values = (Collection<?>) claim;
-    //     return values.stream()
-    //             .filter(String.class::isInstance)
-    //             .map(String.class::cast)
-    //             .map(SimpleGrantedAuthority::new)
-    //             .collect(Collectors.toList());
-    // }
+    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
+        Claims claims = parseToken(token);
+        Object claim = claims.get("authorities");
+        if (!(claim instanceof Collection<?>)) {
+            return Collections.emptyList();
+        }
+        Collection<?> values = (Collection<?>) claim;
+        return values.stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
 
     public boolean validateToken(String token) {
         try {

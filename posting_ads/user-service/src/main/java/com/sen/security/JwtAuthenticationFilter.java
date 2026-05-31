@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    
+
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final UserDetailsService userDetailsService;
@@ -38,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
-    @Override           //отключает проверку токена
+    @Override // отключает проверку токена
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
         return "/api/users/register".equals(path) || "/api/users/login".equals(path);
@@ -58,24 +59,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7).trim();
 
         if (!jwtTokenProvider.validateToken(token)) {
-            SecurityContextHolder.clearContext();
-            jwtAuthenticationEntryPoint.commence(request, response,
-                    new BadCredentialsException("Некорректный JWT-токен"));
+            jwtAuthenticationEntryPoint.commence(request, response, null);
             return;
         }
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            String username = jwtTokenProvider.getUsernameFromToken(token);
+        String username = jwtTokenProvider.getUsernameFromToken(token);
+        Collection<? extends GrantedAuthority> authorities = jwtTokenProvider.extractAuthorities(token);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        UserDetails userDetails = new User(username, "", authorities);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+                authorities);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
