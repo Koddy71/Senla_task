@@ -49,10 +49,7 @@ public class AdServiceImpl implements AdService {
     public AdDetailResponse createAd(String myLogin, AdCreateRequest request) {
         logger.info("Запрос на создание объявления от пользователя {}", myLogin);
         UserInternal user = getUserByLogin(myLogin);
-        if (user.isBlocked()) {
-            logger.error("Пользователь {} заблокирован, создание объявления невозможно", myLogin);
-            throw new UserBlockedException(myLogin);
-        }
+        checkNotBlocked(user);
 
         Ad ad = adMapper.toEntity(request);
         ad.setSellerId(user.getId());
@@ -76,6 +73,7 @@ public class AdServiceImpl implements AdService {
         
         Ad ad = findAdById(adId);
         UserInternal user = getUserByLogin(myLogin);
+        checkNotBlocked(user);
         checkOwnership(ad, user);
 
         adMapper.updateEntity(request, ad);
@@ -89,6 +87,7 @@ public class AdServiceImpl implements AdService {
         logger.info("Запрос на удаление (архивацию) объявления {} от пользователя {}", adId, myLogin);
         Ad ad = findAdById(adId);
         UserInternal user = getUserByLogin(myLogin);
+        checkNotBlocked(user);
         checkOwnership(ad, user);
 
         ad.setStatus(AdStatus.ARCHIVED);
@@ -101,6 +100,7 @@ public class AdServiceImpl implements AdService {
     public List<AdDetailResponse> getMyAds(String myLogin) {
         logger.info("Запрос списка объявлений пользователя {}", myLogin);
         UserInternal user = getUserByLogin(myLogin);
+        checkNotBlocked(user);
         String userFullName = user.getFullname();
         List<AdDetailResponse> ads = adRepository.findBySellerId(user.getId()).stream()
                 .map(ad -> adMapper.toDetailResponse(ad, userFullName))
@@ -129,7 +129,9 @@ public class AdServiceImpl implements AdService {
     public List<AdResponse> getAdsBySeller(String sellerLogin) {
         logger.info("Запрос активных объявлений продавца {}", sellerLogin);
         UserInternal user = getUserByLogin(sellerLogin);
+        checkNotBlocked(user);
         String userFullName = user.getFullname();
+        
         List<Ad> ads = adRepository.findBySellerIdAndStatus(user.getId(), AdStatus.ACTIVE);
         List<AdResponse> responses = ads.stream()
                 .map(ad -> adMapper.toResponse(ad, userFullName))
@@ -230,6 +232,13 @@ public class AdServiceImpl implements AdService {
 
     private UserInternal getUserByLogin(String login) {
         return userServiceClient.getByLogin(login);
+    }
+
+    private void checkNotBlocked(UserInternal user) {
+        if (user.isBlocked()) {
+            logger.warn("Пользователь {} удалён", user.getLogin());
+            throw new UserBlockedException(user.getLogin());
+        }
     }
 
     private void checkOwnership(Ad ad, UserInternal user) {

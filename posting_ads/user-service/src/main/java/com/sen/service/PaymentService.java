@@ -12,21 +12,21 @@ public interface PaymentService {
      * Создание платежа на продвижение (adId, hours).
      * Сумма = часы * 10.00, статус PENDING.
      */
-    PaymentResponse createPayment(String userLogin, PaymentCreateRequest paymentRequest);
+    PaymentResponse createPayment(String myLogin, PaymentCreateRequest paymentRequest);
 
     /**
      * Обработка платежа (transactionId).
      * Списание баланса пользователя, при успехе — promotion через adServiceClient.
      */
-    PaymentResponse processPayment(UUID transactionId, String userLogin);
+    PaymentResponse processPayment(UUID transactionId, String myLogin);
 
     /**
      * История всех платежей текущего пользователя.
      */
-    List<PaymentResponse> getUserTransactions(String userLogin);
+    List<PaymentResponse> getUserTransactions(String myLogin);
 
     /**
      * Список платежей по объявлению (доступ только владельцу).
      */
-    List<PaymentResponse> getTransactionsByAdId(UUID adId, String userLogin);
+    List<PaymentResponse> getTransactionsByAdId(UUID adId, String myLogin);
 }

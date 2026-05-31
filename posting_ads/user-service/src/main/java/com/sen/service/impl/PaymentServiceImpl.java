@@ -24,6 +24,7 @@ import com.sen.exception.AdException;
 import com.sen.exception.InsufficientBalanceException;
 import com.sen.exception.NotOwnerException;
 import com.sen.exception.PaymentException;
+import com.sen.exception.UserBlockedException;
 import com.sen.exception.UserNotFoundException;
 import com.sen.mapper.PaymentMapper;
 import com.sen.rabbit.event.AdPromotionRequestedEvent;
@@ -64,6 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
                 userLogin, paymentRequest.getAdId(), paymentRequest.getHours());
 
         User user = findUserByLogin(userLogin);
+        checkNotBlocked(user);
         AdInternal ad = getActiveAd(paymentRequest.getAdId());
         validateUserIsSeller(user, ad);
 
@@ -89,8 +91,11 @@ public class PaymentServiceImpl implements PaymentService {
         validatePaymentOwnership(payment, userLogin);
         validatePaymentPending(payment);
 
-        AdInternal ad = getActiveAd(payment.getAdId());
         User user = payment.getUser();
+        checkNotBlocked(user);
+
+        AdInternal ad = getActiveAd(payment.getAdId());
+
 
         deductBalance(user, payment);
 
@@ -115,6 +120,7 @@ public class PaymentServiceImpl implements PaymentService {
     public List<PaymentResponse> getUserTransactions(String userLogin) {
         logger.info("Запрос списка транзакций для пользователя {}", userLogin);
         User user = findUserByLogin(userLogin);
+        checkNotBlocked(user);
         List<PaymentResponse> transactions = paymentRepository.findUserId(user.getId()).stream()
                 .map(paymentMapper::toResponse)
                 .collect(Collectors.toList());
@@ -128,6 +134,7 @@ public class PaymentServiceImpl implements PaymentService {
         logger.info("Запрос списка транзакций для объявления {}", adId);
         AdInternal ad = getActiveAd(adId);
         User user = findUserByLogin(userLogin);
+        checkNotBlocked(user);
         validateUserIsSeller(user, ad);
 
         List<PaymentResponse> transactions = paymentRepository.findAdId(adId).stream()
@@ -143,6 +150,13 @@ public class PaymentServiceImpl implements PaymentService {
                     logger.error("Пользователь {} не найден", login);
                     return new UserNotFoundException("User not found: " + login);
                 });
+    }
+
+    private void checkNotBlocked(User user) {
+        if (user.isBlocked()) {
+            logger.warn("Пользователь {} удалён", user.getLogin());
+            throw new UserBlockedException(user.getLogin());
+        }
     }
 
     private Payment findPaymentById(UUID transactionId) {

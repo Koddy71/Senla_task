@@ -37,7 +37,7 @@ public interface AdService {
     List<AdResponse> getAdsBySeller(String sellerLogin);
 
     /**
-     * Активация продвижения. Вызывается из User Service (internal) после успешной
+     * Активация продвижения. Вызывается из User Service после успешной
      * оплаты.
      * Устанавливает promoted_until = now + hours.
      */
