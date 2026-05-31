@@ -100,6 +100,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    //ADMIN
+    
     @GetMapping("/admin/{login}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<PrivateUserResponse> getFullProfile(@Valid @PathVariable String login) {

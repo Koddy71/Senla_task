@@ -35,7 +35,7 @@ public class JwtTokenProvider {
         this.jwtExpiration = expiration;
     }
 
-    public String generateToken(String username, Collection<? extends GrantedAuthority> authorities) {
+    public String createToken(String username, Collection<? extends GrantedAuthority> authorities) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
@@ -51,24 +51,24 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateToken(Authentication authentication) { // мб убрать надо будет
+    public String generateToken(Authentication authentication) { 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return generateToken(userDetails.getUsername(), userDetails.getAuthorities());
+        return createToken(userDetails.getUsername(), userDetails.getAuthorities());
     }
 
-    public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
-        Claims claims = parseToken(token);
-        Object claim = claims.get("authorities");
-        if (!(claim instanceof Collection<?>)) {
-            return Collections.emptyList();
-        }
-        Collection<?> values = (Collection<?>) claim;
-        return values.stream()
-                .filter(String.class::isInstance)
-                .map(String.class::cast)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
+    // public Collection<? extends GrantedAuthority> extractAuthorities(String token) {
+    //     Claims claims = parseToken(token);
+    //     Object claim = claims.get("authorities");
+    //     if (!(claim instanceof Collection<?>)) {
+    //         return Collections.emptyList();
+    //     }
+    //     Collection<?> values = (Collection<?>) claim;
+    //     return values.stream()
+    //             .filter(String.class::isInstance)
+    //             .map(String.class::cast)
+    //             .map(SimpleGrantedAuthority::new)
+    //             .collect(Collectors.toList());
+    // }
 
     public boolean validateToken(String token) {
         try {

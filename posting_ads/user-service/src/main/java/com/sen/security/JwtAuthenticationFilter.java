@@ -38,12 +38,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
-    @Override
+    @Override           //отключает проверку токена
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return "OPTIONS".equalsIgnoreCase(request.getMethod())
-                || "/api/auth/login".equals(path)
-                || "/error".equals(path);
+        return "/api/users/register".equals(path) || "/api/users/login".equals(path);
     }
 
     @Override
