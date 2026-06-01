@@ -34,7 +34,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll(int page, int size) {
-        return em.createQuery("select u from User u order by u.id desc", User.class)
+        return em.createQuery("select u from User u order by u.createdAt DESC", User.class)
                 .setFirstResult((page-1) * size)
                 .setMaxResults(size)
                 .getResultList();
