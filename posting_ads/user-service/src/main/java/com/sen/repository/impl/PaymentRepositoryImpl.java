@@ -49,14 +49,5 @@ public class PaymentRepositoryImpl implements PaymentRepository{
             return entityManager.merge(payment);
         }
     }
-
-    @Override
-    public void uodateStatus(UUID id, PaymentStatus status) {
-        Payment transaction = entityManager.find(Payment.class, id);
-        if (transaction != null) {
-            transaction.setStatus(status);
-            entityManager.merge(transaction);
-        }
-    }
     
 }

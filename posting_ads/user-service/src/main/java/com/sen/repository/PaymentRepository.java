@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.sen.entity.Payment;
-import com.sen.enums.PaymentStatus;
 
 public interface PaymentRepository {
     Optional<Payment> findById(UUID id);
@@ -16,5 +15,4 @@ public interface PaymentRepository {
 
     Payment save(Payment payment);
     
-    void uodateStatus(UUID id, PaymentStatus status);
 }
