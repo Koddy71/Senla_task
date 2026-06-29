@@ -1,0 +1,264 @@
+package com.sen.service.impl;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.sen.dto.internal.UserInternal;
+import com.sen.dto.request.BalanceUpRequest;
+import com.sen.dto.request.LoginRequest;
+import com.sen.dto.request.RegistrationRequest;
+import com.sen.dto.request.UserFilterRequest;
+import com.sen.dto.request.UserUpdateRequest;
+import com.sen.dto.response.TokenResponse;
+import com.sen.dto.response.PrivateUserResponse;
+import com.sen.dto.response.PublicUserResponse;
+import com.sen.entity.User;
+import com.sen.enums.Role;
+import com.sen.exception.UserAlreadyExistsException;
+import com.sen.exception.UserBlockedException;
+import com.sen.exception.UserNotFoundException;
+import com.sen.mapper.UserMapper;
+import com.sen.rabbit.event.UserBlockedEvent;
+import com.sen.rabbit.event.UserUnblockedEvent;
+import com.sen.rabbit.publisher.UserStatusEventPublisher;
+import com.sen.repository.UserRepository;
+import com.sen.security.JwtTokenProvider;
+import com.sen.service.UserService;
+
+@Service
+@Transactional
+public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
+    private final UserMapper userMapper;
+    private final UserStatusEventPublisher userStatusEventPublisher;
+
+    public UserServiceImpl(UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtTokenProvider tokenProvider,
+            UserMapper userMapper,
+            UserStatusEventPublisher userStatusEventPublisher) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenProvider = tokenProvider;
+        this.userMapper = userMapper;
+        this.userStatusEventPublisher = userStatusEventPublisher;
+    }
+
+    @Override
+    public PrivateUserResponse register(RegistrationRequest request) {
+        validateLoginNotExists(request.getLogin());
+
+        User user = userMapper.toEntity(request);
+
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setBalance(new java.math.BigDecimal("0.00"));
+        user.setBlocked(false);
+        user.setRole(Role.USER);
+
+        User saved = userRepository.save(user);
+        logger.info("Пользователь {} успешно зарегистрирован с ролью {}", saved.getLogin(), saved.getRole());
+        return userMapper.toPrivateUserResponse(saved);
+    }
+
+    @Override
+    public TokenResponse login(LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword()));
+            String token = tokenProvider.generateToken(authentication);
+            logger.info("Пользователь {} успешно аутентифицирован", request.getLogin());
+            return new TokenResponse(token);
+        } catch (BadCredentialsException e) {
+            logger.error("Ошибка аутентификации пользователя {}: неверный логин или пароль", request.getLogin());
+            throw new BadCredentialsException("Invalid login or password");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PublicUserResponse getPublicProfile(String login) {
+        logger.info("Запрос публичного профиля пользователя {}", login);
+        User user = findUserByLogin(login);
+        checkNotBlocked(user);
+        logger.info("Публичный профиль пользователя {} успешно получен", login);
+        return userMapper.toPublicUserResponse(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PrivateUserResponse getMyProfile(String login) {
+        logger.info("Запрос собственного профиля пользователя {}", login);
+        User user = findUserByLogin(login);
+        checkNotBlocked(user);
+        logger.info("Собственный профиль пользователя {} успешно получен", login);
+        return userMapper.toPrivateUserResponse(user);
+    }
+
+    @Override
+    public PrivateUserResponse updateMyProfile(String login, UserUpdateRequest request) {
+        logger.info("Запрос на обновление профиля пользователя {}", login);
+        User user = findUserByLogin(login);
+        checkNotBlocked(user);
+        userMapper.updateEntity(request, user);
+        User updated = userRepository.save(user);
+        logger.info("Профиль пользователя {} успешно обновлён", login);
+        return userMapper.toPrivateUserResponse(updated);
+    }
+
+    @Override
+    public void deleteMyProfile(String login) {
+        logger.info("Удаление профиля пользователя {}", login);
+        User user = findUserByLogin(login);
+        checkNotBlocked(user);
+        user.setBlocked(true);
+        userRepository.save(user);
+
+        userStatusEventPublisher.publishUserBlocked(new UserBlockedEvent(user.getId(), user.getLogin()));
+        logger.info("Профиль пользователя {} успешно удалён", login);
+    }
+
+    @Override
+    public PrivateUserResponse balanceUp(String login, BalanceUpRequest request) {
+        logger.info("Запрос на пополнение баланса для пользователя {} на сумму {}", login, request.getAmount());
+        User user = findUserByLogin(login);
+        checkNotBlocked(user);
+        user.setBalance(user.getBalance().add(request.getAmount()));
+        User updated = userRepository.save(user);
+        logger.info("Баланс пользователя {} успешно пополнен. Новый баланс: {}", login, updated.getBalance());
+        return userMapper.toPrivateUserResponse(updated);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PrivateUserResponse getFullProfile(String login) {
+        logger.info("Административный запрос полного профиля пользователя {}", login);
+        User user = findUserByLogin(login);
+        logger.info("Полный профиль пользователя {} успешно получен", login);
+        return userMapper.toPrivateUserResponse(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PrivateUserResponse> getAllUsers(UserFilterRequest filter) {
+        logger.info("Запрос списка всех пользователей с фильтром: страница {}, размер {}", filter.getPage(),
+                filter.getSize());
+        List<User> users = userRepository.findAll(filter.getPage(), filter.getSize());
+        List<PrivateUserResponse> response = users.stream()
+                .map(userMapper::toPrivateUserResponse)
+                .collect(Collectors.toList());
+        logger.info("Список всех пользователей успешно получен, найдено записей: {}", response.size());
+        return response;
+    }
+
+    @Override
+    public void changeUserRole(String login, String newRole) {
+        logger.info("Запрос на изменение роли пользователя {} на {}", login, newRole);
+        User user = findUserByLogin(login);
+        user.setRole(Role.valueOf(newRole));
+        userRepository.save(user);
+        logger.info("Роль пользователя {} успешно изменена на {}", login, newRole);
+    }
+
+    @Override
+    public void blockUser(String login) {
+        logger.info("Запрос на блокировку пользователя {}", login);
+        User user = findUserByLogin(login);
+        user.setBlocked(true);
+        userRepository.save(user);
+
+        userStatusEventPublisher.publishUserBlocked(new UserBlockedEvent(user.getId(), user.getLogin()));
+        logger.info("Пользователь {} успешно заблокирован", login);
+    }
+
+    @Override
+    public void unblockUser(String login) {
+        logger.info("Запрос на разблокировку пользователя {}", login);
+        User user = findUserByLogin(login);
+        user.setBlocked(false);
+        userRepository.save(user);
+        
+        userStatusEventPublisher.publishUserUnblocked(new UserUnblockedEvent(user.getId(), user.getLogin()));
+        logger.info("Пользователь {} успешно разблокирован", login);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserInternal getInternalUserByLogin(String login) {
+        logger.debug("Внутренний запрос на получение пользователя {}", login);
+        User user = findUserByLogin(login);
+        logger.debug("Внутренний запрос для пользователя {} выполнен успешно", login);
+        return userMapper.toInternal(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserInternal getInternalUserById(UUID id) {
+        logger.debug("Внутренний запрос на получение пользователя {}", id);
+        User user = findUserById(id);
+        logger.debug("Внутренний запрос для пользователя {} выполнен успешно", id);
+        return userMapper.toInternal(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserInternal> getInternalUsersByIds(List<UUID> ids) {
+        logger.debug("Внутренний запрос на получение пользователей по ids: {}", ids);
+        List<User> users = userRepository.findAllById(ids);
+        if (users.size() < ids.size()) {
+            logger.warn("Найдено {} пользователей из запрошенных {}", users.size(), ids.size());
+        }
+        logger.debug("Внутренний запрос выполнен успешно, получено пользователей: {}", users.size());
+        return users.stream()
+                .map(userMapper::toInternal)
+                .collect(Collectors.toList());
+    }
+
+    private User findUserByLogin(String login) {
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден", login);
+                    return new UserNotFoundException("Пользователь не найден: " + login);
+                });
+    }
+
+    private void checkNotBlocked(User user) {
+        if (user.isBlocked()) {
+            logger.warn("Пользователь {} удалён", user.getLogin());
+            throw new UserBlockedException(user.getLogin());
+        }
+    }
+
+    private User findUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.error("Пользователь {} не найден", id);
+                    return new UserNotFoundException("Пользователь не найден: " + id);
+                });
+    }
+
+    private void validateLoginNotExists(String login) {
+        if (userRepository.existsByLogin(login)) {
+            logger.error("Ошибка регистрации. Логин {} уже существует", login);
+            throw new UserAlreadyExistsException("Логин уже существует: " + login);
+        }
+    }
+}

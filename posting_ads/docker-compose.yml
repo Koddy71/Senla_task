@@ -1,0 +1,116 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: marketplace
+      RABBITMQ_DEFAULT_PASS: marketplace
+
+  postgres-users:
+    image: postgres:16-alpine
+    container_name: postgres-users
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_users_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d users" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres-ads:
+    image: postgres:16-alpine
+    container_name: postgres-ads
+    environment:
+      POSTGRES_DB: ads
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_ads_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ads" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres-messages:
+    image: postgres:16-alpine
+    container_name: postgres-messages
+    environment:
+      POSTGRES_DB: messages
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - pg_messages_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d messages" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    depends_on:
+      postgres-users:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres-users:5432/users
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      AD_SERVICE_URL: http://ad-service:8080/internal/ads/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: marketplace
+      RABBITMQ_PASSWORD: marketplace
+
+  ad-service:
+    build: ./ad-service
+    container_name: ad-service
+    depends_on:
+      postgres-ads:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres-ads:5432/ads
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      USER_SERVICE_URL: http://user-service:8080/internal/users/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: marketplace
+      RABBITMQ_PASSWORD: marketplace
+
+  message-service:
+    build: ./message-service
+    container_name: message-service
+    depends_on:
+      postgres-messages:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres-messages:5432/messages
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      USER_SERVICE_URL: http://user-service:8080/internal/users/
+
+volumes:
+  pg_users_data:
+  pg_ads_data:
+  pg_messages_data:
