@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 import com.sen.entity.Payment;
-import com.sen.enums.PaymentStatus;
 import com.sen.repository.PaymentRepository;
 
 import jakarta.persistence.EntityManager;

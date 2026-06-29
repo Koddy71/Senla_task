@@ -16,7 +16,7 @@ import jakarta.persistence.TypedQuery;
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
-    @PersistenceContext
+    @PersistenceContext     //изучить, транзакции более глубоко, создавать самому.
     private EntityManager em;
 
     @Override
