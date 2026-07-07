@@ -16,7 +16,7 @@ public class AppConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Bean
+    @Bean  // создаёт HTTP-клиент для вызовов внешних сервисов.
     public RestTemplate restTemplate(){
         return new RestTemplate();
     }
